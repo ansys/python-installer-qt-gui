@@ -46,13 +46,17 @@ jobs:
     steps:
       - uses: pyansys/actions/tests-pytest@v2
         with:
-          pytest-extra-args: "--cov=ansys --cov-report=term --cov-report=html:.cov/html"
+          pytest-extra-args: "--cov=ansys --cov-report=term"
 
   doc-build:
     name: "Build documentation"
     runs-on: ubuntu-latest
     needs: [doc-style]
     steps:
+      - name: Install Linux os dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install libegl1
+
       - uses: pyansys/actions/doc-build@v2
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -79,6 +83,10 @@ jobs:
     needs: [doc-deploy-dev]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     steps:
+      - name: Install Linux os dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install libegl1
+
       - uses: pyansys/actions/doc-deploy-stable@v2
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
@@ -102,13 +110,15 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
       - name: Install Dependencies
         run: pip install -e .[freeze]
 
       - name: Freeze application
         run: pyinstaller frozen.spec
+
+
 
   release:
     name: Release application

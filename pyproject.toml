@@ -4,7 +4,6 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "ansys-tools-installer"
-dynamic = ["version", "description"]
 description = "Python QT app for installing Python on a Windows machine."
 readme = "README.rst"
 requires-python = ">=3.7"
@@ -32,6 +31,8 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
+dynamic = ["version"]
+
 
 [project.optional-dependencies]
 tests = [
