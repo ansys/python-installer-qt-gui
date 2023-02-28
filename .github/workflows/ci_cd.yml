@@ -101,7 +101,6 @@ jobs:
   build-application:
     name: "Build Application"
     runs-on: windows-latest
-    needs: [build-library]
     steps:
       - uses: actions/checkout@v3
 
