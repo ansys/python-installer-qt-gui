@@ -16,7 +16,7 @@ except NameError:
 OUT_PATH = 'ansys_python_manager'
 APP_NAME = 'Ansys Python Manager'
 ICON_FILE = os.path.join(
-    THIS_PATH, 'src','ansys','tools','installer', 'assets', 'ansys-favicon.png'
+    THIS_PATH, 'src','ansys','tools','installer', 'assets', 'pyansys_icon.ico'
 )
 
 # consider testing paths
