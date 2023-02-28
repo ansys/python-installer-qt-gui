@@ -58,7 +58,10 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Install Linux os dependencies
-        run: sudo apt install libegl1
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-extra latexmk nodejs npm graphviz libegl1
+          npm install -g @mermaid-js/mermaid-cli
 
       - uses: pyansys/actions/doc-build@v2
         with:
