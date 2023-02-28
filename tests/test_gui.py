@@ -1,7 +1,7 @@
 from PySide6 import QtWidgets
 
 
-def test_main_window_header(gui):
+def test_main_window_header(qtbot, gui):
     assert isinstance(gui.menu_heading, QtWidgets.QLabel)
 
     # verify image loaded
