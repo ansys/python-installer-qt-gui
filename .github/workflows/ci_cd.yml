@@ -63,10 +63,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libegl1
 
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v1
+
       - uses: pyansys/actions/doc-build@v2
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          requires-xvfb: true
 
   doc-deploy-dev:
     name: "Deploy development documentation"
