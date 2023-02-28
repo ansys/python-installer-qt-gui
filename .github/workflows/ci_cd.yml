@@ -51,6 +51,7 @@ jobs:
       - uses: pyansys/actions/tests-pytest@v2
         with:
           pytest-extra-args: "--cov=ansys --cov-report=term"
+          requires-xvfb: true
 
   doc-build:
     name: "Build documentation"
@@ -60,12 +61,12 @@ jobs:
       - name: Install Linux os dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-latex-extra latexmk nodejs npm graphviz libegl1
-          npm install -g @mermaid-js/mermaid-cli
+          sudo apt-get install -y libegl1
 
       - uses: pyansys/actions/doc-build@v2
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          requires-xvfb: true
 
   doc-deploy-dev:
     name: "Deploy development documentation"
@@ -73,9 +74,6 @@ jobs:
     needs: [doc-build]
     if: github.event_name == 'push'
     steps:
-      - name: Install Linux os dependencies
-        run: sudo apt install libegl1
-
       - uses: pyansys/actions/doc-deploy-dev@v2
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
@@ -87,9 +85,6 @@ jobs:
     needs: [doc-deploy-dev]
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     steps:
-      - name: Install Linux os dependencies
-        run: sudo apt install libegl1
-
       - uses: pyansys/actions/doc-deploy-stable@v2
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
