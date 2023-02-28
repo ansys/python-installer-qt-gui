@@ -44,6 +44,10 @@ jobs:
        python-version: ['3.8', '3.9', '3.10', '3.11']
       fail-fast: false
     steps:
+      - name: Install Linux os dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt install libegl1
+
       - uses: pyansys/actions/tests-pytest@v2
         with:
           pytest-extra-args: "--cov=ansys --cov-report=term"
@@ -54,7 +58,6 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Install Linux os dependencies
-        if: runner.os == 'Linux'
         run: sudo apt install libegl1
 
       - uses: pyansys/actions/doc-build@v2
