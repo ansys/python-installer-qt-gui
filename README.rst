@@ -15,12 +15,13 @@ Python and manage your Python environment.
 
 For developers
 ^^^^^^^^^^^^^^
-You can be up and running with three lines of code:
+You can be up and running with four lines of code:
 
 .. code:: bash
 
    git clone https://github.com/pyansys/python-installer-qt-gui
    cd python-installer-qt-gui
+   pip install pip -U
    pip install -e .
 
 Now you can run it with:
@@ -108,6 +109,22 @@ If you need to run it again on all files and not just staged files, run:
 .. code::
 
    pre-commit run --all-files
+
+
+Local Build
+-----------
+This application can be deployed as a 'frozen' application using `pyinstaller
+<https://pypi.org/project/pyinstaller/>`_ with:
+
+.. code::
+
+   pip install -e .[freeze]
+   pyinstaller frozen.spec
+
+This will generate application files at ``dist/ansys_python_manager`` and you
+can run it locally by executing ``Ansys Python Manager.exe``.
+
+
 
 
 Documentation

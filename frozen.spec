@@ -15,9 +15,8 @@ except NameError:
 
 OUT_PATH = 'ansys_python_manager'
 APP_NAME = 'Ansys Python Manager'
-ICON_FILE = os.path.join(
-    THIS_PATH, 'src','ansys','tools','installer', 'assets', 'pyansys_icon.ico'
-)
+ASSETS_PATH = os.path.join(THIS_PATH, 'src/ansys/tools/installer/assets')
+ICON_FILE = os.path.join(ASSETS_PATH, 'pyansys_icon.ico')
 
 # consider testing paths
 main_py = os.path.join(THIS_PATH, 'src/ansys/tools/installer/__main__.py')
@@ -25,10 +24,14 @@ main_py = os.path.join(THIS_PATH, 'src/ansys/tools/installer/__main__.py')
 if not os.path.isfile(main_py):
     raise FileNotFoundError(f'Unable to locate main entrypoint at {main_py}')
 
+added_files = [
+    (os.path.join(ASSETS_PATH, 'pyansys-light-crop.png'), 'assets'),
+]
+
 a = Analysis([main_py],
              pathex=[],
              binaries=[],
-             datas=[],
+             datas=added_files,
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

@@ -12,7 +12,17 @@ While choosing the latest version of Python is generally recommended, some third
 
 PACKAGES_INFO_TEXT = """Select the packages to install globally in the Python environment. By default, the "Default" and "PyAnsys" packages are selected, but the user can also choose to install "JupyterLab" or "Spyder (IDE)" by selecting the corresponding check boxes. This allows the user to customize their Python installation to suit their specific needs."""
 
-THIS_PATH = os.path.dirname(os.path.abspath(__file__))
+
+if getattr(sys, "frozen", False):
+    # If the application is run as a bundle, the PyInstaller bootloader
+    # extends the sys module by a flag frozen=True and sets the app
+    # path into variable _MEIPASS'.
+    # try:
+    THIS_PATH = sys._MEIPASS
+    # except:
+    # os.path.dirname(sys.executable)
+else:
+    THIS_PATH = os.path.dirname(os.path.abspath(__file__))
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
 
 
