@@ -1,3 +1,4 @@
+import os
 from PySide6 import QtWidgets, QtGui, QtCore
 import sys
 
@@ -9,15 +10,22 @@ While choosing the latest version of Python is generally recommended, some third
 
 PACKAGES_INFO_TEXT = """Select the packages to install globally in the Python enviornment. By default, the "Default" and "PyAnsys" packages are selected, but the user can also choose to install "Jupyterlab" or "Spyder (IDE)" by selecting the corresponding check boxes. This allows the user to customize their Python installation to suit their specific needs."""
 
+THIS_PATH = os.path.dirname(os.path.abspath(__file__))
+ASSETS_PATH = os.path.join(THIS_PATH, 'assets')
 
 class AnsysPythonInstaller(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, show=True):
         super().__init__()
         self.setWindowTitle("Ansys Python Installer")
 
         # Set the global font
         font = QtGui.QFont('Open Sans', -1, QtGui.QFont.Normal, False)
         QtWidgets.QApplication.setFont(font)
+
+        # Create a QIcon object from an image file
+        icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
+        # Set the application icon
+        self.setWindowIcon(icon)
 
         # Menu
         menu_layout = QtWidgets.QVBoxLayout()
@@ -27,7 +35,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         menu_widget.setLayout(menu_layout)
 
         self.menu_heading = QtWidgets.QLabel()
-        pixmap = QtGui.QPixmap("assets/pyansys-light-crop.png")
+        pixmap = QtGui.QPixmap(os.path.join(ASSETS_PATH, "pyansys-light-crop.png"))
         self.menu_heading.setPixmap(pixmap)
         menu_layout.addWidget(self.menu_heading)
 
@@ -178,10 +186,13 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         main_layout.addWidget(self.tab_widget)
         self.setLayout(main_layout)
 
+        if show:
+            self.show()
 
-if __name__ == "__main__":
+
+def open_gui():
+    """Start the installer as a QT Application."""
     app = QtWidgets.QApplication(sys.argv)
-    # app.setStyleSheet()
     window = AnsysPythonInstaller()
     window.show()
     sys.exit(app.exec())

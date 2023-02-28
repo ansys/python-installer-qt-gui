@@ -1,0 +1,72 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ansys-tools-installer"
+version = "0.0.dev0"
+description = "Python QT app for installing Python on a Windows machine."
+readme = "README.rst"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Ansys, Inc.", email = "pyansys.maintainers@ansys.com"},
+]
+maintainers = [
+    {name = "PyAnsys Developers", email = "pyansys.maintainers@ansys.com"},
+]
+dependencies = [
+    "PySide6",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+[project.optional-dependencies]
+tests = [
+    "PySide6==6.4.2",
+    "pytest==7.2.1",
+]
+
+[tool.flit.module]
+name = "ansys.tools.installer"
+
+[project.urls]
+Source = "https://github.com/pyansys/python-installer-qt-gui"
+
+[project.scripts]
+ansys_python_installer = "ansys.tools.installer:open_gui"
+
+[tool.pytest.ini_options]
+junit_family = "legacy"
+filterwarnings = [
+    "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
+]
+testpaths = "tests"
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+force_sort_within_sections = true
+line_length = 100
+default_section = "THIRDPARTY"
+src_paths = ["doc", "src", "tests"]
+
+[tool.coverage.run]
+source = ["ansys.tools"]
+
+[tool.coverage.report]
+show_missing = true
