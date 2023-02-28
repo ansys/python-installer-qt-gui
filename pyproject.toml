@@ -37,6 +37,7 @@ classifiers = [
 tests = [
     "PySide6==6.4.2",
     "pytest==7.2.1",
+    "pytest-cov",
 ]
 doc = [
     "Sphinx==5.3.0",
@@ -59,6 +60,7 @@ filterwarnings = [
     "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
 ]
 testpaths = "tests"
+qt_api = "pyside6"
 
 [tool.black]
 line-length = 100
