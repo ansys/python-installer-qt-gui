@@ -54,7 +54,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Install Linux os dependencies
-        if: matrix.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
         run: sudo apt install libegl1
 
       - uses: pyansys/actions/doc-build@v2
@@ -67,9 +67,7 @@ jobs:
     needs: [doc-build]
     if: github.event_name == 'push'
     steps:
-
       - name: Install Linux os dependencies
-        if: matrix.os == 'ubuntu-latest'
         run: sudo apt install libegl1
 
       - uses: pyansys/actions/doc-deploy-dev@v2
@@ -84,7 +82,6 @@ jobs:
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
     steps:
       - name: Install Linux os dependencies
-        if: matrix.os == 'ubuntu-latest'
         run: sudo apt install libegl1
 
       - uses: pyansys/actions/doc-deploy-stable@v2
@@ -92,17 +89,17 @@ jobs:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  build-library:
-    name: "Build library"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: pyansys/actions/build-library@v2
-        with:
-          library-name: ${{ env.LIBRARY_NAME }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+  # build-library:
+  #   name: "Build library"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: pyansys/actions/build-library@v2
+  #       with:
+  #         library-name: ${{ env.LIBRARY_NAME }}
+  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
   build-application:
-    name: "Build library"
+    name: "Build Application"
     runs-on: windows-latest
     needs: [build-library]
     steps:
@@ -118,7 +115,24 @@ jobs:
       - name: Freeze application
         run: pyinstaller frozen.spec
 
+      - name: Install NSIS
+        run: |
+          iwr -useb get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin
+          scoop update
+          scoop bucket add extras
+          scoop install nsis
 
+      - name: Print NSIS version
+        run: makensis -VERSION
+
+      # - name: Run NSIS
+      #   shell: pwsh
+      #   if: always()
+      #   run: |
+      #     Set-StrictMode -Version Latest
+      #     $ErrorActionPreference = "Stop"
+      #     makensis setup.nsi
 
   release:
     name: Release application
