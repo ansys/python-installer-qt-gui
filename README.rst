@@ -15,20 +15,35 @@ Python and manage your Python environment.
 
 For developers
 ^^^^^^^^^^^^^^
-
-Installing Pytools installer in developer mode allows
-you to modify the source and enhance it.
-
-Before contributing to the project, please refer to the `PyAnsys Developer's guide`_. You will 
-need to follow these steps:
-
-#. Start by cloning this repository:
+You can be up and running with three lines of code:
 
 .. code:: bash
 
-   git clone https://github.com/pyansys/pytools-installer
+   git clone https://github.com/pyansys/python-installer-qt-gui
+   cd python-installer-qt-gui
+   pip install -e .
 
-#. Create a fresh-clean Python environment and activate it. Refer to the
+Now you can run it with:
+
+.. code:: bash
+
+   ansys_python_installer
+
+**Details**
+
+Installing Pytools installer in developer mode allows you to modify the source
+and enhance it.
+
+Before contributing to the project, please refer to the `PyAnsys Developer's
+guide`_. You will need to follow these steps:
+
+1.. Start by cloning this repository:
+
+.. code:: bash
+
+   git clone https://github.com/pyansys/python-installer-qt-gui
+
+2. Create a fresh-clean Python environment and activate it. Refer to the
    official `venv`_ documentation if you require further information:
 
 .. code:: bash
@@ -45,37 +60,54 @@ need to follow these steps:
    # Activate it in Windows Powershell
    .venv\Scripts\Activate.ps1
 
-#. Make sure you have the latest version of `pip`_:
+3. Make sure you have the latest version of `pip`_:
 
 .. code:: bash
 
    python -m pip install -U pip
 
-#. Install the project in editable mode:
+4. Install the project in editable mode:
 
 .. code:: bash
     
-   python -m pip install --editable ansys-tools-installer
+   python -m pip install -e .[test]
 
-#. Install additional requirements (if needed):
-
-.. code:: bash
-
-   python -m pip install -r requirements/requirements_build.txt
-   python -m pip install -r requirements/requirements_doc.txt
-   python -m pip install -r requirements/requirements_tests.txt
-
-#. Finally, verify your development installation by running:
+5. Finally, verify your development installation by running:
 
 .. code:: bash
         
-   python -m pip install -r requirements/requirements_tests.txt
    pytest tests -v
 
 
 Style and Testing
 -----------------
+This project uses `pre-commit <https://pre-commit.com/>`_. Install with:
 
+.. code::
+
+   pip install pre-commit
+   pre-commit install
+
+This will now run ``pre-commit`` for each commit to ensure you follow project
+style guidelines. For example:
+
+.. code::
+
+   git commit -am 'fix style'
+   isort....................................................................Passed
+   black....................................................................Passed
+   blacken-docs.............................................................Passed
+   flake8...................................................................Passed
+   codespell................................................................Passed
+   check for merge conflicts................................................Passed
+   debug statements (python)................................................Passed
+   Validate GitHub Workflows............................(no files to check)Skipped
+
+If you need to run it again on all files and not just staged files, run:
+
+.. code::
+
+   pre-commit run --all-files
 
 
 Documentation

@@ -1,4 +1,6 @@
 """Main installer window."""
+import os
+import sys
 
 from PySide6 import QtGui, QtWidgets
 

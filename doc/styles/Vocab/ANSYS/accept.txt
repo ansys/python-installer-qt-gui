@@ -1,3 +1,9 @@
 ANSYS
 Ansys
 ansys
+metapackage
+miniforge
+Python
+python
+Spyder
+Windows
