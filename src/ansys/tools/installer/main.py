@@ -1,6 +1,6 @@
-import os
-from PySide6 import QtWidgets, QtGui, QtCore
-import sys
+"""Main installer window."""
+
+from PySide6 import QtGui, QtWidgets
 
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
 
@@ -8,10 +8,11 @@ PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
 
-PACKAGES_INFO_TEXT = """Select the packages to install globally in the Python enviornment. By default, the "Default" and "PyAnsys" packages are selected, but the user can also choose to install "Jupyterlab" or "Spyder (IDE)" by selecting the corresponding check boxes. This allows the user to customize their Python installation to suit their specific needs."""
+PACKAGES_INFO_TEXT = """Select the packages to install globally in the Python environment. By default, the "Default" and "PyAnsys" packages are selected, but the user can also choose to install "JupyterLab" or "Spyder (IDE)" by selecting the corresponding check boxes. This allows the user to customize their Python installation to suit their specific needs."""
 
 THIS_PATH = os.path.dirname(os.path.abspath(__file__))
-ASSETS_PATH = os.path.join(THIS_PATH, 'assets')
+ASSETS_PATH = os.path.join(THIS_PATH, "assets")
+
 
 class AnsysPythonInstaller(QtWidgets.QWidget):
     def __init__(self, show=True):
@@ -19,7 +20,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         self.setWindowTitle("Ansys Python Installer")
 
         # Set the global font
-        font = QtGui.QFont('Open Sans', -1, QtGui.QFont.Normal, False)
+        font = QtGui.QFont("Open Sans", -1, QtGui.QFont.Normal, False)
         QtWidgets.QApplication.setFont(font)
 
         # Create a QIcon object from an image file
@@ -29,7 +30,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
         # Menu
         menu_layout = QtWidgets.QVBoxLayout()
-        menu_layout.setContentsMargins(0,0,0,0)
+        menu_layout.setContentsMargins(0, 0, 0, 0)
         menu_widget = QtWidgets.QWidget()
         menu_widget.setObjectName("menu")
         menu_widget.setLayout(menu_layout)
@@ -60,7 +61,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         form = QtWidgets.QWidget()
         form.setObjectName("form")
         form_layout = QtWidgets.QVBoxLayout()
-        form_layout.setContentsMargins(0,0,0,0)
+        form_layout.setContentsMargins(0, 0, 0, 0)
         form.setLayout(form_layout)
 
         # Installation type
@@ -73,7 +74,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         installation_type = QtWidgets.QWidget()
         installation_type.setObjectName("installation-type")
         installation_type_layout = QtWidgets.QVBoxLayout()
-        installation_type_layout.setContentsMargins(0,0,0,0)
+        installation_type_layout.setContentsMargins(0, 0, 0, 0)
         installation_type.setLayout(installation_type_layout)
 
         installation_type_text = QtWidgets.QLabel(INSTALL_TEXT)
@@ -104,7 +105,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         python_version = QtWidgets.QWidget()
         python_version.setObjectName("python-version")
         python_version_layout = QtWidgets.QVBoxLayout()
-        python_version_layout.setContentsMargins(0,0,0,0)
+        python_version_layout.setContentsMargins(0, 0, 0, 0)
         python_version.setLayout(python_version_layout)
 
         # python_version_title = QtWidgets.QLabel("Python Version")
@@ -174,14 +175,16 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         # Submit button
         submit_button = QtWidgets.QPushButton("Install")
         submit_button.setObjectName("install-btn")
-        submit_button.setProperty("class", "btn-large waves-effect waves-light button-ansys")
+        submit_button.setProperty(
+            "class", "btn-large waves-effect waves-light button-ansys"
+        )
         form_layout.addWidget(submit_button)
 
         container_layout.addWidget(form)
 
         # Add menu and tab widget to main layout
         main_layout = QtWidgets.QVBoxLayout()
-        main_layout.setContentsMargins(0,0,0,0)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(menu_widget)
         main_layout.addWidget(self.tab_widget)
         self.setLayout(main_layout)

@@ -8,9 +8,9 @@ you can use to install Python and (optional) PyAnsys packages.
 Installation
 ~~~~~~~~~~~~
 Visit the `Releases
-<https://github.com/pyansys/python-installer-qt-gui/releases>`_ page and pull
+<https://github.com/pyansys/python-installer-qt-gui/releases>`__ page and pull
 down the latest installer. This is a simple application you can use to install
-Python and manage your Python enviornment.
+Python and manage your Python environment.
 
 
 For developers
@@ -80,7 +80,6 @@ Style and Testing
 
 Documentation
 -------------
-
 For building documentation, you can either run the usual rules provided in the
 `Sphinx`_ Makefile, such us:
 
@@ -90,24 +89,14 @@ For building documentation, you can either run the usual rules provided in the
     make -C doc/ html
 
     # subsequently open the documentation with (under Linux):
-    your_browser_name doc/html/index.html
+    <your_browser_name> doc/html/index.html
+
 
 Distributing
 ------------
-
-If you would like to create either source or wheel files, start by installing
-the building requirements:
-
-.. code:: bash
-
-    python -m pip install -r requirements/requirements_build.txt
-
-Then, you can execute:
-
-.. code:: bash
-
-    python -m build
-    python -m twine check dist/*
+This project is vectored to be an open-source project. For the time being, feel
+free to distribute it internally, but direct users to visit the `Releases
+<https://github.com/pyansys/python-installer-qt-gui/releases>`__ page
 
 
 .. LINKS AND REFERENCES
