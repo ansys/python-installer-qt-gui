@@ -1,14 +1,7 @@
 """
-tools.
-
-installer
+Ansys Python Manager
 """
 
-try:
-    import importlib.metadata as importlib_metadata
-except ModuleNotFoundError:
-    import importlib_metadata
+__version__ = "0.0.dev0"
 
-__version__ = importlib_metadata.version(__name__.replace(".", "-"))
-
-from .main import AnsysPythonInstaller, open_gui
+from ansys.tools.installer.main import AnsysPythonInstaller, open_gui
