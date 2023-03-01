@@ -26,6 +26,7 @@ if not os.path.isfile(main_py):
 
 added_files = [
     (os.path.join(ASSETS_PATH, 'pyansys-light-crop.png'), 'assets'),
+    (os.path.join(ASSETS_PATH, 'ansys-favicon.png'), 'assets'),
 ]
 
 a = Analysis([main_py],
@@ -54,7 +55,7 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True,
+          console=False,
           icon=ICON_FILE)
 
 coll = COLLECT(exe,

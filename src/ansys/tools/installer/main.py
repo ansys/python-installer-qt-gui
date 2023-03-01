@@ -1,8 +1,21 @@
 """Main installer window."""
+import logging
+from math import floor
+from appdirs import user_cache_dir
+from threading import Thread
 import os
 import sys
+import urllib.request
+import requests
 
-from PySide6 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets, QtCore
+
+from ansys.tools.installer.progress_bar import ProgressBar
+from ansys.tools.installer.installer import install_python
+from ansys.tools.installer.installed_table import InstalledTab
+
+LOG = logging.getLogger(__name__)
+LOG.setLevel("DEBUG")
 
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
 
@@ -17,19 +30,32 @@ if getattr(sys, "frozen", False):
     # If the application is run as a bundle, the PyInstaller bootloader
     # extends the sys module by a flag frozen=True and sets the app
     # path into variable _MEIPASS'.
-    # try:
-    THIS_PATH = sys._MEIPASS
-    # except:
-    # os.path.dirname(sys.executable)
+    try:
+        THIS_PATH = sys._MEIPASS
+    except:
+        # this might occur on a single file install
+        os.path.dirname(sys.executable)
 else:
     THIS_PATH = os.path.dirname(os.path.abspath(__file__))
+
+
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
 
 
 class AnsysPythonInstaller(QtWidgets.QWidget):
+    signal_error = QtCore.Signal(str)
+    signal_open_pbar = QtCore.Signal(int, str)
+    signal_increment_pbar = QtCore.Signal()
+    signal_close_pbar = QtCore.Signal()
+    signal_set_pbar_value = QtCore.Signal(int)
+
     def __init__(self, show=True):
         super().__init__()
         self.setWindowTitle("Ansys Python Installer")
+        self.setGeometry(50, 50, 500, 900)  # width should auto-update
+
+        self._pbar = None
+        self._err_message_box = None
 
         # Set the global font
         font = QtGui.QFont("Open Sans", -1, QtGui.QFont.Normal, False)
@@ -44,7 +70,6 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         menu_layout = QtWidgets.QVBoxLayout()
         menu_layout.setContentsMargins(0, 0, 0, 0)
         menu_widget = QtWidgets.QWidget()
-        menu_widget.setObjectName("menu")
         menu_widget.setLayout(menu_layout)
 
         self.menu_heading = QtWidgets.QLabel()
@@ -54,50 +79,42 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
         # Main content
         self.tab_widget = QtWidgets.QTabWidget()
-        self.tab_widget.setObjectName("tab_widget")
-        self.container = QtWidgets.QWidget()
-        self.container.setObjectName("container")
-        self.tab_widget.addTab(self.container, "Install Python")
+        self.tab_install_python = QtWidgets.QWidget()
+        self.tab_widget.addTab(self.tab_install_python, "Install Python")
 
         # Add tabs to the tab widget
-        self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 2")
+        self.tab_widget.addTab(InstalledTab(), "Manage Enviornment")
         self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 3")
         self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 4")
 
         # Create the layout for the container
         container_layout = QtWidgets.QVBoxLayout()
-        # container_layout.setAlignment(QtCore.Qt.AlignCenter)
-        self.container.setLayout(container_layout)
+        self.tab_install_python.setLayout(container_layout)
 
         # Form
         form = QtWidgets.QWidget()
-        form.setObjectName("form")
         form_layout = QtWidgets.QVBoxLayout()
         form_layout.setContentsMargins(0, 0, 0, 0)
         form.setLayout(form_layout)
 
-        # Installation type
+        # Group 1: Installation type
         installation_type_box = QtWidgets.QGroupBox("Installation Type")
         installation_type_box_layout = QtWidgets.QVBoxLayout()
         installation_type_box_layout.setContentsMargins(10, 20, 10, 20)
         installation_type_box.setLayout(installation_type_box_layout)
 
-        # Group 1: Installation type
         installation_type = QtWidgets.QWidget()
-        installation_type.setObjectName("installation-type")
         installation_type_layout = QtWidgets.QVBoxLayout()
         installation_type_layout.setContentsMargins(0, 0, 0, 0)
         installation_type.setLayout(installation_type_layout)
 
         installation_type_text = QtWidgets.QLabel(INSTALL_TEXT)
-        installation_type_text.setObjectName("card-text")
         installation_type_layout.addWidget(installation_type_text)
 
-        installation_type_select = QtWidgets.QComboBox()
-        installation_type_select.setObjectName("python-type")
-        installation_type_select.addItem("Standard", "vanilla")
-        installation_type_select.addItem("Conda (miniforge)", "miniconda")
-        installation_type_layout.addWidget(installation_type_select)
+        self.installation_type_select = QtWidgets.QComboBox()
+        self.installation_type_select.addItem("Standard", "vanilla")
+        self.installation_type_select.addItem("Conda (miniforge)", "miniconda")
+        installation_type_layout.addWidget(self.installation_type_select)
 
         installation_type_box_layout.addWidget(installation_type)
         form_layout.addWidget(installation_type_box)
@@ -109,35 +126,31 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         python_version_box.setLayout(python_version_box_layout)
 
         python_version_text = QtWidgets.QLabel(PYTHON_VERSION_TEXT)
-        python_version_text.setObjectName("card-text")
         python_version_text.setWordWrap(True)
         python_version_box_layout.addWidget(python_version_text)
 
         # Python version
         python_version = QtWidgets.QWidget()
-        python_version.setObjectName("python-version")
         python_version_layout = QtWidgets.QVBoxLayout()
         python_version_layout.setContentsMargins(0, 0, 0, 0)
         python_version.setLayout(python_version_layout)
 
         # python_version_title = QtWidgets.QLabel("Python Version")
-        # python_version_title.setObjectName("card-title")
         # python_version_layout.addWidget(python_version_title)
 
         # python_version_text = QtWidgets.QLabel("Select one")
 
-        python_version_select = QtWidgets.QComboBox()
-        python_version_select.setObjectName("python-version")
-        python_version_select.addItem("Python 3.7", "3.7.9")
-        python_version_select.addItem("Python 3.8", "3.8.10")
-        python_version_select.addItem("Python 3.9", "3.9.13")
-        python_version_select.addItem("Python 3.10", "3.10.10")
-        python_version_select.addItem("Python 3.11", "3.11.2")
+        self.python_version_select = QtWidgets.QComboBox()
+        self.python_version_select.addItem("Python 3.7", "3.7.9")
+        self.python_version_select.addItem("Python 3.8", "3.8.10")
+        self.python_version_select.addItem("Python 3.9", "3.9.13")
+        self.python_version_select.addItem("Python 3.10", "3.10.10")
+        self.python_version_select.addItem("Python 3.11", "3.11.2")
 
         # Set the default selection to "Python 3.10"
-        default_index = python_version_select.findText("Python 3.10")
-        python_version_select.setCurrentIndex(default_index)
-        python_version_layout.addWidget(python_version_select)
+        default_index = self.python_version_select.findText("Python 3.10")
+        self.python_version_select.setCurrentIndex(default_index)
+        python_version_layout.addWidget(self.python_version_select)
 
         python_version_box_layout.addWidget(python_version)
         form_layout.addWidget(python_version_box)
@@ -150,32 +163,26 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
         # Packages
         packages = QtWidgets.QWidget()
-        packages.setObjectName("packages")
         packages_layout = QtWidgets.QVBoxLayout()
         # packages_layout.setContentsMargins(0,0,0,0)
         packages.setLayout(packages_layout)
 
         packages_info_text = QtWidgets.QLabel(PACKAGES_INFO_TEXT)
-        packages_info_text.setObjectName("card-text")
         packages_info_text.setWordWrap(True)
         packages_layout.addWidget(packages_info_text)
 
         packages_default = QtWidgets.QCheckBox("Default")
-        packages_default.setObjectName("packages-default")
         packages_default.setChecked(True)
         packages_layout.addWidget(packages_default)
 
         packages_pyansys = QtWidgets.QCheckBox("PyAnsys")
-        packages_pyansys.setObjectName("packages-pyansys")
         packages_pyansys.setChecked(True)
         packages_layout.addWidget(packages_pyansys)
 
         packages_jupyterlab = QtWidgets.QCheckBox("Jupyterlab")
-        packages_jupyterlab.setObjectName("packages-jupyterlab")
         packages_layout.addWidget(packages_jupyterlab)
 
         packages_spyder = QtWidgets.QCheckBox("Spyder (IDE)")
-        packages_spyder.setObjectName("packages-spyder")
         packages_layout.addWidget(packages_spyder)
 
         packages_box_layout.addWidget(packages)
@@ -185,12 +192,9 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         form_layout.addStretch()
 
         # Submit button
-        submit_button = QtWidgets.QPushButton("Install")
-        submit_button.setObjectName("install-btn")
-        submit_button.setProperty(
-            "class", "btn-large waves-effect waves-light button-ansys"
-        )
-        form_layout.addWidget(submit_button)
+        self.submit_button = QtWidgets.QPushButton("Install")
+        self.submit_button.clicked.connect(self.download_and_install)
+        form_layout.addWidget(self.submit_button)
 
         container_layout.addWidget(form)
 
@@ -201,9 +205,174 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         main_layout.addWidget(self.tab_widget)
         self.setLayout(main_layout)
 
+        # connects
+        self.signal_open_pbar.connect(self._pbar_open)
+        self.signal_close_pbar.connect(self._pbar_close)
+        self.signal_increment_pbar.connect(self._pbar_increment)
+        self.signal_set_pbar_value.connect(self._pbar_set_value)
+        self.signal_error.connect(self._show_error)
+
         if show:
             self.show()
 
+    def pbar_increment(self):
+        """Increment the progress bar.
+
+        Thread safe.
+        """
+        self.signal_increment_pbar.emit()
+
+    def _pbar_increment(self):
+        """Increment the progress bar.
+        Not to be accessed outside of the main thread.
+        """
+        if self._pbar is not None:
+            self._pbar.increment()
+
+    def pbar_open(self, nticks=5, label=""):
+        """Open the progress bar."""
+        self.signal_open_pbar.emit(nticks, label)
+
+    def _pbar_open(self, nticks, label):
+        """Open the progress bar.
+
+        Not to be accessed outside of the main thread.
+        """
+        if self._pbar is None:
+            self._pbar = ProgressBar(self, nticks=nticks, label=label)
+
+    def pbar_close(self):
+        """Close the progress bar."""
+        self.signal_close_pbar.emit()
+
+    def _pbar_close(self):
+        """Close the progress bar.
+
+        Not to be accessed outside of the main thread.
+        """
+        if self._pbar is not None:
+            self._pbar.close()
+            self._pbar = None
+
+    def pbar_set_value(self, value):
+        """Set progress bar position.
+
+        Thread safe.
+        """
+        self.signal_set_pbar_value.emit(value)
+
+    def _pbar_set_value(self, value):
+        """Set progress bar position.
+
+        Not to be accessed outside of the main thread.
+        """
+        if self._pbar is not None:
+            self._pbar.set_value(value)
+
+    def error_dialog(self, txt, textinfo=None):
+        """Create an error dialogue."""
+        self._err_message_box = QMessageBox(self)
+        self._err_message_box.setIcon(QMessageBox.Critical)
+        self._err_message_box.setText(txt)
+
+    def _show_error(self, text):
+        """Display an error."""
+        self._err_message_box = QtWidgets.QMessageBox(self)
+        self._err_message_box.setIcon(QtWidgets.QMessageBox.Critical)
+        self._err_message_box.setText(text)
+        self._err_message_box.show()
+
+    def show_error(self, text):
+        """Thread safe show error."""
+        LOG.error(text)
+        self.signal_error.emit(text)
+
+    def download_and_install(self):
+        """Download and install."""
+        # url = 'https://github.com/conda-forge/miniforge/releases/download/22.11.1-4/Miniforge-pypy3-22.11.1-4-Windows-x86_64.exe'
+        # filename = 'Miniforge-pypy3-22.11.1-4-Windows-x86_64.exe'
+
+        self.setEnabled(False)
+        try:
+            if self.installation_type_select.currentData() == 'vanilla':
+                selected_version = self.python_version_select.currentData()  # should be major, minor, patch
+                url = f"https://www.python.org/ftp/python/{selected_version}/python-{selected_version}-amd64.exe"
+                filename = f"python-{selected_version}-amd64.exe"
+                LOG.info('Installing vanilla Python %s', selected_version)
+                self._download(url, filename, when_finished=self._install_python)
+        except Exception as e:
+            self.show_error(str(e))
+            self.setEnabled(True)
+
+    def _download(self, url, filename, when_finished=None):
+        """Download a file with a progress bar.
+
+        Checks cache first. If cached file exists and is the same size
+        as the file to be downloade, uses cached file.
+
+        ``when_finished`` must accept one parameter, the path of the file downloaded.
+
+        """
+        from ansys.tools.installer import CACHE_DIR
+
+        output_path = os.path.join(CACHE_DIR, filename)
+        if os.path.isfile(output_path):
+            LOG.debug('%s exists at in %s', filename, CACHE_DIR)
+            response = requests.head(url, allow_redirects=True)
+            content_length = int(response.headers["Content-Length"])
+            file_sz =  os.path.getsize(output_path)
+            if content_length == file_sz:
+                LOG.debug('Sizes match. Using cached file from %s', output_path)
+                if when_finished is not None:
+                    when_finished(output_path)
+                return
+
+            LOG.debug('Sizes do not match. Ignoring cached file.')
+
+        # size and current_bytes, current bar position
+        total = [None, 0, 0]
+
+        def update(b=1, bsize=1, tsize=None):
+            """Update download progress."""
+            if tsize:
+                total[0] = tsize
+            total[1] += bsize
+            if total[0] is not None:
+                val = floor(100*total[1]/total[0])
+                if total[2] != val:
+                    self.pbar_set_value(val)
+
+        def download():
+            """Execute download."""
+            self.pbar_open(100, f"Downloading {filename}")
+
+            # first, query if the file exists
+            response = requests.head(url, allow_redirects=True)
+
+            if response.status_code != 200:
+                self.show_error(f"Unable to download {filename}.\n\nReceived {response.status_code} from {url}")
+                self.pbar_close()
+                return ''
+
+            total_size = None
+            try:
+                total[0] = int(response.headers["Content-Length"])
+            except:
+                total[0] = 50*2**20  # dummy 50 MB
+
+            urllib.request.urlretrieve(url, filename=output_path, reporthook=update)
+            self.pbar_close()
+
+            if when_finished is not None:
+                when_finished(output_path)
+
+        Thread(target=download).start()
+
+    def _install_python(self, filename):
+        """Execute a file."""
+        out, error = install_python(filename)
+        self.setEnabled(True)
+        
 
 def open_gui():
     """Start the installer as a QT Application."""
