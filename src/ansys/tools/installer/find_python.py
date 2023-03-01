@@ -98,7 +98,10 @@ def find_all_python():
                 ps_command = ["powershell.exe", "-command", command]
                 LOG.debug("Running: %s", str(ps_command))
                 proc = subprocess.Popen(
-                    ps_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                    ps_command,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
                 )
                 out, error = proc.communicate()
                 nice_version = out.decode().strip()

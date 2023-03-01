@@ -129,13 +129,13 @@ jobs:
       - name: Print NSIS version
         run: makensis -VERSION
 
-      # - name: Run NSIS
-      #   shell: pwsh
-      #   if: always()
-      #   run: |
-      #     Set-StrictMode -Version Latest
-      #     $ErrorActionPreference = "Stop"
-      #     makensis setup.nsi
+      - name: Run NSIS
+        shell: pwsh
+        if: always()
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          makensis setup.nsi
 
   release:
     name: Release application
