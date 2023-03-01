@@ -2,7 +2,7 @@
 
 ; Set the name, version, and output path of the installer
 !define PRODUCT_NAME "Ansys Python Manager"
-!define PRODUCT_VERSION "0.1.0-beta0"
+!define PRODUCT_VERSION "0.1.0-beta1"
 !define OUTFILE_NAME "Ansys Python Manager Setup-v${PRODUCT_VERSION}.exe"
 
 Name "${PRODUCT_NAME}"
@@ -41,6 +41,9 @@ Section "Ansys Python Manager" SEC01
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
+
+  ; start after install
+  Exec "$INSTDIR\Ansys Python Manager.exe"
 
 SectionEnd
 
