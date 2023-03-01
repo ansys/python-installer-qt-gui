@@ -392,7 +392,14 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         LOG.debug("Triggering table widget update")
         self._table_tab.update_table()
 
+        LOG.debug("Installing extra packages now...")
+        self._extra_packages()
+
         self.setEnabled(True)
+
+    def _extra_packages(self):
+        """Install the requested extra packages."""
+        pass
 
 
 def open_gui():
