@@ -71,7 +71,7 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        directions_text = QtWidgets.QLabel("moo")
+        directions_text = QtWidgets.QLabel("Available Python installs")
         layout.addWidget(directions_text)
 
         hbox = QtWidgets.QHBoxLayout()
@@ -162,6 +162,8 @@ class InstalledTab(QtWidgets.QWidget):
             )
         else:  # probably conda
             if extra:
+                # Replace the pip install command for conda
+                extra = extra.replace("pip", "conda")
                 cmd = f"& {extra}"
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
