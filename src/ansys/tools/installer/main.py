@@ -190,6 +190,9 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         packages_box_layout.addWidget(packages)
         form_layout.addWidget(packages_box)
 
+        # TODO: Disable extra packages for now
+        packages_box.setEnabled(False)
+
         # ensure content does not get squished
         form_layout.addStretch()
 
