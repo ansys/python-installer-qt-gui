@@ -1,18 +1,17 @@
 """Main installer window."""
 import logging
 from math import floor
-from appdirs import user_cache_dir
-from threading import Thread
 import os
 import sys
+from threading import Thread
 import urllib.request
+
+from PySide6 import QtCore, QtGui, QtWidgets
 import requests
 
-from PySide6 import QtGui, QtWidgets, QtCore
-
-from ansys.tools.installer.progress_bar import ProgressBar
-from ansys.tools.installer.installer import install_python
 from ansys.tools.installer.installed_table import InstalledTab
+from ansys.tools.installer.installer import install_python
+from ansys.tools.installer.progress_bar import ProgressBar
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
@@ -83,9 +82,9 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         self.tab_widget.addTab(self.tab_install_python, "Install Python")
 
         # Add tabs to the tab widget
-        self.tab_widget.addTab(InstalledTab(), "Manage Enviornment")
-        self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 3")
-        self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 4")
+        self.tab_widget.addTab(InstalledTab(self), "Manage Environment")
+        # self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 3")
+        # self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 4")
 
         # Create the layout for the container
         container_layout = QtWidgets.QVBoxLayout()
@@ -115,6 +114,9 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         self.installation_type_select.addItem("Standard", "vanilla")
         self.installation_type_select.addItem("Conda (miniforge)", "miniconda")
         installation_type_layout.addWidget(self.installation_type_select)
+        self.installation_type_select.currentIndexChanged.connect(
+            self._install_type_changed
+        )
 
         installation_type_box_layout.addWidget(installation_type)
         form_layout.addWidget(installation_type_box)
@@ -215,6 +217,11 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         if show:
             self.show()
 
+    def _install_type_changed(self, *args):
+        self.python_version_select.setEnabled(
+            self.installation_type_select.currentText() == "Standard"
+        )
+
     def pbar_increment(self):
         """Increment the progress bar.
 
@@ -289,17 +296,21 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
     def download_and_install(self):
         """Download and install."""
-        # url = 'https://github.com/conda-forge/miniforge/releases/download/22.11.1-4/Miniforge-pypy3-22.11.1-4-Windows-x86_64.exe'
-        # filename = 'Miniforge-pypy3-22.11.1-4-Windows-x86_64.exe'
-
         self.setEnabled(False)
         try:
-            if self.installation_type_select.currentData() == 'vanilla':
-                selected_version = self.python_version_select.currentData()  # should be major, minor, patch
+            if self.installation_type_select.currentData() == "vanilla":
+                selected_version = (
+                    self.python_version_select.currentData()
+                )  # should be major, minor, patch
                 url = f"https://www.python.org/ftp/python/{selected_version}/python-{selected_version}-amd64.exe"
                 filename = f"python-{selected_version}-amd64.exe"
-                LOG.info('Installing vanilla Python %s', selected_version)
-                self._download(url, filename, when_finished=self._install_python)
+                LOG.info("Installing vanilla Python %s", selected_version)
+            else:
+                url = "https://github.com/conda-forge/miniforge/releases/download/22.11.1-4/Miniforge3-22.11.1-4-Windows-x86_64.exe"
+                filename = "Miniforge3-22.11.1-4-Windows-x86_64.exe"
+                LOG.info("Installing miniconda from %s", url)
+
+            self._download(url, filename, when_finished=self._run_exe)
         except Exception as e:
             self.show_error(str(e))
             self.setEnabled(True)
@@ -317,17 +328,17 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
         output_path = os.path.join(CACHE_DIR, filename)
         if os.path.isfile(output_path):
-            LOG.debug('%s exists at in %s', filename, CACHE_DIR)
+            LOG.debug("%s exists at in %s", filename, CACHE_DIR)
             response = requests.head(url, allow_redirects=True)
             content_length = int(response.headers["Content-Length"])
-            file_sz =  os.path.getsize(output_path)
+            file_sz = os.path.getsize(output_path)
             if content_length == file_sz:
-                LOG.debug('Sizes match. Using cached file from %s', output_path)
+                LOG.debug("Sizes match. Using cached file from %s", output_path)
                 if when_finished is not None:
                     when_finished(output_path)
                 return
 
-            LOG.debug('Sizes do not match. Ignoring cached file.')
+            LOG.debug("Sizes do not match. Ignoring cached file.")
 
         # size and current_bytes, current bar position
         total = [None, 0, 0]
@@ -338,7 +349,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
                 total[0] = tsize
             total[1] += bsize
             if total[0] is not None:
-                val = floor(100*total[1]/total[0])
+                val = floor(100 * total[1] / total[0])
                 if total[2] != val:
                     self.pbar_set_value(val)
 
@@ -350,15 +361,17 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
             response = requests.head(url, allow_redirects=True)
 
             if response.status_code != 200:
-                self.show_error(f"Unable to download {filename}.\n\nReceived {response.status_code} from {url}")
+                self.show_error(
+                    f"Unable to download {filename}.\n\nReceived {response.status_code} from {url}"
+                )
                 self.pbar_close()
-                return ''
+                return ""
 
             total_size = None
             try:
                 total[0] = int(response.headers["Content-Length"])
             except:
-                total[0] = 50*2**20  # dummy 50 MB
+                total[0] = 50 * 2**20  # dummy 50 MB
 
             urllib.request.urlretrieve(url, filename=output_path, reporthook=update)
             self.pbar_close()
@@ -368,11 +381,11 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
         Thread(target=download).start()
 
-    def _install_python(self, filename):
+    def _run_exe(self, filename):
         """Execute a file."""
         out, error = install_python(filename)
         self.setEnabled(True)
-        
+
 
 def open_gui():
     """Start the installer as a QT Application."""
