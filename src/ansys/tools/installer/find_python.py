@@ -2,16 +2,26 @@ import logging
 import os
 import subprocess
 
+try:
+    import winreg
+except ModuleNotFoundError as err:
+    import platform
+
+    if platform.system() == "Windows":
+        raise err
+    else:
+        # This means that we are trying to build the docs,
+        # or develop on Linux... but definitely not "use" it on
+        # an OS different than Windows since it would crash. So,
+        # just ignore it.
+        pass
+
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
 
 def find_installed_python(version, admin=False):
     """Check the registry for any installed instances of Python."""
-
-    # By performing the import at this level, we allow to build the docs on
-    # Linux... otherwise, complaints are expected
-    import winreg
 
     if admin:
         key = winreg.HKEY_LOCAL_MACHINE
