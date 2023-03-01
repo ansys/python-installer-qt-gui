@@ -70,8 +70,9 @@ Finally, the following extra packages are available for installing:
   Currently the development team is experiencing problems when installing them by default.
   For the time being, it may be necessary to install them by hand. If you are using
   the ``Standard`` install then you should call ``pip install ...`` from a console. If you
-  are using ``Conda (miniforge)``, then it should be ``conda install ...``. See the
-  ``Launch Console`` information in the next section.
+  are using ``Conda (miniforge)``, then it should be ``conda install ...`` from a console.
+  See the ``Launch Console`` information in the next section to know how to execute a
+  console window properly configured for your Python environment.
 
 Managing Python environments
 ============================
@@ -87,7 +88,8 @@ installations. Have a look at how to access it here:
 
 Several options are provided to users:
 
-* ``Launch Console``: this option starts a console window with Python started.
+* ``Launch Console``: this option starts a console window with the command ``python`` pointing
+  towards your selected Python environment.
 * ``Launch JupyterLab``: this option starts a ``JupyterLab`` session. If ``JupyterLab`` is
   not installed, then the ``Ansys Python Manager`` installs it for you.
 * ``Launch Jupyter Notebook``: this option starts a ``Jupyter Notebook`` session. If
