@@ -278,8 +278,8 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
     def error_dialog(self, txt, textinfo=None):
         """Create an error dialogue."""
-        self._err_message_box = QMessageBox(self)
-        self._err_message_box.setIcon(QMessageBox.Critical)
+        self._err_message_box = QtWidgets.QMessageBox(self)
+        self._err_message_box.setIcon(QtWidgets.QMessageBox.Critical)
         self._err_message_box.setText(txt)
 
     def _show_error(self, text):
