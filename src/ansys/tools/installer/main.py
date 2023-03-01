@@ -23,8 +23,6 @@ PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
 
-PACKAGES_INFO_TEXT = """Select the packages to install globally in the Python environment. By default, the "Default" and "PyAnsys" packages are selected, but the user can also choose to install "JupyterLab" or "Spyder (IDE)" by selecting the corresponding check boxes. This allows the user to customize their Python installation to suit their specific needs."""
-
 
 if getattr(sys, "frozen", False):
     # If the application is run as a bundle, the PyInstaller bootloader
@@ -52,7 +50,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
     def __init__(self, show=True):
         super().__init__()
         self.setWindowTitle("Ansys Python Manager")
-        self.setGeometry(50, 50, 500, 900)  # width should auto-update
+        self.setGeometry(50, 50, 500, 700)  # width should auto-update
 
         self._pbar = None
         self._err_message_box = None
@@ -157,39 +155,6 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         python_version_box_layout.addWidget(python_version)
         form_layout.addWidget(python_version_box)
 
-        # Group 3: Packages
-        packages_box = QtWidgets.QGroupBox("Packages")
-        packages_box_layout = QtWidgets.QVBoxLayout()
-        packages_box_layout.setContentsMargins(10, 20, 10, 20)
-        packages_box.setLayout(packages_box_layout)
-
-        # Packages
-        packages = QtWidgets.QWidget()
-        packages_layout = QtWidgets.QVBoxLayout()
-        # packages_layout.setContentsMargins(0,0,0,0)
-        packages.setLayout(packages_layout)
-
-        packages_info_text = QtWidgets.QLabel(PACKAGES_INFO_TEXT)
-        packages_info_text.setWordWrap(True)
-        packages_layout.addWidget(packages_info_text)
-
-        packages_default = QtWidgets.QCheckBox("Default")
-        packages_default.setChecked(True)
-        packages_layout.addWidget(packages_default)
-
-        packages_pyansys = QtWidgets.QCheckBox("PyAnsys")
-        packages_pyansys.setChecked(True)
-        packages_layout.addWidget(packages_pyansys)
-
-        packages_jupyterlab = QtWidgets.QCheckBox("Jupyterlab")
-        packages_layout.addWidget(packages_jupyterlab)
-
-        packages_spyder = QtWidgets.QCheckBox("Spyder (IDE)")
-        packages_layout.addWidget(packages_spyder)
-
-        packages_box_layout.addWidget(packages)
-        form_layout.addWidget(packages_box)
-
         # ensure content does not get squished
         form_layout.addStretch()
 
@@ -278,8 +243,8 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
     def error_dialog(self, txt, textinfo=None):
         """Create an error dialogue."""
-        self._err_message_box = QMessageBox(self)
-        self._err_message_box.setIcon(QMessageBox.Critical)
+        self._err_message_box = QtWidgets.QMessageBox(self)
+        self._err_message_box.setIcon(QtWidgets.QMessageBox.Critical)
         self._err_message_box.setText(txt)
 
     def _show_error(self, text):

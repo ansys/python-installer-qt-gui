@@ -71,8 +71,9 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        directions_text = QtWidgets.QLabel("Available Python installs")
-        layout.addWidget(directions_text)
+        launching_options = QtWidgets.QLabel("Launching options")
+        launching_options.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(launching_options)
 
         hbox = QtWidgets.QHBoxLayout()
         layout.addLayout(hbox)
@@ -92,7 +93,32 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_launch_spyder.clicked.connect(self.launch_spyder)
         hbox.addWidget(self.button_launch_spyder)
 
+        package_management = QtWidgets.QLabel("Package management")
+        package_management.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(package_management)
+
+        hbox_install = QtWidgets.QHBoxLayout()
+        layout.addLayout(hbox_install)
+
+        self.button_install_defaults = QtWidgets.QPushButton(
+            "Install Python default packages"
+        )
+        self.button_install_defaults.clicked.connect(self.install_defaults)
+        hbox_install.addWidget(self.button_install_defaults)
+
+        self.button_install_pyansys = QtWidgets.QPushButton("Install PyAnsys")
+        self.button_install_pyansys.clicked.connect(self.install_pyansys)
+        hbox_install.addWidget(self.button_install_pyansys)
+
+        self.button_list_packages = QtWidgets.QPushButton("List installed packages")
+        self.button_list_packages.clicked.connect(self.list_packages)
+        hbox_install.addWidget(self.button_list_packages)
+
         # Form
+        form_title = QtWidgets.QLabel("Available Python installations")
+        form_title.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(form_title)
+
         form = QtWidgets.QWidget()
         form_layout = QtWidgets.QVBoxLayout()
         form_layout.setContentsMargins(0, 0, 0, 0)
@@ -144,6 +170,20 @@ class InstalledTab(QtWidgets.QWidget):
         # handle errors
         error_msg = "pip install jupyter && python -m jupyter notebook || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
         self.launch_cmd(f"python -m jupyter notebook || {error_msg}")
+
+    def install_defaults(self):
+        """Install Python default packages."""
+        cmd = "pip install numpy pandas scipy scikit-learn matplotlib & timeout 3 & exit || echo Failed to install default Python packages. Try reinstalling it with pip install numpy pandas scipy scikit-learn matplotlib --force-reinstall"
+        self.launch_cmd(cmd)
+
+    def install_pyansys(self):
+        """Install PyAnsys metapackage."""
+        cmd = "pip install pyansys>=2023 & timeout 3 & exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys>=2023 --force-reinstall"
+        self.launch_cmd(cmd)
+
+    def list_packages(self):
+        """List installed Python packages."""
+        self.launch_cmd("pip list")
 
     def launch_cmd(self, extra=""):
         """"""
