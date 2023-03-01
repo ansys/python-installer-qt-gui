@@ -4,7 +4,6 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "ansys-tools-installer"
-version = "0.0.dev0"
 description = "Python QT app for installing Python on a Windows machine."
 readme = "README.rst"
 requires-python = ">=3.7"
@@ -16,6 +15,8 @@ maintainers = [
     {name = "PyAnsys Developers", email = "pyansys.maintainers@ansys.com"},
 ]
 dependencies = [
+    "appdirs",
+    "requests",
     "PySide6",
 ]
 classifiers = [
@@ -24,24 +25,29 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX",
-    "Operating System :: MacOS",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
+dynamic = ["version"]
+
 
 [project.optional-dependencies]
 tests = [
     "PySide6==6.4.2",
     "pytest==7.2.1",
+    "pytest-cov",
+    "pytest-qt",
 ]
 doc = [
     "Sphinx==5.3.0",
     "ansys-sphinx-theme==0.8.2",
     "sphinx-copybutton==0.5.1",
+]
+freeze = [
+    "pyinstaller==5.8.0",
 ]
 
 [tool.flit.module]
@@ -59,6 +65,7 @@ filterwarnings = [
     "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
 ]
 testpaths = "tests"
+qt_api = "pyside6"
 
 [tool.black]
 line-length = 100
@@ -75,3 +82,8 @@ source = ["ansys.tools"]
 
 [tool.coverage.report]
 show_missing = true
+
+[tool.codespell]
+skip = '*.pyc,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,*.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./doc/build/*,./doc/images/*,./dist/*,*~,.hypothesis*,./doc/source/examples/*,*cover,*.dat,*.mac,build,./docker/mapdl/v*,./factory/*,./ansys/mapdl/core/mapdl_functions.py,PKG-INFO,*.mypy_cache/*,./docker/mapdl/*,./_unused/*,*.spec'
+ignore-words = "doc/styles/Vocab/ANSYS/accept.txt"
+quiet-level = 3

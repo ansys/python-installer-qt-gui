@@ -1,0 +1,170 @@
+name: GitHub CI
+on:
+  pull_request:
+  push:
+    tags:
+      - "*"
+    branches:
+      - main
+
+env:
+  MAIN_PYTHON_VERSION: '3.11'
+  DOCUMENTATION_CNAME: 'installer.docs.pyansys.com'
+  LIBRARY_NAME: 'ansys-tools-installer'
+  LIBRARY_NAMESPACE: 'ansys.tools.installer'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  code-style:
+    name: "Code style"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pyansys/actions/code-style@v4
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+  doc-style:
+    name: "Documentation style"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pyansys/actions/doc-style@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  tests:
+    name: "Tests"
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+      fail-fast: false
+    env:
+      DISPLAY: ':99'
+    steps:
+      - name: Install Linux os dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt install libegl1
+
+      - name: Setup headless display
+        uses: pyvista/setup-headless-display-action@v1
+
+      - uses: pyansys/actions/tests-pytest@v4
+        with:
+          pytest-extra-args: "--cov=ansys --cov-report=term"
+
+  doc-build:
+    name: "Build documentation"
+    runs-on: ubuntu-latest
+    needs: [doc-style]
+    steps:
+      - name: Install Linux os dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1
+
+      - name: Build project documentation
+        uses: pyansys/actions/doc-build@v4
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+  
+  doc-deploy-dev:
+    name: "Deploy development documentation"
+    runs-on: ubuntu-latest
+    needs: [doc-build]
+    if: github.event_name == 'push'
+    steps:
+      - uses: pyansys/actions/doc-deploy-dev@v4
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  doc-deploy-stable:
+    name: "Deploy stable documentation"
+    runs-on: ubuntu-latest
+    needs: [doc-deploy-dev]
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    steps:
+      - uses: pyansys/actions/doc-deploy-stable@v4
+        with:
+          cname: ${{ env.DOCUMENTATION_CNAME }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # build-library:
+  #   name: "Build library"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: pyansys/actions/build-library@v4
+  #       with:
+  #         library-name: ${{ env.LIBRARY_NAME }}
+  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+  build-application:
+    name: "Build Application"
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Install Dependencies
+        run: pip install -e .[freeze]
+
+      - name: Freeze application
+        run: pyinstaller frozen.spec
+
+      - name: Install NSIS
+        run: |
+          iwr -useb get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin
+          scoop update
+          scoop bucket add extras
+          scoop install nsis
+
+      - name: Print NSIS version
+        run: makensis -VERSION
+
+      - name: Run NSIS
+        shell: pwsh
+        if: always()
+        run: |
+          Set-StrictMode -Version Latest
+          $ErrorActionPreference = "Stop"
+          makensis setup.nsi
+
+      - name: List output
+        run: ls -R dist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Python-Installer
+          path: dist/*Setup*.exe
+
+  release:
+    name: Release application
+    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
+    needs: [build-application]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: Python-Installer
+          path: installer
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r python-installer-gui.zip installer
+
+      - name: "Release to GitHub"
+        uses: softprops/action-gh-release@v1
+        with:
+          files: python-installer-gui.zip
+          generate_release_notes: true

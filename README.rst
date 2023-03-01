@@ -1,7 +1,7 @@
 Ansys Python Installer (QT)
 ===========================
 
-This is a simple cross-platform [QT](https://www.qt.io/) application
+This is a simple cross-platform `QT <https://www.qt.io/>`_ application
 you can use to install Python and (optional) PyAnsys packages.
 
 
@@ -15,12 +15,13 @@ Python and manage your Python environment.
 
 For developers
 ^^^^^^^^^^^^^^
-You can be up and running with three lines of code:
+You can be up and running with four lines of code:
 
 .. code:: bash
 
    git clone https://github.com/pyansys/python-installer-qt-gui
    cd python-installer-qt-gui
+   pip install pip -U
    pip install -e .
 
 Now you can run it with:
@@ -37,49 +38,49 @@ and enhance it.
 Before contributing to the project, please refer to the `PyAnsys Developer's
 guide`_. You will need to follow these steps:
 
-1.. Start by cloning this repository:
+#. Start by cloning this repository:
 
-.. code:: bash
+   .. code:: bash
 
-   git clone https://github.com/pyansys/python-installer-qt-gui
+      git clone https://github.com/pyansys/python-installer-qt-gui
 
-2. Create a fresh-clean Python environment and activate it. Refer to the
+#. Create a fresh-clean Python environment and activate it. Refer to the
    official `venv`_ documentation if you require further information:
 
-.. code:: bash
+   .. code:: bash
 
-   # Create a virtual environment
-   python -m venv .venv
+      # Create a virtual environment
+      python -m venv .venv
 
-   # Activate it in a POSIX system
-   source .venv/bin/activate
+      # Activate it in a POSIX system
+      source .venv/bin/activate
 
-   # Activate it in Windows CMD environment
-   .venv\Scripts\activate.bat
+      # Activate it in Windows CMD environment
+      .venv\Scripts\activate.bat
 
-   # Activate it in Windows Powershell
-   .venv\Scripts\Activate.ps1
+      # Activate it in Windows Powershell
+      .venv\Scripts\Activate.ps1
 
-3. Make sure you have the latest version of `pip`_:
+#. Make sure you have the latest version of `pip`_:
 
-.. code:: bash
+   .. code:: bash
 
-   python -m pip install -U pip
+      python -m pip install -U pip
 
-4. Install the project in editable mode:
+#. Install the project in editable mode:
 
-.. code:: bash
-    
-   python -m pip install -e .[test]
+   .. code:: bash
+      
+      python -m pip install -e .[tests,doc]
 
-5. Finally, verify your development installation by running:
+#. Finally, verify your development installation by running:
 
-.. code:: bash
-        
-   pytest tests -v
+   .. code:: bash
+         
+      pytest tests -v
 
 
-Style and Testing
+Style and testing
 -----------------
 This project uses `pre-commit <https://pre-commit.com/>`_. Install with:
 
@@ -110,6 +111,20 @@ If you need to run it again on all files and not just staged files, run:
    pre-commit run --all-files
 
 
+Local build
+-----------
+This application can be deployed as a 'frozen' application using `pyinstaller
+<https://pypi.org/project/pyinstaller/>`_ with:
+
+.. code::
+
+   pip install -e .[freeze]
+   pyinstaller frozen.spec
+
+This will generate application files at ``dist/ansys_python_manager`` and you
+can run it locally by executing ``Ansys Python Manager.exe``.
+
+
 Documentation
 -------------
 For building documentation, you can either run the usual rules provided in the
@@ -117,7 +132,7 @@ For building documentation, you can either run the usual rules provided in the
 
 .. code:: bash
 
-    python -m pip install -r requirements/requirements_doc.txt
+    pip install -e .[doc]
     make -C doc/ html
 
     # subsequently open the documentation with (under Linux):
