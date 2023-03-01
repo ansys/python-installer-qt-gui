@@ -142,7 +142,7 @@ class InstalledTab(QtWidgets.QWidget):
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook"""
         # handle errors
-        error_msg = "pip install jupyter && python -m jupyter || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
+        error_msg = "pip install jupyter && python -m jupyter notebook || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
         self.launch_cmd(f"python -m jupyter notebook || {error_msg}")
 
     def launch_cmd(self, extra=""):
