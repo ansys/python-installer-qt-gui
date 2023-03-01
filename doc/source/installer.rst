@@ -67,7 +67,7 @@ Finally, the following extra packages are available for installing:
 
 .. warning::
 
-  Currently the dev team is experiencing problems when installing them by default.
+  Currently the development team is experiencing problems when installing them by default.
   For the time being, it may be necessary to install them by hand. If you are using
   the ``Standard`` install then you should call ``pip install ...`` from a console. If you
   are using ``Conda (miniforge)``, then it should be ``conda install ...``. See the
