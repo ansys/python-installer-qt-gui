@@ -10,7 +10,6 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import requests
 
 from ansys.tools.installer.common import threaded
-from ansys.tools.installer.find_python import find_installed_python, find_miniforge
 from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python
 from ansys.tools.installer.progress_bar import ProgressBar
@@ -23,8 +22,6 @@ INSTALL_TEXT = """Choose to use either the standard Python install from <a href=
 PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
-
-PACKAGES_INFO_TEXT = """Select the packages to install globally in the Python environment. By default, the "Default" and "PyAnsys" packages are selected, but the user can also choose to install "JupyterLab" or "Spyder (IDE)" by selecting the corresponding check boxes. This allows the user to customize their Python installation to suit their specific needs."""
 
 
 if getattr(sys, "frozen", False):
@@ -157,39 +154,6 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
         python_version_box_layout.addWidget(python_version)
         form_layout.addWidget(python_version_box)
-
-        # Group 3: Packages
-        packages_box = QtWidgets.QGroupBox("Packages")
-        packages_box_layout = QtWidgets.QVBoxLayout()
-        packages_box_layout.setContentsMargins(10, 20, 10, 20)
-        packages_box.setLayout(packages_box_layout)
-
-        # Packages
-        packages = QtWidgets.QWidget()
-        packages_layout = QtWidgets.QVBoxLayout()
-        # packages_layout.setContentsMargins(0,0,0,0)
-        packages.setLayout(packages_layout)
-
-        packages_info_text = QtWidgets.QLabel(PACKAGES_INFO_TEXT)
-        packages_info_text.setWordWrap(True)
-        packages_layout.addWidget(packages_info_text)
-
-        packages_default = QtWidgets.QCheckBox("Default")
-        packages_default.setChecked(True)
-        packages_layout.addWidget(packages_default)
-
-        packages_pyansys = QtWidgets.QCheckBox("PyAnsys")
-        packages_pyansys.setChecked(True)
-        packages_layout.addWidget(packages_pyansys)
-
-        packages_jupyterlab = QtWidgets.QCheckBox("Jupyterlab")
-        packages_layout.addWidget(packages_jupyterlab)
-
-        packages_spyder = QtWidgets.QCheckBox("Spyder (IDE)")
-        packages_layout.addWidget(packages_spyder)
-
-        packages_box_layout.addWidget(packages)
-        form_layout.addWidget(packages_box)
 
         # ensure content does not get squished
         form_layout.addStretch()
@@ -393,35 +357,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         LOG.debug("Triggering table widget update")
         self._table_tab.update_table()
 
-        LOG.debug("Installing extra packages now...")
-        self._extra_packages()
-
         self.setEnabled(True)
-
-    def _extra_packages(self):
-        """Install the requested extra packages."""
-        python_path = None
-        if self.installation_type_select.currentData() == "vanilla":
-            minor_version = self.python_version_select.currentData().split(".")[1]
-            python_path = find_installed_python(f"3.{minor_version}")
-        else:
-            conda_paths = find_miniforge()
-            if len(conda_paths) != 1:
-                LOG.warn(
-                    "More than one conda install found... cannot resolve installation of extra packages."
-                )
-                return
-            else:
-                python_path = conda_paths.keys()[0]
-
-        if not python_path:
-            LOG.warn(
-                "More than one conda install found... cannot resolve installation of extra packages."
-            )
-            return
-
-        # WIP : We have access to the location of python.exe at this stage...
-        pass
 
 
 def open_gui():
