@@ -137,6 +137,14 @@ jobs:
           $ErrorActionPreference = "Stop"
           makensis setup.nsi
 
+      - name: List output
+        run: ls -R dist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Python-Installer
+          path: dist/*Setup*.exe
+
   release:
     name: Release application
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
@@ -158,5 +166,5 @@ jobs:
       - name: "Release to GitHub"
         uses: softprops/action-gh-release@v1
         with:
-          files: installer.zip
+          files: python-installer-gui.zip
           generate_release_notes: true
