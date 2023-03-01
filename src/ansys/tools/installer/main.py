@@ -9,6 +9,7 @@ import urllib.request
 from PySide6 import QtCore, QtGui, QtWidgets
 import requests
 
+from ansys.tools.installer.common import threaded
 from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python
 from ansys.tools.installer.progress_bar import ProgressBar
@@ -39,17 +40,6 @@ else:
 
 
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
-
-
-def threaded(fn):
-    """Call a function using a thread"""
-
-    def wrapper(*args, **kwargs):
-        thread = Thread(target=fn, args=args, kwargs=kwargs)
-        thread.start()
-        return thread
-
-    return wrapper
 
 
 class AnsysPythonInstaller(QtWidgets.QWidget):
@@ -93,7 +83,8 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         self.tab_widget.addTab(self.tab_install_python, "Install Python")
 
         # Add tabs to the tab widget
-        self.tab_widget.addTab(InstalledTab(self), "Manage Environment")
+        self._table_tab = InstalledTab(self)
+        self.tab_widget.addTab(self._table_tab, "Manage Environment")
         # self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 3")
         # self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 4")
 
@@ -401,7 +392,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         out, error = install_python(filename)
 
         LOG.debug("Triggering table widget update")
-        self.tab_widget.update()
+        self._table_tab.update_table()
 
         self.setEnabled(True)
 

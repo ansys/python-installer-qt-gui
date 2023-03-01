@@ -4,6 +4,7 @@ import subprocess
 
 from PySide6 import QtCore, QtWidgets
 
+from ansys.tools.installer.common import threaded
 from ansys.tools.installer.find_python import find_all_python
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
@@ -17,6 +18,7 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         super().__init__(1, 1, parent)
         self.populate()
 
+    @threaded
     def populate(self):
         """Populate the table."""
         LOG.debug("Populating the table")
@@ -56,19 +58,26 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
+        directions_text = QtWidgets.QLabel("moo")
+        layout.addWidget(directions_text)
+
         hbox = QtWidgets.QHBoxLayout()
         layout.addLayout(hbox)
         self.button_launch_cmd = QtWidgets.QPushButton("Launch Console")
         self.button_launch_cmd.clicked.connect(self.launch_cmd)
         hbox.addWidget(self.button_launch_cmd)
 
-        self.button_launch_cmd = QtWidgets.QPushButton("Launch Jupyterlab")
-        self.button_launch_cmd.clicked.connect(self.launch_jupyterlab)
-        hbox.addWidget(self.button_launch_cmd)
+        self.button_launch_lab = QtWidgets.QPushButton("Launch Jupyterlab")
+        self.button_launch_lab.clicked.connect(self.launch_jupyterlab)
+        hbox.addWidget(self.button_launch_lab)
 
-        self.button_launch_cmd = QtWidgets.QPushButton("Launch Jupyter Notebook")
-        self.button_launch_cmd.clicked.connect(self.launch_jupyter_notebook)
-        hbox.addWidget(self.button_launch_cmd)
+        self.button_launch_notebook = QtWidgets.QPushButton("Launch Jupyter Notebook")
+        self.button_launch_notebook.clicked.connect(self.launch_jupyter_notebook)
+        hbox.addWidget(self.button_launch_notebook)
+
+        self.button_launch_spyder = QtWidgets.QPushButton("Launch Spyder")
+        self.button_launch_spyder.clicked.connect(self.launch_spyder)
+        hbox.addWidget(self.button_launch_spyder)
 
         # Form
         form = QtWidgets.QWidget()
@@ -91,8 +100,9 @@ class InstalledTab(QtWidgets.QWidget):
         # other connects
         self.signal_update.connect(self.table.populate)
 
-    def update(self):
+    def update_table(self):
         """Update this tab's table."""
+        print("emit")
         self.signal_update.emit()
 
     def eventFilter(self, source, event):
@@ -104,14 +114,22 @@ class InstalledTab(QtWidgets.QWidget):
         # Set the focus to the table whenever the widget gains focus
         self.table.setFocus()
 
+    def launch_spyder(self):
+        """Launch spyder ide"""
+        # handle errors
+        error_msg = "pip install spyder && spyder || echo Failed to launch. Try reinstalling spyder with pip install spyder --force-reinstall"
+        self.launch_cmd(f"spyder || {error_msg}")
+
     def launch_jupyterlab(self):
         """Launch Jupyterlab"""
-        error_msg = "pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab"
+        # handle errors
+        error_msg = "pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab --force-reinstall"
         self.launch_cmd(f"python -m jupyter lab || {error_msg}")
 
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook"""
-        error_msg = 'echo Failed to launch. Try reinstalling jupyter with "pip install jupyter --force-reinstall"'
+        # handle errors
+        error_msg = "pip install jupyter && python -m jupyter || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
         self.launch_cmd(f"python -m jupyter notebook || {error_msg}")
 
     def launch_cmd(self, extra=""):
