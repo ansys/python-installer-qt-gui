@@ -159,12 +159,8 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
 
-      - uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r python-installer-gui.zip installer
-
       - name: "Release to GitHub"
         uses: softprops/action-gh-release@v1
         with:
-          files: python-installer-gui.zip
+          files: installer/*.exe
           generate_release_notes: true
