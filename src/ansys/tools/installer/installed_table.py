@@ -168,5 +168,6 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
             subprocess.Popen(
-                f'start cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"', shell=True
+                f'start cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"',
+                shell=True,
             )
