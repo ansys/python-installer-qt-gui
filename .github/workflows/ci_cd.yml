@@ -66,15 +66,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libegl1
 
-      - name: "Build project documentation"
-        uses: pyansys/actions/doc-build@v3
+      - name: Build project documentation
+        uses: pyansys/actions/doc-build@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          use-python-cache: false
-          skip-install: true
-          requires-xvfb: true
-          dependencies: 'xvfb texlive-latex-extra latexmk nodejs npm'
-
+  
   doc-deploy-dev:
     name: "Deploy development documentation"
     runs-on: ubuntu-latest
