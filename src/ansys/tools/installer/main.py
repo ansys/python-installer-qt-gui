@@ -84,9 +84,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
         # Add tabs to the tab widget
         self._table_tab = InstalledTab(self)
-        self.tab_widget.addTab(self._table_tab, "Manage Environment")
-        # self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 3")
-        # self.tab_widget.addTab(QtWidgets.QWidget(), "Tab 4")
+        self.tab_widget.addTab(self._table_tab, "Manage Python Environments")
 
         # Create the layout for the container
         container_layout = QtWidgets.QVBoxLayout()

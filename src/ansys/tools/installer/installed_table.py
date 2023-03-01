@@ -5,7 +5,7 @@ import subprocess
 from PySide6 import QtCore, QtWidgets
 
 from ansys.tools.installer.common import threaded
-from ansys.tools.installer.find_python import find_all_python
+from ansys.tools.installer.find_python import find_all_python, find_miniforge
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
 
@@ -24,7 +24,8 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         LOG.debug("Populating the table")
         self.clear()
         installed = find_all_python()
-        tot = len(installed[0]) + len(installed[1])
+        installed_forge = find_miniforge()
+        tot = len(installed[0]) + len(installed[1]) + len(installed_forge)
         self.setRowCount(tot)
         self.setColumnCount(3)
 
@@ -35,10 +36,16 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         row = 0
         for admin in [True, False]:
             for version, path in installed[admin].items():
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem(version))
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python v{version}"))
                 self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
                 self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
                 row += 1
+
+        for path, (version, admin) in installed_forge.items():
+            self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Conda {version}"))
+            self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
+            self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
+            row += 1
 
         self.resizeColumnsToContents()
         self.selectRow(0)
@@ -46,7 +53,13 @@ class PyInstalledTable(QtWidgets.QTableWidget):
 
     @property
     def active_path(self):
+        """Path of the active row."""
         return self.item(self.currentRow(), 2).text()
+
+    @property
+    def active_version(self):
+        """Version of the active row."""
+        return self.item(self.currentRow(), 0).text()
 
 
 class InstalledTab(QtWidgets.QWidget):
@@ -115,7 +128,7 @@ class InstalledTab(QtWidgets.QWidget):
         self.table.setFocus()
 
     def launch_spyder(self):
-        """Launch spyder ide"""
+        """Launch spyder IDE"""
         # handle errors
         error_msg = "pip install spyder && spyder || echo Failed to launch. Try reinstalling spyder with pip install spyder --force-reinstall"
         self.launch_cmd(f"spyder || {error_msg}")
@@ -135,14 +148,23 @@ class InstalledTab(QtWidgets.QWidget):
     def launch_cmd(self, extra=""):
         """"""
         py_path = self.table.active_path
-        scripts_path = os.path.join(py_path, "Scripts")
-        new_path = f"{py_path};{scripts_path};%PATH%"
+        if "Python" in self.table.active_version:
+            scripts_path = os.path.join(py_path, "Scripts")
+            new_path = f"{py_path};{scripts_path};%PATH%"
 
-        if extra:
-            cmd = f"& {extra}"
-        else:
-            cmd = f"& echo Python set to {py_path}"
+            if extra:
+                cmd = f"& {extra}"
+            else:
+                cmd = f"& echo Python set to {py_path}"
 
-        subprocess.Popen(
-            f'start cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"', shell=True
-        )
+            subprocess.Popen(
+                f'start cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"', shell=True
+            )
+        else:  # probably conda
+            if extra:
+                cmd = f"& {extra}"
+            else:
+                cmd = f"& echo Activating conda forge at path {py_path}"
+            subprocess.Popen(
+                f"start cmd /K {py_path}\\Scripts\\activate.bat {py_path}", shell=True
+            )
