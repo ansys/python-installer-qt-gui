@@ -71,8 +71,9 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        directions_text = QtWidgets.QLabel("Available Python installs")
-        layout.addWidget(directions_text)
+        launching_options = QtWidgets.QLabel("Launching options")
+        launching_options.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(launching_options)
 
         hbox = QtWidgets.QHBoxLayout()
         layout.addLayout(hbox)
@@ -92,6 +93,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_launch_spyder.clicked.connect(self.launch_spyder)
         hbox.addWidget(self.button_launch_spyder)
 
+        package_management = QtWidgets.QLabel("Package management")
+        package_management.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(package_management)
+
         hbox_install = QtWidgets.QHBoxLayout()
         layout.addLayout(hbox_install)
 
@@ -110,6 +115,10 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install.addWidget(self.button_list_packages)
 
         # Form
+        form_title = QtWidgets.QLabel("Available Python installations")
+        form_title.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(form_title)
+
         form = QtWidgets.QWidget()
         form_layout = QtWidgets.QVBoxLayout()
         form_layout.setContentsMargins(0, 0, 0, 0)
