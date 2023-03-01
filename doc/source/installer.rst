@@ -53,26 +53,6 @@ Regarding the available Python versions, users can select among the following on
 
   In the case of having selected ``Conda (miniforge)``, only Python 3.10 is available.
 
-Finally, the following extra packages are available for installing:
-
-* ``Defaults``: by selecting this option, your clean Python install also provides you with
-  the latest compatible versions of your Python version for ``numpy``, ``scipy``,
-  ``pandas``, ``matplotlib`` and  ``scikit-learn``.
-* ``PyAnsys``: by selecting this option, users have access to the latest PyAnsys metapackage installation.
-  This metapackage provides you with access to the latest public PyAnsys libraries in their compatible
-  version with the latest Ansys products.
-* ``Jupyterlab``: by selecting this option, users have access to JupyterLab capabilities (that is, deploying a
-  JupyterLab server locally, running Jupyter notebooks etc.).
-* ``Spyder``: by selecting this option, users are granted with a Spyder IDE install.
-
-.. warning::
-
-  Currently the development team is experiencing problems when installing them by default.
-  For the time being, it may be necessary to install them by hand. If you are using
-  the ``Standard`` install then you should call ``pip install ...`` from a console. If you
-  are using ``Conda (miniforge)``, then it should be ``conda install ...`` from a console.
-  See the ``Launch Console`` information in the next section to know how to execute a
-  console window properly configured for your Python environment.
 
 Managing Python environments
 ============================
@@ -86,7 +66,8 @@ installations. Have a look at how to access it here:
 
 #. Select your desired ``Python`` environment and start one of the listed options.
 
-Several options are provided to users:
+
+On the ``Launching options`` section, the following options are available:
 
 * ``Launch Console``: this option starts a console window with the command ``python`` pointing
   towards your selected Python environment.
@@ -96,3 +77,15 @@ Several options are provided to users:
   ``Jupyter Notebook`` is not installed, then the ``Ansys Python Manager`` installs it for you.
 * ``Launch Spyder``: this option starts a Spyder IDE session. If Spyder is not installed,
   then the ``Ansys Python Manager`` installs it for you.
+
+On the ``Package management`` section, the following options are available:
+
+* ``Install Python default packages``: by selecting this option, your selected Python install
+  receives the latest compatible versions for ``numpy``, ``scipy``, ``pandas``, ``matplotlib``
+  and  ``scikit-learn``.
+* ``Install PyAnsys``: by selecting this option, your selected Python install has access to
+  the latest, compatible PyAnsys metapackage installation. This metapackage provides you with
+  access to the latest public PyAnsys libraries in their compatible version with the latest
+  Ansys products.
+* ``List installed packages``: by selecting this option, a list of the installed packages on
+  your selected Python install is provided. This might be useful for identifying potential problems.
