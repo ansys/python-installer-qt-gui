@@ -18,13 +18,13 @@ html_short_title = html_title = "Python GUI Installer"
 
 # specify the location of your github repo
 html_theme_options = {
-    "github_url": "https://github.com/pyansys/python-gui-installer",
+    "github_url": "https://github.com/pyansys/python-installer-qt-gui",
     "show_prev_next": False,
     "show_breadcrumbs": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
     ],
-    "github_url": "https://github.com/pyansys/python-gui-installer",
+    "github_url": "https://github.com/pyansys/python-installer-qt-gui",
 }
 
 # Sphinx extensions
