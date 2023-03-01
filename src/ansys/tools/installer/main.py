@@ -41,6 +41,17 @@ else:
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
 
 
+def threaded(fn):
+    """Call a function using a thread"""
+
+    def wrapper(*args, **kwargs):
+        thread = Thread(target=fn, args=args, kwargs=kwargs)
+        thread.start()
+        return thread
+
+    return wrapper
+
+
 class AnsysPythonInstaller(QtWidgets.QWidget):
     signal_error = QtCore.Signal(str)
     signal_open_pbar = QtCore.Signal(int, str)
@@ -297,6 +308,8 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
     def download_and_install(self):
         """Download and install."""
         self.setEnabled(False)
+        QtWidgets.QApplication.processEvents()
+
         try:
             if self.installation_type_select.currentData() == "vanilla":
                 selected_version = (
@@ -315,6 +328,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
             self.show_error(str(e))
             self.setEnabled(True)
 
+    @threaded
     def _download(self, url, filename, when_finished=None):
         """Download a file with a progress bar.
 
