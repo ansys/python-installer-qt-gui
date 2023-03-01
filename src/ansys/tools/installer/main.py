@@ -50,7 +50,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
     def __init__(self, show=True):
         super().__init__()
         self.setWindowTitle("Ansys Python Manager")
-        self.setGeometry(50, 50, 500, 900)  # width should auto-update
+        self.setGeometry(50, 50, 500, 700)  # width should auto-update
 
         self._pbar = None
         self._err_message_box = None
