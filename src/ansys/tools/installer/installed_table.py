@@ -71,7 +71,7 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        directions_text = QtWidgets.QLabel("moo")
+        directions_text = QtWidgets.QLabel("Available Python installs")
         layout.addWidget(directions_text)
 
         hbox = QtWidgets.QHBoxLayout()
@@ -142,7 +142,7 @@ class InstalledTab(QtWidgets.QWidget):
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook"""
         # handle errors
-        error_msg = "pip install jupyter && python -m jupyter || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
+        error_msg = "pip install jupyter && python -m jupyter notebook || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
         self.launch_cmd(f"python -m jupyter notebook || {error_msg}")
 
     def launch_cmd(self, extra=""):
@@ -162,6 +162,8 @@ class InstalledTab(QtWidgets.QWidget):
             )
         else:  # probably conda
             if extra:
+                # Replace the pip install command for conda
+                extra = extra.replace("pip", "conda")
                 cmd = f"& {extra}"
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
