@@ -20,6 +20,42 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
 
+def find_miniforge():
+    """Find all installations of miniforge."""
+    forge = _find_miniforge(True)
+    forge.update(_find_miniforge(False))
+    return forge
+
+
+def _find_miniforge(admin=False):
+    if admin:
+        root_key = winreg.HKEY_LOCAL_MACHINE
+    else:
+        root_key = winreg.HKEY_CURRENT_USER
+
+    paths = {}
+    key = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
+    with winreg.OpenKey(
+        root_key,
+        key,
+        access=winreg.KEY_READ,
+    ) as reg_key:
+        info = winreg.QueryInfoKey(reg_key)
+        for i in range(info[0]):
+            subkey_name = winreg.EnumKey(reg_key, i)
+            if "Miniforge" in subkey_name:
+                with winreg.OpenKey(
+                    root_key,
+                    key + "\\" + subkey_name,
+                    access=winreg.KEY_READ,
+                ) as sub_key:
+                    ver = winreg.QueryValueEx(sub_key, "DisplayVersion")[0]
+                    uninstall_exe = winreg.QueryValueEx(sub_key, "UninstallString")[0]
+                    miniforge_path = os.path.dirname(uninstall_exe)
+                    paths[miniforge_path] = (ver, admin)
+    return paths
+
+
 def find_installed_python(version, admin=False):
     """Check the registry for any installed instances of Python."""
 
