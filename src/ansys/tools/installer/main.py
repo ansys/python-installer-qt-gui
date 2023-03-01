@@ -383,7 +383,12 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
     def _run_exe(self, filename):
         """Execute a file."""
+        LOG.debug("Executing run_exe")
         out, error = install_python(filename)
+
+        LOG.debug("Triggering table widget update")
+        self.tab_widget.update()
+
         self.setEnabled(True)
 
 
