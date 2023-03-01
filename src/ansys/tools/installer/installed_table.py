@@ -17,6 +17,7 @@ class PyInstalledTable(QtWidgets.QTableWidget):
     def __init__(self, parent=None):
         super().__init__(1, 1, parent)
         self.populate()
+        self._destroyed = False
 
     @threaded
     def populate(self):
@@ -25,6 +26,10 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         self.clear()
         installed = find_all_python()
         installed_forge = find_miniforge()
+
+        if self._destroyed:
+            return
+
         tot = len(installed[0]) + len(installed[1]) + len(installed_forge)
         self.setRowCount(tot)
         self.setColumnCount(3)
@@ -50,6 +55,12 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         self.resizeColumnsToContents()
         self.selectRow(0)
         self.horizontalHeader().setStretchLastSection(True)
+
+        self.destroyed.connect(self.stop)
+
+    def stop(self):
+        """Flag that this object is gone."""
+        self._destroyed = True
 
     @property
     def active_path(self):

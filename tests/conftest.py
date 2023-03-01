@@ -1,6 +1,6 @@
 import pytest
 
-from ansys.tools.installer import AnsysPythonInstaller
+from ansys.tools.installer.main import AnsysPythonInstaller
 
 
 @pytest.fixture()
