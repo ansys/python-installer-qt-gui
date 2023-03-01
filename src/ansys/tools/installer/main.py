@@ -10,6 +10,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import requests
 
 from ansys.tools.installer.common import threaded
+from ansys.tools.installer.find_python import find_installed_python, find_miniforge
 from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python
 from ansys.tools.installer.progress_bar import ProgressBar
@@ -399,6 +400,27 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
     def _extra_packages(self):
         """Install the requested extra packages."""
+        python_path = None
+        if self.installation_type_select.currentData() == "vanilla":
+            minor_version = self.python_version_select.currentData().split(".")[1]
+            python_path = find_installed_python(f"3.{minor_version}")
+        else:
+            conda_paths = find_miniforge()
+            if len(conda_paths) != 1:
+                LOG.warn(
+                    "More than one conda install found... cannot resolve installation of extra packages."
+                )
+                return
+            else:
+                python_path = conda_paths.keys()[0]
+
+        if not python_path:
+            LOG.warn(
+                "More than one conda install found... cannot resolve installation of extra packages."
+            )
+            return
+
+        # WIP : We have access to the location of python.exe at this stage...
         pass
 
 
