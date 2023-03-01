@@ -105,6 +105,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_install_pyansys.clicked.connect(self.install_pyansys)
         hbox_install.addWidget(self.button_install_pyansys)
 
+        self.button_list_packages = QtWidgets.QPushButton("List installed packages")
+        self.button_list_packages.clicked.connect(self.list_packages)
+        hbox_install.addWidget(self.button_list_packages)
+
         # Form
         form = QtWidgets.QWidget()
         form_layout = QtWidgets.QVBoxLayout()
@@ -167,6 +171,10 @@ class InstalledTab(QtWidgets.QWidget):
         """Install PyAnsys metapackage."""
         cmd = "pip install pyansys>=2023 & timeout 3 & exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys>=2023 --force-reinstall"
         self.launch_cmd(cmd)
+
+    def list_packages(self):
+        """List installed Python packages."""
+        self.launch_cmd("pip list")
 
     def launch_cmd(self, extra=""):
         """"""
