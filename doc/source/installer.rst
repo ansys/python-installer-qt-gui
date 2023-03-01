@@ -5,7 +5,7 @@ This document shows users how to install Python on a Windows machine.
 
 In order to do so, just follow the upcoming steps:
 
-#. Download the necessary installer from the `latest available release <https://github.com/pyansys/python-installer-gui/releases/latest>`_.
+#. Download the necessary installer from the `latest available release <https://github.com/pyansys/python-installer-qt-gui/releases/latest>`_.
    The file should be named ``python-installer-gui-v*.zip``
 
 #. Unzip the file and extract the ``Ansys Python Installer Setup`` executable.
