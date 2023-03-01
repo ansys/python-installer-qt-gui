@@ -67,16 +67,17 @@ Finally, the following extra packages are available for installing:
 
 .. warning::
 
-  Currently we are experiencing problems when installing them by default.
+  Currently the dev team is experiencing problems when installing them by default.
   For the time being, it may be necessary to install them by hand. If you are using
-  the ``Standard`` install then you should call ``pip install ...`` from a cmd. If you
-  are using ``Conda (miniforge)``, then it should be ``conda install ...``.
+  the ``Standard`` install then you should call ``pip install ...`` from a console. If you
+  are using ``Conda (miniforge)``, then it should be ``conda install ...``. See the
+  ``Launch Console`` information in the next section.
 
 Managing Python environments
 ============================
 
 Through the ``Ansys Python Manager``, users can also have access to their different Python
-installations. Let's have a look at how to access it.
+installations. Have a look at how to access it here:
 
 #. Search for the ``Ansys Python Manager`` and run it.
 
@@ -86,10 +87,10 @@ installations. Let's have a look at how to access it.
 
 Several options are provided to users:
 
-* ``Launch Console``: this option will start a console window with Python started.
-* ``Launch JupyterLab``: this option will start a ``JupyterLab`` session. If ``JupyterLab`` is
+* ``Launch Console``: this option starts a console window with Python started.
+* ``Launch JupyterLab``: this option starts a ``JupyterLab`` session. If ``JupyterLab`` is
   not installed, then the ``Ansys Python Manager`` installs it for you.
-* ``Launch Jupyter Notebook``: this option will start a ``Jupyter Notebook`` session. If
+* ``Launch Jupyter Notebook``: this option starts a ``Jupyter Notebook`` session. If
   ``Jupyter Notebook`` is not installed, then the ``Ansys Python Manager`` installs it for you.
-* ``Launch Spyder``: this option will start a Spyder IDE session. If Spyder is not installed,
+* ``Launch Spyder``: this option starts a Spyder IDE session. If Spyder is not installed,
   then the ``Ansys Python Manager`` installs it for you.
