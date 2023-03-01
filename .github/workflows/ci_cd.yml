@@ -62,7 +62,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: "Build project documentation"
-        uses: pyansys/actions/doc-build@4
+        uses: pyansys/actions/doc-build@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
