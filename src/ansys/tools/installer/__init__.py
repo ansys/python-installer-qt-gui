@@ -59,4 +59,4 @@ if ENABLE_LOGGING:
     # Add the console handler to the logger
     logger.addHandler(console_handler)
 
-from ansys.tools.installer.main import open_gui
+from ansys.tools.installer.main import open_gui  # place this at end to allow import

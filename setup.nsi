@@ -1,8 +1,10 @@
 ; NSIS script for Ansys Python Manager installer
 
+
 ; Set the name, version, and output path of the installer
+!define VERSION_FILE "src/ansys/tools/installer/VERSION"
 !define PRODUCT_NAME "Ansys Python Manager"
-!define PRODUCT_VERSION "0.1.0-beta1"
+!define /file PRODUCT_VERSION "src/ansys/tools/installer/VERSION"
 !define OUTFILE_NAME "Ansys Python Manager Setup-v${PRODUCT_VERSION}.exe"
 
 Name "${PRODUCT_NAME}"
