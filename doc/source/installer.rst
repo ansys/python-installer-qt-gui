@@ -7,9 +7,7 @@ Installing the ``Ansys Python Manager``
 First step is installing the ``Ansys Python Manager``. In order to do so, follow the next steps.
 
 #. Download the necessary installer from the `latest available release <https://github.com/pyansys/python-installer-qt-gui/releases/latest>`_.
-   The file should be named ``python-installer-gui.zip``
-
-#. Unzip the file and extract the ``Ansys Python Manager Setup`` executable.
+   The file should be named ``Ansys-Python-Manager-Setup-v*.exe``.
 
 #. Execute the installer.
 
