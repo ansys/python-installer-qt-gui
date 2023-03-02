@@ -282,7 +282,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             ).exec_()
 
     def visit_website(self):
-        url = QtCore.QUrl("https://installer.docs.pyansys.com/")
+        url = QtCore.QUrl("https://installer.docs.pyansys.com/version/dev/installer.html")
         QtGui.QDesktopServices.openUrl(url)
 
     def show_about_dialog(self):
