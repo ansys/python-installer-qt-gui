@@ -4,7 +4,7 @@
 !define VERSION_FILE "src/ansys/tools/installer/VERSION"
 !define PRODUCT_NAME "Ansys Python Manager"
 !define /file PRODUCT_VERSION "src/ansys/tools/installer/VERSION"
-!define OUTFILE_NAME "Ansys Python Manager Setup-v${PRODUCT_VERSION}.exe"
+!define OUTFILE_NAME "Ansys-Python-Manager-Setup-v${PRODUCT_VERSION}.exe"
 
 Name "${PRODUCT_NAME}"
 VIProductVersion "${PRODUCT_VERSION}"

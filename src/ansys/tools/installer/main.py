@@ -7,15 +7,26 @@ from threading import Thread
 import urllib.request
 
 from PySide6 import QtCore, QtGui, QtWidgets
+from packaging import version
 import requests
 
-from ansys.tools.installer.common import threaded
+from ansys.tools.installer import __version__
+from ansys.tools.installer.auto_updater import READ_ONLY_PAT, query_gh_latest_release
+from ansys.tools.installer.common import protected, threaded
 from ansys.tools.installer.installed_table import InstalledTab
-from ansys.tools.installer.installer import install_python
+from ansys.tools.installer.installer import install_python, run_ps
 from ansys.tools.installer.progress_bar import ProgressBar
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
+
+ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
+<p>Created by the PyAnsys Team.</p>
+<p>If you have any questions or issues, please open an issue the <a href='https://github.com/pyansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
+<p>Alternatively, you can contact us at <a href='mailto:pyansys.core@ansys.com'>pyansys.core@ansys.com</a>.</p>
+<p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
+"""
+
 
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
 
@@ -40,17 +51,19 @@ else:
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
 
 
-class AnsysPythonInstaller(QtWidgets.QWidget):
+class AnsysPythonInstaller(QtWidgets.QMainWindow):
     signal_error = QtCore.Signal(str)
     signal_open_pbar = QtCore.Signal(int, str)
     signal_increment_pbar = QtCore.Signal()
     signal_close_pbar = QtCore.Signal()
     signal_set_pbar_value = QtCore.Signal(int)
+    signal_close = QtCore.Signal()
 
     def __init__(self, show=True):
         super().__init__()
         self.setWindowTitle("Ansys Python Manager")
         self.setGeometry(50, 50, 500, 700)  # width should auto-update
+        self._exceptions = []
 
         self._pbar = None
         self._err_message_box = None
@@ -64,16 +77,48 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         # Set the application icon
         self.setWindowIcon(icon)
 
-        # Menu
-        menu_layout = QtWidgets.QVBoxLayout()
-        menu_layout.setContentsMargins(0, 0, 0, 0)
-        menu_widget = QtWidgets.QWidget()
-        menu_widget.setLayout(menu_layout)
+        # Create a menu bar
+        menubar = self.menuBar()
 
+        file_menu = menubar.addMenu("&File")
+
+        updates_action = QtGui.QAction("Check for Updates", self)
+        updates_action.triggered.connect(self.check_for_updates)
+        file_menu.addAction(updates_action)
+
+        file_menu.addSeparator()  # -------------------------------------------
+
+        # Create an "Exit" action
+        exit_action = QtGui.QAction("&Exit", self)
+        exit_action.setShortcut(QtGui.QKeySequence("Ctrl+Q"))
+        exit_action.triggered.connect(QtWidgets.QApplication.quit)
+        file_menu.addAction(exit_action)
+
+        help_menu = menubar.addMenu("&Help")
+
+        # Create a "Visit Website" action
+        visit_action = QtGui.QAction("&Online Documentation", self)
+        visit_action.triggered.connect(self.visit_website)
+        help_menu.addAction(visit_action)
+
+        # Create an "About" action
+        about_action = QtGui.QAction("&About", self)
+        about_action.triggered.connect(self.show_about_dialog)
+
+        # Add the "About" action to the "Help" menu
+        help_menu.addAction(about_action)
+
+        # Header
+        header_layout = QtWidgets.QVBoxLayout()
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_widget = QtWidgets.QWidget()
+        header_widget.setLayout(header_layout)
+
+        # Header icon
         self.menu_heading = QtWidgets.QLabel()
         pixmap = QtGui.QPixmap(os.path.join(ASSETS_PATH, "pyansys-light-crop.png"))
         self.menu_heading.setPixmap(pixmap)
-        menu_layout.addWidget(self.menu_heading)
+        header_layout.addWidget(self.menu_heading)
 
         # Main content
         self.tab_widget = QtWidgets.QTabWidget()
@@ -168,9 +213,13 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         # Add menu and tab widget to main layout
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.addWidget(menu_widget)
+        main_layout.addWidget(header_widget)
         main_layout.addWidget(self.tab_widget)
-        self.setLayout(main_layout)
+
+        # create central widget
+        central_widget = QtWidgets.QWidget()
+        central_widget.setLayout(main_layout)
+        self.setCentralWidget(central_widget)
 
         # connects
         self.signal_open_pbar.connect(self._pbar_open)
@@ -178,9 +227,67 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         self.signal_increment_pbar.connect(self._pbar_increment)
         self.signal_set_pbar_value.connect(self._pbar_set_value)
         self.signal_error.connect(self._show_error)
+        self.signal_close.connect(self._close)
 
         if show:
             self.show()
+
+    @protected
+    def _exe_update(self, filename):
+        """After downloading the update for this application, run the file and shutdown this application."""
+        run_ps(f"(Start-Process {filename})")
+
+        # exiting
+        LOG.debug("Closing...")
+        self.close_emit()
+
+    def close_emit(self):
+        """Trigger the exit signal."""
+        self.signal_close.emit()
+
+    def _close(self):
+        self.close()
+
+    @protected
+    def check_for_updates(self):
+        LOG.debug("Checking for updates")
+        (
+            ver,
+            url,
+        ) = query_gh_latest_release()
+        cur_ver = version.parse(__version__)
+        # if ver > cur_ver:
+        if True:
+            LOG.debug("Update available.")
+            reply = QtWidgets.QMessageBox.question(
+                None,
+                "Update",
+                f"A new version {ver} is available. You are currently running version {cur_ver}. Do you want to update?",
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.Yes,
+            )
+            if reply == QtWidgets.QMessageBox.Yes:
+                self._download(
+                    url,
+                    f"Ansys-Python-Manager-Setup-v{ver}.exe",
+                    when_finished=self._exe_update,
+                    auth=READ_ONLY_PAT,
+                )
+        else:
+            LOG.debug("Up to date.")
+            QtWidgets.QMessageBox(
+                QtWidgets.QMessageBox.Information,
+                "Information",
+                f"Ansys Python Installer is up-to-date.\n\nVersion is {__version__}",
+                QtWidgets.QMessageBox.Ok,
+            ).exec_()
+
+    def visit_website(self):
+        url = QtCore.QUrl("https://installer.docs.pyansys.com/")
+        QtGui.QDesktopServices.openUrl(url)
+
+    def show_about_dialog(self):
+        mbox = QtWidgets.QMessageBox.about(self, "About", ABOUT_TEXT)
 
     def _install_type_changed(self, *args):
         self.python_version_select.setEnabled(
@@ -196,6 +303,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
 
     def _pbar_increment(self):
         """Increment the progress bar.
+
         Not to be accessed outside of the main thread.
         """
         if self._pbar is not None:
@@ -241,17 +349,13 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         if self._pbar is not None:
             self._pbar.set_value(value)
 
-    def error_dialog(self, txt, textinfo=None):
-        """Create an error dialogue."""
-        self._err_message_box = QtWidgets.QMessageBox(self)
-        self._err_message_box.setIcon(QtWidgets.QMessageBox.Critical)
-        self._err_message_box.setText(txt)
-
     def _show_error(self, text):
         """Display an error."""
-        self._err_message_box = QtWidgets.QMessageBox(self)
-        self._err_message_box.setIcon(QtWidgets.QMessageBox.Critical)
-        self._err_message_box.setText(text)
+        if not isinstance(text, str):
+            text = str(text)
+        self._err_message_box = QtWidgets.QMessageBox(
+            QtWidgets.QMessageBox.Critical, "Error", text, QtWidgets.QMessageBox.Ok
+        )
         self._err_message_box.show()
 
     def show_error(self, text):
@@ -283,7 +387,7 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
             self.setEnabled(True)
 
     @threaded
-    def _download(self, url, filename, when_finished=None):
+    def _download(self, url, filename, when_finished=None, auth=None):
         """Download a file with a progress bar.
 
         Checks cache first. If cached file exists and is the same size
@@ -294,19 +398,27 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
         """
         from ansys.tools.installer import CACHE_DIR
 
+        request_headers = {}
+        if auth:
+            request_headers = {
+                "Authorization": f"token {READ_ONLY_PAT}",
+                "Accept": "application/octet-stream",
+            }
+
         output_path = os.path.join(CACHE_DIR, filename)
         if os.path.isfile(output_path):
             LOG.debug("%s exists at in %s", filename, CACHE_DIR)
-            response = requests.head(url, allow_redirects=True)
-            content_length = int(response.headers["Content-Length"])
-            file_sz = os.path.getsize(output_path)
-            if content_length == file_sz:
-                LOG.debug("Sizes match. Using cached file from %s", output_path)
-                if when_finished is not None:
-                    when_finished(output_path)
-                return
+            response = requests.head(url, allow_redirects=True, headers=request_headers)
+            if "Content-Length" in response.headers:
+                content_length = int(response.headers["Content-Length"])
+                file_sz = os.path.getsize(output_path)
+                if content_length == file_sz:
+                    LOG.debug("Sizes match. Using cached file from %s", output_path)
+                    if when_finished is not None:
+                        when_finished(output_path)
+                    return
 
-            LOG.debug("Sizes do not match. Ignoring cached file.")
+                LOG.debug("Sizes do not match. Ignoring cached file.")
 
         # size and current_bytes, current bar position
         total = [None, 0, 0]
@@ -320,13 +432,14 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
                 val = floor(100 * total[1] / total[0])
                 if total[2] != val:
                     self.pbar_set_value(val)
+            print(bsize)
 
         def download():
             """Execute download."""
             self.pbar_open(100, f"Downloading {filename}")
 
             # first, query if the file exists
-            response = requests.head(url, allow_redirects=True)
+            response = requests.head(url, allow_redirects=True, headers=request_headers)
 
             if response.status_code != 200:
                 self.show_error(
@@ -341,7 +454,20 @@ class AnsysPythonInstaller(QtWidgets.QWidget):
             except:
                 total[0] = 50 * 2**20  # dummy 50 MB
 
-            urllib.request.urlretrieve(url, filename=output_path, reporthook=update)
+            if auth:
+                # convert string to StringIO object
+                session = requests.Session()
+                response = session.get(url, stream=True, headers=request_headers)
+                tsize = int(response.headers.get("Content-Length", 0))
+                chunk_size = 200 * 1024  # 200kb
+                with open(output_path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size):
+                        f.write(chunk)
+                        update(0, chunk_size, tsize)
+                        tsize = None
+
+            else:
+                urllib.request.urlretrieve(req, filename=output_path, reporthook=update)
             self.pbar_close()
 
             if when_finished is not None:
