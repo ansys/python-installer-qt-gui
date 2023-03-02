@@ -1,8 +1,14 @@
+"""
+Contains miscellaneous functionalities this library.
+"""
+
 import logging
 import sys
 
 
 def enable_logging():
+    """Log to stdout."""
+
     class SafeStreamHandler(logging.StreamHandler):
         def emit(self, record):
             try:

@@ -1,6 +1,7 @@
 import logging
 import os
 import subprocess
+import time
 
 from PySide6 import QtCore, QtWidgets
 
@@ -16,14 +17,33 @@ LOG.setLevel("DEBUG")
 class PyInstalledTable(QtWidgets.QTableWidget):
     """Table of locally installed Python environments."""
 
+    signal_update = QtCore.Signal()
+
     def __init__(self, parent=None):
         """Initialize the table by populating it."""
         super().__init__(1, 1, parent)
         self._destroyed = False
+        self._locked = True
         self.populate()
+        self.signal_update.connect(self.populate)
+
+    def update(self, timeout=1.0):
+        """Update this table.
+
+        Respects a lock to ensure no race conditions or multiple calls on the table.
+
+        """
+        tstart = time.time()
+        while self._locked:
+            time.sleep(0.001)
+            if time.time() - tstart > timeout:
+                return
+
+        self.signal_update.emit()
 
     def populate(self):
         """Populate the table."""
+        self._locked = True
         LOG.debug("Populating the table")
         self.clear()
 
@@ -60,6 +80,8 @@ class PyInstalledTable(QtWidgets.QTableWidget):
 
         self.destroyed.connect(self.stop)
 
+        self._locked = False
+
     def stop(self):
         """Flag that this object is gone."""
         self._destroyed = True
@@ -77,8 +99,6 @@ class PyInstalledTable(QtWidgets.QTableWidget):
 
 class InstalledTab(QtWidgets.QWidget):
     """Installed Python versions tab."""
-
-    signal_update = QtCore.Signal()
 
     def __init__(self, parent):
         """Initialize this tab."""
@@ -152,12 +172,9 @@ class InstalledTab(QtWidgets.QWidget):
         # ensure the table is always in focus
         self.installEventFilter(self)
 
-        # other connects
-        self.signal_update.connect(self.table.populate)
-
     def update_table(self):
         """Update the Python version table."""
-        self.signal_update.emit()
+        self.table.update()
 
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""

@@ -3,14 +3,12 @@ import logging
 from math import floor
 import os
 import sys
-from threading import Thread
-import urllib.request
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from packaging import version
 import requests
 
-from ansys.tools.installer import __version__
+from ansys.tools.installer import CACHE_DIR, __version__
 from ansys.tools.installer.auto_updater import READ_ONLY_PAT, query_gh_latest_release
 from ansys.tools.installer.common import protected, threaded
 from ansys.tools.installer.installed_table import InstalledTab
@@ -311,7 +309,18 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             self._pbar.increment()
 
     def pbar_open(self, nticks=5, label=""):
-        """Open the progress bar."""
+        """Open the progress bar.
+
+
+        Parameters
+        ----------
+        nticks : int, default: 5
+            Number of "ticks" to set the progress bar to.
+
+        label : str, default: ""
+            Label of the progress bar.
+
+        """
         self.signal_open_pbar.emit(nticks, label)
 
     def _pbar_open(self, nticks, label):
@@ -339,6 +348,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         """Set progress bar position.
 
         Thread safe.
+
+        Parameters
+        ----------
+        value : int
+            Value to set active progress bar to.
+
         """
         self.signal_set_pbar_value.emit(value)
 
@@ -346,12 +361,27 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         """Set progress bar position.
 
         Not to be accessed outside of the main thread.
+
+        Parameters
+        ----------
+        value : int
+            Value to set active progress bar to.
+
         """
         if self._pbar is not None:
             self._pbar.set_value(value)
 
     def _show_error(self, text):
-        """Display an error."""
+        """Display an error.
+
+        Not thread safe. Call ``show_error`` instead for thread safety.
+
+        Parameters
+        ----------
+        text : str
+            Message to display as an error.
+
+        """
         if not isinstance(text, str):
             text = str(text)
         self._err_message_box = QtWidgets.QMessageBox(
@@ -360,12 +390,25 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self._err_message_box.show()
 
     def show_error(self, text):
-        """Thread safe show error."""
+        """Thread safe show error.
+
+        This can be called from any thread.
+
+        Parameters
+        ----------
+        text : str
+            Message to display as an error.
+
+        """
         LOG.error(text)
         self.signal_error.emit(text)
 
     def download_and_install(self):
-        """Download and install."""
+        """Download and install.
+
+        Called when ``self.submit_button.clicked`` is emitted.
+
+        """
         self.setEnabled(False)
         QtWidgets.QApplication.processEvents()
 
@@ -396,9 +439,24 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         ``when_finished`` must accept one parameter, the path of the file downloaded.
 
-        """
-        from ansys.tools.installer import CACHE_DIR
+        Parameters
+        ----------
+        url : str
+            File to download.
 
+        filename : str
+            The basename of the file to download.
+
+        when_finished : callable, optional
+            Function to call when complete. Function should accept one
+            parameter: the full path of the file downloaded.
+
+        auth : str, optional
+            Authorization token for GitHub. This is used when
+            downloading release artifacts from private/internal
+            repositories.
+
+        """
         request_headers = {}
         if auth:
             request_headers = {
@@ -406,20 +464,31 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 "Accept": "application/octet-stream",
             }
 
-        output_path = os.path.join(CACHE_DIR, filename)
-        if os.path.isfile(output_path):
-            LOG.debug("%s exists at in %s", filename, CACHE_DIR)
-            response = requests.head(url, allow_redirects=True, headers=request_headers)
-            if "Content-Length" in response.headers:
-                content_length = int(response.headers["Content-Length"])
-                file_sz = os.path.getsize(output_path)
-                if content_length == file_sz:
-                    LOG.debug("Sizes match. Using cached file from %s", output_path)
-                    if when_finished is not None:
-                        when_finished(output_path)
-                    return
+        # initiate the download
+        session = requests.Session()
+        response = session.get(
+            url, allow_redirects=True, stream=True, headers=request_headers
+        )
+        tsize = int(response.headers.get("Content-Length", 0))
 
-                LOG.debug("Sizes do not match. Ignoring cached file.")
+        if response.status_code != 200:
+            self.show_error(
+                f"Unable to download {filename}.\n\nReceived {response.status_code} from {url}"
+            )
+            self.pbar_close()
+            return
+
+        output_path = os.path.join(CACHE_DIR, filename)
+        if os.path.isfile(output_path) and tsize:
+            LOG.debug("%s exists at in %s", filename, CACHE_DIR)
+            file_sz = os.path.getsize(output_path)
+            if tsize == file_sz:
+                LOG.debug("Sizes match. Using cached file from %s", output_path)
+                if when_finished is not None:
+                    when_finished(output_path)
+                return
+
+            LOG.debug("Sizes do not match. Ignoring cached file.")
 
         # size and current_bytes, current bar position
         total = [None, 0, 0]
@@ -434,46 +503,19 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 if total[2] != val:
                     self.pbar_set_value(val)
 
-        def download():
-            """Execute download."""
-            self.pbar_open(100, f"Downloading {filename}")
+        self.pbar_open(100, f"Downloading {filename}")
 
-            # first, query if the file exists
-            response = requests.head(url, allow_redirects=True, headers=request_headers)
+        chunk_size = 200 * 1024  # 200kb
+        with open(output_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size):
+                f.write(chunk)
+                update(0, chunk_size, tsize)
+                tsize = None
 
-            if response.status_code != 200:
-                self.show_error(
-                    f"Unable to download {filename}.\n\nReceived {response.status_code} from {url}"
-                )
-                self.pbar_close()
-                return ""
+        self.pbar_close()
 
-            total_size = None
-            try:
-                total[0] = int(response.headers["Content-Length"])
-            except:
-                total[0] = 50 * 2**20  # dummy 50 MB
-
-            if auth:
-                # convert string to StringIO object
-                session = requests.Session()
-                response = session.get(url, stream=True, headers=request_headers)
-                tsize = int(response.headers.get("Content-Length", 0))
-                chunk_size = 200 * 1024  # 200kb
-                with open(output_path, "wb") as f:
-                    for chunk in response.iter_content(chunk_size):
-                        f.write(chunk)
-                        update(0, chunk_size, tsize)
-                        tsize = None
-
-            else:
-                urllib.request.urlretrieve(req, filename=output_path, reporthook=update)
-            self.pbar_close()
-
-            if when_finished is not None:
-                when_finished(output_path)
-
-        Thread(target=download).start()
+        if when_finished is not None:
+            when_finished(output_path)
 
     def _run_exe(self, filename):
         """Execute a file."""
