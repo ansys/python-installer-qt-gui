@@ -55,6 +55,7 @@ jobs:
       - uses: pyansys/actions/tests-pytest@v4
         with:
           pytest-extra-args: "--cov=ansys --cov-report=term"
+          python-version: ${{ matrix.python-version }}
 
   doc-build:
     name: "Build documentation"
