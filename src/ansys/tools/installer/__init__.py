@@ -1,7 +1,6 @@
 """
 Ansys Python Manager
 """
-import logging
 import os
 import sys
 import warnings
@@ -36,28 +35,6 @@ if not os.path.isdir(CACHE_DIR):
         warnings.warn(f"Unable create cache at {CACHE_DIR}. Using temporary directory")
         CACHE_DIR = tempdir.gettempdir()
 
-ENABLE_LOGGING = True
-if ENABLE_LOGGING:
-
-    class SafeStreamHandler(logging.StreamHandler):
-        def emit(self, record):
-            try:
-                if not self.stream.closed:
-                    super().emit(record)
-            except (ValueError, AttributeError):
-                pass
-
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    # Create a console handler that writes to stdout
-    console_handler = SafeStreamHandler(sys.stdout)
-    console_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-    console_handler.setFormatter(formatter)
-
-    # Add the console handler to the logger
-    logger.addHandler(console_handler)
 
 try:
     from ansys.tools.installer.main import open_gui  # place this at end to allow import

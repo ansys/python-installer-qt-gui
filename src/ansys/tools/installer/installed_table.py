@@ -157,7 +157,6 @@ class InstalledTab(QtWidgets.QWidget):
 
     def update_table(self):
         """Update the Python version table."""
-        print("emit")
         self.signal_update.emit()
 
     def eventFilter(self, source, event):

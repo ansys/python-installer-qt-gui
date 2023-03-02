@@ -15,6 +15,7 @@ from ansys.tools.installer.auto_updater import READ_ONLY_PAT, query_gh_latest_re
 from ansys.tools.installer.common import protected, threaded
 from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python, run_ps
+from ansys.tools.installer.misc import enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
 
 LOG = logging.getLogger(__name__)
@@ -432,7 +433,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 val = floor(100 * total[1] / total[0])
                 if total[2] != val:
                     self.pbar_set_value(val)
-            print(bsize)
 
         def download():
             """Execute download."""
@@ -488,6 +488,42 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
 def open_gui():
     """Start the installer as a QT Application."""
+
+    import argparse
+    import ctypes
+    import msvcrt
+
+    kernel32 = ctypes.windll.kernel32
+
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--console", action="store_true", help="Open console window")
+    try:
+        args = parser.parse_args()
+    except AttributeError:
+        kernel32.AllocConsole()
+
+        # Redirect stdout and stderr to the console
+        sys.stdout = open("CONOUT$", "w")
+        sys.stderr = open("CONOUT$", "w")
+
+        try:
+            args = parser.parse_args()
+        except SystemExit:
+            print("\nPress any key to continue...")
+            msvcrt.getch()
+            return
+
+    # Allocate console if --console option is specified
+    if args.console:
+        kernel32.AllocConsole()
+
+        # Redirect stdout and stderr to the console
+        sys.stdout = open("CONOUT$", "w")
+        sys.stderr = open("CONOUT$", "w")
+
+    enable_logging()
+
     app = QtWidgets.QApplication(sys.argv)
     window = AnsysPythonInstaller()
     window.show()
