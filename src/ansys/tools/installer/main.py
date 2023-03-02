@@ -289,9 +289,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         mbox = QtWidgets.QMessageBox.about(self, "About", ABOUT_TEXT)
 
     def _install_type_changed(self, *args):
-        self.python_version_select.setEnabled(
-            self.installation_type_select.currentText() == "Standard"
-        )
+        if self.installation_type_select.currentText() == "Standard":
+            self.python_version_select.setEnabled(True)
+        elif self.installation_type_select.currentText() == "Conda (miniforge)":
+            default_index = self.python_version_select.findText("Python 3.10")
+            self.python_version_select.setCurrentIndex(default_index)
+            self.python_version_select.setEnabled(False)
 
     def pbar_increment(self):
         """Increment the progress bar.
