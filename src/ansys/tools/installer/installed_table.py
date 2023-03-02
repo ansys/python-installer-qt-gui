@@ -14,37 +14,39 @@ LOG.setLevel("DEBUG")
 
 
 class PyInstalledTable(QtWidgets.QTableWidget):
-    def __init__(self, parent=None):
-        super().__init__(1, 1, parent)
-        self.populate()
-        self._destroyed = False
+    """Table of locally installed Python environments."""
 
-    # @threaded
+    def __init__(self, parent=None):
+        """Initialize the table by populating it."""
+        super().__init__(1, 1, parent)
+        self._destroyed = False
+        self.populate()
+
     def populate(self):
         """Populate the table."""
         LOG.debug("Populating the table")
         self.clear()
-        installed = find_all_python()
+
+        # query for all installations of Python
+        installed_python = find_all_python()
         installed_forge = find_miniforge()
 
         if self._destroyed:
             return
 
-        tot = len(installed[0]) + len(installed[1]) + len(installed_forge)
+        tot = len(installed_python) + len(installed_forge)
         self.setRowCount(tot)
         self.setColumnCount(3)
-
         self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
         self.verticalHeader().setVisible(False)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         row = 0
-        for admin in [True, False]:
-            for version, path in installed[admin].items():
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python v{version}"))
-                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-                row += 1
+        for path, (version, admin) in installed_python.items():
+            self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python {version}"))
+            self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
+            self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
+            row += 1
 
         for path, (version, admin) in installed_forge.items():
             self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Conda {version}"))
@@ -74,9 +76,12 @@ class PyInstalledTable(QtWidgets.QTableWidget):
 
 
 class InstalledTab(QtWidgets.QWidget):
+    """Installed Python versions tab."""
+
     signal_update = QtCore.Signal()
 
     def __init__(self, parent):
+        """Initialize this tab."""
         super().__init__()
         self._parent = parent
         layout = QtWidgets.QVBoxLayout()
@@ -144,40 +149,37 @@ class InstalledTab(QtWidgets.QWidget):
         self.table = PyInstalledTable()
         layout.addWidget(self.table)
 
-        # Connect the focusInEvent signal to the on_focus_in method
+        # ensure the table is always in focus
         self.installEventFilter(self)
 
         # other connects
         self.signal_update.connect(self.table.populate)
 
     def update_table(self):
-        """Update this tab's table."""
+        """Update the Python version table."""
         print("emit")
         self.signal_update.emit()
 
     def eventFilter(self, source, event):
+        """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
             self.table.setFocus()
         return super().eventFilter(source, event)
 
-    def on_focus_in(self, event):
-        # Set the focus to the table whenever the widget gains focus
-        self.table.setFocus()
-
     def launch_spyder(self):
-        """Launch spyder IDE"""
+        """Launch spyder IDE."""
         # handle errors
         error_msg = "pip install spyder && spyder || echo Failed to launch. Try reinstalling spyder with pip install spyder --force-reinstall"
         self.launch_cmd(f"spyder || {error_msg}")
 
     def launch_jupyterlab(self):
-        """Launch Jupyterlab"""
+        """Launch Jupyterlab."""
         # handle errors
         error_msg = "pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab --force-reinstall"
         self.launch_cmd(f"python -m jupyter lab || {error_msg}")
 
     def launch_jupyter_notebook(self):
-        """Launch Jupyter Notebook"""
+        """Launch Jupyter Notebook."""
         # handle errors
         error_msg = "pip install jupyter && python -m jupyter notebook || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
         self.launch_cmd(f"python -m jupyter notebook || {error_msg}")
@@ -197,7 +199,14 @@ class InstalledTab(QtWidgets.QWidget):
         self.launch_cmd("pip list")
 
     def launch_cmd(self, extra=""):
-        """"""
+        """Run a command in a new command prompt.
+
+        Parameters
+        ----------
+        extra : str, default: ""
+            Any additional command(s).
+
+        """
         py_path = self.table.active_path
         if "Python" in self.table.active_version:
             scripts_path = os.path.join(py_path, "Scripts")
