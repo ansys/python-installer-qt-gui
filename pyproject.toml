@@ -15,7 +15,6 @@ maintainers = [
     {name = "PyAnsys Developers", email = "pyansys.maintainers@ansys.com"},
 ]
 dependencies = [
-    "cffi",
     "packaging",
     "PyGitHub",
     "appdirs",
