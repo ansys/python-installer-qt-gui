@@ -16,7 +16,7 @@ def gui(qtbot_session):
     installer = AnsysPythonInstaller(show=False)
     yield installer
     # qtbot_session.wait(1000)
-    installer.close()
+    # installer.close()
 
 
 def test_main_window_header(gui):
