@@ -207,7 +207,7 @@ class InstalledTab(QtWidgets.QWidget):
 
     def install_pyansys(self):
         """Install PyAnsys metapackage."""
-        cmd = "pip install pyansys>=2023 & timeout 3 & exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys>=2023 --force-reinstall"
+        cmd = "pip install pyansys^>=2023 & timeout 3 & exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys^>=2023 --force-reinstall"
         self.launch_cmd(cmd)
 
     def list_packages(self):
