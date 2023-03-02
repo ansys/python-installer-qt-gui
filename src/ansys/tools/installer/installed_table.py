@@ -4,7 +4,7 @@ import subprocess
 
 from PySide6 import QtCore, QtWidgets
 
-from ansys.tools.installer.common import threaded
+# from ansys.tools.installer.common import threaded
 from ansys.tools.installer.find_python import find_all_python, find_miniforge
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
@@ -19,7 +19,7 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         self.populate()
         self._destroyed = False
 
-    @threaded
+    # @threaded
     def populate(self):
         """Populate the table."""
         LOG.debug("Populating the table")
