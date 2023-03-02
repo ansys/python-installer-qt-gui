@@ -1,10 +1,11 @@
 import logging
 import os
 import subprocess
+import time
 
 from PySide6 import QtCore, QtWidgets
 
-from ansys.tools.installer.common import threaded
+# from ansys.tools.installer.common import threaded
 from ansys.tools.installer.find_python import find_all_python, find_miniforge
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
@@ -14,32 +15,58 @@ LOG.setLevel("DEBUG")
 
 
 class PyInstalledTable(QtWidgets.QTableWidget):
-    def __init__(self, parent=None):
-        super().__init__(1, 1, parent)
-        self.populate()
+    """Table of locally installed Python environments."""
 
-    @threaded
+    signal_update = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        """Initialize the table by populating it."""
+        super().__init__(1, 1, parent)
+        self._destroyed = False
+        self._locked = True
+        self.populate()
+        self.signal_update.connect(self.populate)
+
+    def update(self, timeout=1.0):
+        """Update this table.
+
+        Respects a lock to ensure no race conditions or multiple calls on the table.
+
+        """
+        tstart = time.time()
+        while self._locked:
+            time.sleep(0.001)
+            if time.time() - tstart > timeout:
+                return
+
+        self.signal_update.emit()
+
     def populate(self):
         """Populate the table."""
+        self._locked = True
         LOG.debug("Populating the table")
         self.clear()
-        installed = find_all_python()
+
+        # query for all installations of Python
+        installed_python = find_all_python()
         installed_forge = find_miniforge()
-        tot = len(installed[0]) + len(installed[1]) + len(installed_forge)
+
+        if self._destroyed:
+            return
+
+        tot = len(installed_python) + len(installed_forge)
         self.setRowCount(tot)
         self.setColumnCount(3)
-
         self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
         self.verticalHeader().setVisible(False)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         row = 0
-        for admin in [True, False]:
-            for version, path in installed[admin].items():
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python v{version}"))
-                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-                row += 1
+        for path, (version, admin) in installed_python.items():
+            self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python {version}"))
+            self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
+            self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
+            row += 1
 
         for path, (version, admin) in installed_forge.items():
             self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Conda {version}"))
@@ -50,6 +77,14 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         self.resizeColumnsToContents()
         self.selectRow(0)
         self.horizontalHeader().setStretchLastSection(True)
+
+        self.destroyed.connect(self.stop)
+
+        self._locked = False
+
+    def stop(self):
+        """Flag that this object is gone."""
+        self._destroyed = True
 
     @property
     def active_path(self):
@@ -63,9 +98,10 @@ class PyInstalledTable(QtWidgets.QTableWidget):
 
 
 class InstalledTab(QtWidgets.QWidget):
-    signal_update = QtCore.Signal()
+    """Installed Python versions tab."""
 
     def __init__(self, parent):
+        """Initialize this tab."""
         super().__init__()
         self._parent = parent
         layout = QtWidgets.QVBoxLayout()
@@ -133,40 +169,33 @@ class InstalledTab(QtWidgets.QWidget):
         self.table = PyInstalledTable()
         layout.addWidget(self.table)
 
-        # Connect the focusInEvent signal to the on_focus_in method
+        # ensure the table is always in focus
         self.installEventFilter(self)
 
-        # other connects
-        self.signal_update.connect(self.table.populate)
-
     def update_table(self):
-        """Update this tab's table."""
-        print("emit")
-        self.signal_update.emit()
+        """Update the Python version table."""
+        self.table.update()
 
     def eventFilter(self, source, event):
+        """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
             self.table.setFocus()
         return super().eventFilter(source, event)
 
-    def on_focus_in(self, event):
-        # Set the focus to the table whenever the widget gains focus
-        self.table.setFocus()
-
     def launch_spyder(self):
-        """Launch spyder IDE"""
+        """Launch spyder IDE."""
         # handle errors
         error_msg = "pip install spyder && spyder || echo Failed to launch. Try reinstalling spyder with pip install spyder --force-reinstall"
         self.launch_cmd(f"spyder || {error_msg}")
 
     def launch_jupyterlab(self):
-        """Launch Jupyterlab"""
+        """Launch Jupyterlab."""
         # handle errors
         error_msg = "pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab --force-reinstall"
         self.launch_cmd(f"python -m jupyter lab || {error_msg}")
 
     def launch_jupyter_notebook(self):
-        """Launch Jupyter Notebook"""
+        """Launch Jupyter Notebook."""
         # handle errors
         error_msg = "pip install jupyter && python -m jupyter notebook || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
         self.launch_cmd(f"python -m jupyter notebook || {error_msg}")
@@ -186,7 +215,14 @@ class InstalledTab(QtWidgets.QWidget):
         self.launch_cmd("pip list")
 
     def launch_cmd(self, extra=""):
-        """"""
+        """Run a command in a new command prompt.
+
+        Parameters
+        ----------
+        extra : str, default: ""
+            Any additional command(s).
+
+        """
         py_path = self.table.active_path
         if "Python" in self.table.active_version:
             scripts_path = os.path.join(py_path, "Scripts")

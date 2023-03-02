@@ -15,7 +15,8 @@ except NameError:
 
 OUT_PATH = 'ansys_python_manager'
 APP_NAME = 'Ansys Python Manager'
-ASSETS_PATH = os.path.join(THIS_PATH, 'src/ansys/tools/installer/assets')
+INSTALLER_PATH = os.path.join(THIS_PATH, 'src/ansys/tools/installer')
+ASSETS_PATH = os.path.join(INSTALLER_PATH, 'assets')
 ICON_FILE = os.path.join(ASSETS_PATH, 'pyansys_icon.ico')
 
 # consider testing paths
@@ -28,13 +29,14 @@ added_files = [
     (os.path.join(ASSETS_PATH, 'pyansys-light-crop.png'), 'assets'),
     (os.path.join(ASSETS_PATH, 'ansys-favicon.png'), 'assets'),
     (os.path.join(ASSETS_PATH, 'pyansys_icon.ico'), 'assets'),
+    (os.path.join(INSTALLER_PATH, 'VERSION'), '.'),
 ]
 
 a = Analysis([main_py],
              pathex=[],
              binaries=[],
              datas=added_files,
-             hiddenimports=[],
+             hiddenimports=['_cffi_backend'],
              hookspath=[],
              runtime_hooks=[],
              excludes=[],

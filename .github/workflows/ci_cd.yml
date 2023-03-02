@@ -54,7 +54,7 @@ jobs:
 
       - uses: pyansys/actions/tests-pytest@v4
         with:
-          pytest-extra-args: "--cov=ansys --cov-report=term"
+          python-version: ${{ matrix.python-version }}
 
   doc-build:
     name: "Build documentation"
@@ -119,12 +119,7 @@ jobs:
         run: pyinstaller frozen.spec
 
       - name: Install NSIS
-        run: |
-          iwr -useb get.scoop.sh -outfile 'install.ps1'
-          .\install.ps1 -RunAsAdmin
-          scoop update
-          scoop bucket add extras
-          scoop install nsis
+        run: choco install nsis -y
 
       - name: Print NSIS version
         run: makensis -VERSION
@@ -159,12 +154,8 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
 
-      - uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r python-installer-gui.zip installer
-
       - name: "Release to GitHub"
         uses: softprops/action-gh-release@v1
         with:
-          files: python-installer-gui.zip
+          files: installer/*.exe
           generate_release_notes: true
