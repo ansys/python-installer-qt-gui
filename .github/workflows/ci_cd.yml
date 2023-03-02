@@ -119,12 +119,7 @@ jobs:
         run: pyinstaller frozen.spec
 
       - name: Install NSIS
-        run: |
-          iwr -useb get.scoop.sh -outfile 'install.ps1'
-          .\install.ps1 -RunAsAdmin
-          scoop update
-          scoop bucket add extras
-          scoop install nsis
+        run: choco install nsis -y
 
       - name: Print NSIS version
         run: makensis -VERSION
