@@ -23,6 +23,7 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 	rm -rf $(SOURCEDIR)/examples
+	rm -rf $(SOURCEDIR)/images
 	find . -type d -name "_autosummary" -exec rm -rf {} +
 
 # Create PDF
