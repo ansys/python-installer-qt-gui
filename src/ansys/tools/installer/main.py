@@ -14,7 +14,7 @@ from ansys.tools.installer.auto_updater import READ_ONLY_PAT, query_gh_latest_re
 from ansys.tools.installer.common import protected, threaded
 from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python, run_ps
-from ansys.tools.installer.misc import enable_logging
+from ansys.tools.installer.misc import ImageWidget, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
 
 LOG = logging.getLogger(__name__)
@@ -118,7 +118,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         header_widget.setLayout(header_layout)
 
         # Header icon
-        self.menu_heading = QtWidgets.QLabel()
+        self.menu_heading = ImageWidget()
         pixmap = QtGui.QPixmap(os.path.join(ASSETS_PATH, "pyansys-light-crop.png"))
         self.menu_heading.setPixmap(pixmap)
         header_layout.addWidget(self.menu_heading)
