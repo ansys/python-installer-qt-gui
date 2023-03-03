@@ -258,7 +258,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         LOG.debug(f"Currently installed version: {cur_ver}")
         LOG.debug(f"Latest version: {ver}")
         if ver > cur_ver:
-        # if True:
             LOG.debug("Update available.")
             reply = QtWidgets.QMessageBox.question(
                 None,
