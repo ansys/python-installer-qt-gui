@@ -1,4 +1,5 @@
 """Search for Python or miniforge installations within the Windows registry."""
+
 import logging
 import os
 

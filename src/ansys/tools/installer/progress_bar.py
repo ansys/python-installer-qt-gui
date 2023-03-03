@@ -1,4 +1,5 @@
 """Progress bar module for Ansys Python Manager."""
+
 from PySide6 import QtCore, QtWidgets
 
 

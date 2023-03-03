@@ -1,4 +1,5 @@
 """Main installer window."""
+
 import logging
 from math import floor
 import os
