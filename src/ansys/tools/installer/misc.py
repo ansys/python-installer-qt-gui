@@ -3,6 +3,8 @@
 import logging
 import sys
 
+from PySide6 import QtWidgets
+
 
 def enable_logging():
     """Log to stdout."""
@@ -26,3 +28,21 @@ def enable_logging():
 
     # Add the console handler to the logger
     logger.addHandler(console_handler)
+
+
+class ImageWidget(QtWidgets.QLabel):
+    """Automatic scaled image widget."""
+
+    def __init__(self, parent=None):
+        """Instantiate an ImageWidget."""
+        super().__init__(parent)
+        self.setScaledContents(True)
+
+    def hasHeightForWidth(self):
+        """Override height for width for autoscaling (when pixmap)."""
+        return self.pixmap() is not None
+
+    def heightForWidth(self, w):
+        """Override height for width for autoscaling."""
+        if self.pixmap():
+            return int(w * (self.pixmap().height() / self.pixmap().width()))
