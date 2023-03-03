@@ -1,6 +1,5 @@
-"""
+"""Installer module for Ansys Python Manager."""
 
-"""
 import logging
 import subprocess
 

@@ -1,7 +1,5 @@
-"""
-Search for Python or miniforge installations within the Windows registry.
+"""Search for Python or miniforge installations within the Windows registry."""
 
-"""
 import logging
 import os
 
@@ -76,7 +74,6 @@ def _find_miniforge(admin=False):
 
 def _find_installed_python(admin=False):
     """Check the registry for any installed instances of Python."""
-
     if admin:
         root_key = winreg.HKEY_LOCAL_MACHINE
     else:

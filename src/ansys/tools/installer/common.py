@@ -1,3 +1,5 @@
+"""Common module for Ansys Python Manager."""
+
 from functools import wraps
 import logging
 import sys
@@ -9,7 +11,7 @@ LOG.setLevel("DEBUG")
 
 
 def threaded(fn):
-    """Call a function using a thread"""
+    """Call a function using a thread."""
 
     def wrapper(*args, **kwargs):
         thread = Thread(target=fn, args=args, kwargs=kwargs)
@@ -20,7 +22,7 @@ def threaded(fn):
 
 
 def protected(fn):
-    """Captures any exceptions from a function and passes it to the gui.
+    """Capture any exceptions from a function and pass it to the GUI.
 
     Attempts to display the error using ``show_error`` and protects
     the main application from segmentation faulting.

@@ -1,4 +1,5 @@
 """Main installer window."""
+
 import logging
 from math import floor
 import os
@@ -51,6 +52,8 @@ ASSETS_PATH = os.path.join(THIS_PATH, "assets")
 
 
 class AnsysPythonInstaller(QtWidgets.QMainWindow):
+    """Main Ansys Python Manager class."""
+
     signal_error = QtCore.Signal(str)
     signal_open_pbar = QtCore.Signal(int, str)
     signal_increment_pbar = QtCore.Signal()
@@ -59,6 +62,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     signal_close = QtCore.Signal()
 
     def __init__(self, show=True):
+        """Instantiate Ansys Python Manager main class."""
         super().__init__()
         self.setWindowTitle("Ansys Python Manager")
         self.setGeometry(50, 50, 500, 700)  # width should auto-update
@@ -179,11 +183,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         python_version_layout.setContentsMargins(0, 0, 0, 0)
         python_version.setLayout(python_version_layout)
 
-        # python_version_title = QtWidgets.QLabel("Python Version")
-        # python_version_layout.addWidget(python_version_title)
-
-        # python_version_text = QtWidgets.QLabel("Select one")
-
         self.python_version_select = QtWidgets.QComboBox()
         self.python_version_select.addItem("Python 3.7", "3.7.9")
         self.python_version_select.addItem("Python 3.8", "3.8.10")
@@ -249,14 +248,17 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
     @protected
     def check_for_updates(self):
+        """Check for Ansys Python Manager application updates."""
         LOG.debug("Checking for updates")
         (
             ver,
             url,
         ) = query_gh_latest_release()
         cur_ver = version.parse(__version__)
+
         LOG.debug(f"Currently installed version: {cur_ver}")
         LOG.debug(f"Latest version: {ver}")
+
         if ver > cur_ver:
             LOG.debug("Update available.")
             reply = QtWidgets.QMessageBox.question(
@@ -283,12 +285,14 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             ).exec_()
 
     def visit_website(self):
+        """Access the Ansys Python Manager documentation."""
         url = QtCore.QUrl(
             "https://installer.docs.pyansys.com/version/dev/installer.html"
         )
         QtGui.QDesktopServices.openUrl(url)
 
     def show_about_dialog(self):
+        """Display the Ansys Python Manager 'About' information."""
         mbox = QtWidgets.QMessageBox.about(self, "About", ABOUT_TEXT)
 
     def _install_type_changed(self, *args):
@@ -316,7 +320,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
     def pbar_open(self, nticks=5, label=""):
         """Open the progress bar.
-
 
         Parameters
         ----------
@@ -536,7 +539,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
 def open_gui():
     """Start the installer as a QT Application."""
-
     import argparse
     import ctypes
     import msvcrt
