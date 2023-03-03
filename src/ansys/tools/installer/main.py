@@ -255,12 +255,16 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             url,
         ) = query_gh_latest_release()
         cur_ver = version.parse(__version__)
+
+        LOG.debug(f"Currently installed version: {cur_ver}")
+        LOG.debug(f"Latest version: {ver}")
+
         if ver > cur_ver:
             LOG.debug("Update available.")
             reply = QtWidgets.QMessageBox.question(
                 None,
                 "Update",
-                f"The latest version available is {ver}. You are currently running version {cur_ver}. Do you want to update?",
+                f"The latest available version is {ver}. You are currently running version {cur_ver}. Do you want to update?",
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                 QtWidgets.QMessageBox.Yes,
             )
