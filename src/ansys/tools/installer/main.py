@@ -51,6 +51,8 @@ ASSETS_PATH = os.path.join(THIS_PATH, "assets")
 
 
 class AnsysPythonInstaller(QtWidgets.QMainWindow):
+    """Main Ansys Python Manager class."""
+
     signal_error = QtCore.Signal(str)
     signal_open_pbar = QtCore.Signal(int, str)
     signal_increment_pbar = QtCore.Signal()
@@ -59,6 +61,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     signal_close = QtCore.Signal()
 
     def __init__(self, show=True):
+        """Instantiate Ansys Python Manager main class."""
         super().__init__()
         self.setWindowTitle("Ansys Python Manager")
         self.setGeometry(50, 50, 500, 700)  # width should auto-update
@@ -249,6 +252,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
     @protected
     def check_for_updates(self):
+        """Check for Ansys Python Manager application updates."""
         LOG.debug("Checking for updates")
         (
             ver,
@@ -261,7 +265,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             reply = QtWidgets.QMessageBox.question(
                 None,
                 "Update",
-                f"A new version {ver} is available. You are currently running version {cur_ver}. Do you want to update?",
+                f"The latest version available is {ver}. You are currently running version {cur_ver}. Do you want to update?",
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                 QtWidgets.QMessageBox.Yes,
             )
@@ -282,12 +286,14 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             ).exec_()
 
     def visit_website(self):
+        """Access the Ansys Python Manager documentation."""
         url = QtCore.QUrl(
             "https://installer.docs.pyansys.com/version/dev/installer.html"
         )
         QtGui.QDesktopServices.openUrl(url)
 
     def show_about_dialog(self):
+        """Display the Ansys Python Manager 'About' information."""
         mbox = QtWidgets.QMessageBox.about(self, "About", ABOUT_TEXT)
 
     def _install_type_changed(self, *args):
@@ -315,7 +321,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
     def pbar_open(self, nticks=5, label=""):
         """Open the progress bar.
-
 
         Parameters
         ----------
@@ -535,7 +540,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
 def open_gui():
     """Start the installer as a QT Application."""
-
     import argparse
     import ctypes
     import msvcrt

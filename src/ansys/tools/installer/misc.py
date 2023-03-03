@@ -1,6 +1,4 @@
-"""
-Contains miscellaneous functionalities this library.
-"""
+"""Contains miscellaneous functionalities this library."""
 
 import logging
 import sys

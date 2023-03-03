@@ -1,6 +1,4 @@
-"""
-Check for updates.
-"""
+"""Check for updates."""
 
 from github import Github
 from packaging import version

@@ -1,8 +1,12 @@
+"""Progress bar module for Ansys Python Manager."""
 from PySide6 import QtCore, QtWidgets
 
 
 class ProgressBar(QtWidgets.QDialog):
+    """ProgressBar class."""
+
     def __init__(self, parent, nticks, title="Progress Bar", label=None, show=True):
+        """Instantiate a ProgressBar object."""
         super().__init__(parent)
         self._pbar = QtWidgets.QProgressBar(self)
         self._pbar.setValue(0)
