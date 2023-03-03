@@ -263,7 +263,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             reply = QtWidgets.QMessageBox.question(
                 None,
                 "Update",
-                f"A new version {ver} is available. You are currently running version {cur_ver}. Do you want to update?",
+                f"The latest available version is {ver}. You are currently running version {cur_ver}. Do you want to update?",
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                 QtWidgets.QMessageBox.Yes,
             )
