@@ -1,5 +1,4 @@
 """Installed Python versions table module for Ansys Python Manager."""
-
 import logging
 import os
 import subprocess
