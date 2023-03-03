@@ -1,5 +1,6 @@
 """Sphinx documentation configuration file."""
 from datetime import datetime
+import shutil
 
 from ansys_sphinx_theme import pyansys_logo_black as logo
 
@@ -48,7 +49,7 @@ intersphinx_mapping = {
 }
 
 # static path
-html_static_path = ["_static"]
+html_static_path = ["_static", "images"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -58,3 +59,6 @@ source_suffix = ".rst"
 
 # The master toctree document.
 master_doc = "index"
+
+# Copying README images
+shutil.copytree("../../images", "images", dirs_exist_ok=True)
