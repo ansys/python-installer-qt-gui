@@ -182,11 +182,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         python_version_layout.setContentsMargins(0, 0, 0, 0)
         python_version.setLayout(python_version_layout)
 
-        # python_version_title = QtWidgets.QLabel("Python Version")
-        # python_version_layout.addWidget(python_version_title)
-
-        # python_version_text = QtWidgets.QLabel("Select one")
-
         self.python_version_select = QtWidgets.QComboBox()
         self.python_version_select.addItem("Python 3.7", "3.7.9")
         self.python_version_select.addItem("Python 3.8", "3.8.10")
