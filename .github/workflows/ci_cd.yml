@@ -67,7 +67,7 @@ jobs:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
   
-  doc-deploy-dev:
+  doc-deploy:
     name: "Deploy development documentation"
     runs-on: ubuntu-latest
     needs: [doc-build]
@@ -77,26 +77,6 @@ jobs:
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  # doc-deploy-stable:
-  #   name: "Deploy stable documentation"
-  #   runs-on: ubuntu-latest
-  #   needs: [doc-deploy-dev]
-  #   if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-  #   steps:
-  #     - uses: pyansys/actions/doc-deploy-stable@v4
-  #       with:
-  #         cname: ${{ env.DOCUMENTATION_CNAME }}
-  #         token: ${{ secrets.GITHUB_TOKEN }}
-
-  # build-library:
-  #   name: "Build library"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: pyansys/actions/build-library@v4
-  #       with:
-  #         library-name: ${{ env.LIBRARY_NAME }}
-  #         python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
   build-application:
     name: "Build Application"
@@ -133,7 +113,7 @@ jobs:
         run: |
           $env:Path = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\;" + $env:Path
           $filename = get-ChildItem dist -recurse | where {$_.name -like "*Setup*"}
-          signtool.exe sign /f src\ansys\tools\installer\assets\python-installer.pfx /p ${{ secrets.PYTHON_INSTALLER_CERT_PWD }} /d Ansys-Python-Manager dist\$filename.Name
+          signtool.exe sign /f src\ansys\tools\installer\assets\python-installer.pfx /p '${{ secrets.PYTHON_INSTALLER_CERT_PWD }}' /d Ansys-Python-Manager dist\$filename.Name
 
       - name: List output
         run: ls -R dist
