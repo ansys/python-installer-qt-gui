@@ -128,6 +128,11 @@ jobs:
           $ErrorActionPreference = "Stop"
           makensis setup.nsi
 
+      - name: Sign application
+        shell: pwsh
+        run: |
+          signtool.exe sign /f src\ansys\tools\installer\assets\python-installer.pfx /p ${{ secrets.PYTHON_INSTALLER_CERT_PWD }} /d dist\Ansys-Python-Manager-Setup-*.exe
+
       - name: List output
         run: ls -R dist
 
