@@ -113,7 +113,14 @@ jobs:
         run: |
           $env:Path = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\;" + $env:Path
           $filename = get-ChildItem dist -recurse | where {$_.name -like "*Setup*"}
-          signtool sign /f src\ansys\tools\installer\assets\python-installer.pfx /p '${{ secrets.PYTHON_INSTALLER_CERT_PWD }}' /d Ansys-Python-Manager $filename
+          # Proceed to sign app
+          signtool sign /f src\ansys\tools\installer\assets\python-installer.pfx `
+            /fd SHA256 `
+            /tr http://timestamp.digicert.com `
+            /td SHA256 `
+            /p '${{ secrets.PYTHON_INSTALLER_CERT_PWD }}' `
+            /d Ansys-Python-Manager `
+            $filename
 
       - name: List output
         run: ls -R dist
