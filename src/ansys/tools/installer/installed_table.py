@@ -144,6 +144,7 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_install_defaults.clicked.connect(self.install_defaults)
         hbox_install.addWidget(self.button_install_defaults)
 
+        #TODO
         self.button_install_pyansys = QtWidgets.QPushButton("Install PyAnsys")
         self.button_install_pyansys.clicked.connect(self.install_pyansys)
         hbox_install.addWidget(self.button_install_pyansys)
