@@ -149,6 +149,11 @@ jobs:
             -n $jobname `
             -i $filename
 
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Python-Installer
+          path: signtool/installer/*Setup*.exe
   release:
     name: Release application
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
