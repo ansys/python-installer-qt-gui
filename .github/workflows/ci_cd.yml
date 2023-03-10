@@ -123,10 +123,10 @@ jobs:
       group: ansys-internal
       labels: [self-hosted, Windows]
     steps:
-      - name: Setup .NET core SDK 2
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '2'
+      # - name: Setup .NET core SDK 2
+      #   uses: actions/setup-dotnet@v3
+      #   with:
+      #     dotnet-version: '2'
 
       - name: Checkout the SignTool
         uses: actions/checkout@v3
