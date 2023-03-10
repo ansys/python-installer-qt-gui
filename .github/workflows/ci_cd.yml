@@ -121,7 +121,7 @@ jobs:
     needs: [build-application]
     runs-on: 
       group: ansys-internal
-      labels: [self-hosted, Windows]
+      labels: [self-hosted, Windows, signtool]
     container:
       image: mcr.microsoft.com/dotnet/sdk
     steps:
