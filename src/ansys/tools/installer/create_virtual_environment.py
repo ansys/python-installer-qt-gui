@@ -1,3 +1,4 @@
+
 """Installed Python versions table module for Ansys Python Manager."""
 
 import logging
@@ -9,6 +10,7 @@ from PySide6 import QtCore, QtWidgets
 
 # from ansys.tools.installer.common import threaded
 from ansys.tools.installer.find_python import find_all_python, find_miniforge
+from ansys.tools.installer.installed_table import PyInstalledTable
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
 
@@ -16,91 +18,8 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
 
-class PyInstalledTable(QtWidgets.QTableWidget):
-    """Table of locally installed Python environments."""
-
-    signal_update = QtCore.Signal()
-
-    def __init__(self, parent=None):
-        """Initialize the table by populating it."""
-        super().__init__(1, 1, parent)
-        self._destroyed = False
-        self._locked = True
-        self.populate()
-        self.signal_update.connect(self.populate)
-
-    def update(self, timeout=1.0):
-        """Update this table.
-
-        Respects a lock to ensure no race conditions or multiple calls on the table.
-
-        """
-        tstart = time.time()
-        while self._locked:
-            time.sleep(0.001)
-            if time.time() - tstart > timeout:
-                return
-
-        self.signal_update.emit()
-
-    def populate(self):
-        """Populate the table."""
-        self._locked = True
-        LOG.debug("Populating the table")
-        self.clear()
-
-        # query for all installations of Python
-        installed_python = find_all_python()
-        installed_forge = find_miniforge()
-
-        if self._destroyed:
-            return
-
-        tot = len(installed_python) + len(installed_forge)
-        self.setRowCount(tot)
-        self.setColumnCount(3)
-        self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
-        self.verticalHeader().setVisible(False)
-        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-
-        row = 0
-        for path, (version, admin) in installed_python.items():
-            self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python {version}"))
-            self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-            self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-            row += 1
-
-        for path, (version, admin) in installed_forge.items():
-            self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Conda {version}"))
-            self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-            self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-            row += 1
-
-        self.resizeColumnsToContents()
-        self.selectRow(0)
-        self.horizontalHeader().setStretchLastSection(True)
-
-        self.destroyed.connect(self.stop)
-
-        self._locked = False
-
-    def stop(self):
-        """Flag that this object is gone."""
-        self._destroyed = True
-
-    @property
-    def active_path(self):
-        """Path of the active row."""
-        return self.item(self.currentRow(), 2).text()
-
-    @property
-    def active_version(self):
-        """Version of the active row."""
-        return self.item(self.currentRow(), 0).text()
-
-
-class InstalledTab(QtWidgets.QWidget):
-    """Installed Python versions tab."""
+class CreateVenvTab(QtWidgets.QWidget):
+    """Manage Virtual Environment w.r.t Python versions tab."""
 
     def __init__(self, parent):
         """Initialize this tab."""
@@ -109,53 +28,34 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        launching_options = QtWidgets.QLabel("Launching options")
-        launching_options.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(launching_options)
 
-        hbox = QtWidgets.QHBoxLayout()
-        layout.addLayout(hbox)
-        self.button_launch_cmd = QtWidgets.QPushButton("Launch Console")
-        self.button_launch_cmd.clicked.connect(self.launch_cmd)
-        hbox.addWidget(self.button_launch_cmd)
+        # Create Virtual Environment
+        file_browse_title = QtWidgets.QLabel('Note: Virtual environments are created under user directory.')
+        file_browse_title.setContentsMargins(0, 0, 0, 0)
 
-        self.button_launch_lab = QtWidgets.QPushButton("Launch Jupyterlab")
-        self.button_launch_lab.clicked.connect(self.launch_jupyterlab)
-        hbox.addWidget(self.button_launch_lab)
+        # file_browse = QtWidgets.QPushButton('Browse')
+        # file_browse.setContentsMargins(0,0,0,1)
+        # file_browse.clicked.connect(self.open_dir_dialog)
+        self.venv_name = QtWidgets.QLineEdit()
+        self.venv_name.setText("Enter virutal environment name here....")
+        # self.venv_name.textChanged.connect(self.textchanged)
 
-        self.button_launch_notebook = QtWidgets.QPushButton("Launch Jupyter Notebook")
-        self.button_launch_notebook.clicked.connect(self.launch_jupyter_notebook)
-        hbox.addWidget(self.button_launch_notebook)
+        create_env_btn = QtWidgets.QPushButton('Create Virtual Environment')
+        create_env_btn.clicked.connect(self.create_venv)
+        
 
-        self.button_launch_spyder = QtWidgets.QPushButton("Launch Spyder")
-        self.button_launch_spyder.clicked.connect(self.launch_spyder)
-        hbox.addWidget(self.button_launch_spyder)
-
-        package_management = QtWidgets.QLabel("Package management")
-        package_management.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(package_management)
-
-        hbox_install = QtWidgets.QHBoxLayout()
-        layout.addLayout(hbox_install)
-
-        self.button_install_defaults = QtWidgets.QPushButton(
-            "Install Python default packages"
-        )
-        self.button_install_defaults.clicked.connect(self.install_defaults)
-        hbox_install.addWidget(self.button_install_defaults)
-
-        self.button_install_pyansys = QtWidgets.QPushButton("Install PyAnsys")
-        self.button_install_pyansys.clicked.connect(self.install_pyansys)
-        hbox_install.addWidget(self.button_install_pyansys)
-
-        self.button_list_packages = QtWidgets.QPushButton("List installed packages")
-        self.button_list_packages.clicked.connect(self.list_packages)
-        hbox_install.addWidget(self.button_list_packages)
+        layout.addWidget(file_browse_title)
+        # layout.addWidget(file_browse)      
+        layout.addWidget(self.venv_name)
+        layout.addWidget(create_env_btn)
+        
+        
 
         # Form
         form_title = QtWidgets.QLabel("Available Python installations")
         form_title.setContentsMargins(0, 10, 0, 0)
         layout.addWidget(form_title)
+        
 
         form = QtWidgets.QWidget()
         form_layout = QtWidgets.QVBoxLayout()
@@ -173,6 +73,22 @@ class InstalledTab(QtWidgets.QWidget):
 
         # ensure the table is always in focus
         self.installEventFilter(self)
+
+
+    def create_venv(self):
+        """Creates virtual environment at selected directory."""
+        import os
+        from pathlib import Path
+        user_directory = os.path.expanduser( '~' )
+        venv_dir = '.ansys_python_venv'        
+        
+        user_venv_dir = Path(f"{user_directory}/{venv_dir}/{self.venv_name.text()}").mkdir(parents=True, exist_ok=False)
+
+        cmd = f'python venv {user_venv_dir} '
+
+        self.launch_cmd(extra=cmd)      
+
+
 
     def update_table(self):
         """Update the Python version table."""
@@ -266,6 +182,3 @@ class InstalledTab(QtWidgets.QWidget):
                 f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"',
                 shell=True,
             )
-
-
-
