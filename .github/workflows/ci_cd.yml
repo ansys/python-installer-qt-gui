@@ -130,10 +130,22 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: Python-Installer
-          path: installer
+          path: signtool/installer
 
       - name: List current structure
         run: ls -R
+      
+      - name: Sign application
+        working-directory: signtool
+        run: |
+          $filename = get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}
+          $jobname = $filename -replace ".{4}$"
+          dotnet signclient.dll sign `
+            -r ansyssigning@ansys.com `
+            -s '${{ secrets.SIGNTOOL_PWD }}' `
+            -c AppSettings.json `
+            -n $jobname `
+            -i $filename
 
   release:
     name: Release application
