@@ -119,7 +119,9 @@ jobs:
   sign-application:
     name: Sign application
     needs: [build-application]
-    runs-on: windows-latest
+    runs-on: 
+      group: ansys-internal
+      labels: [self-hosted, Windows]
     steps:
       - name: Setup .NET core SDK 2
         uses: actions/setup-dotnet@v3
