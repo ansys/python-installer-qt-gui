@@ -126,7 +126,6 @@ jobs:
         with:
           repository: pyansys/signtool-ansys-apps
           ssh-key: ${{ secrets.SIGNTOOL_ACCESS_KEY }}
-          path: signtool
 
       - uses: actions/download-artifact@v3
         with:
