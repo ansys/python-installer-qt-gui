@@ -132,7 +132,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: pyansys/signtool-ansys-apps
-          ssh-key: ${{ secrets.SIGNTOOL_ACCESS_KEY }}
+          token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
 
       - uses: actions/download-artifact@v3
         with:
