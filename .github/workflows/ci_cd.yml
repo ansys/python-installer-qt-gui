@@ -122,6 +122,8 @@ jobs:
     runs-on: 
       group: ansys-internal
       labels: [self-hosted, Windows]
+    container:
+      image: mcr.microsoft.com/dotnet/sdk
     steps:
       # - name: Setup .NET core SDK 2
       #   uses: actions/setup-dotnet@v3
