@@ -140,14 +140,14 @@ jobs:
       - name: Sign application
         working-directory: signtool
         run: |
-          $filename = get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}
-          $jobname = $filename.Name -replace ".{4}$"
+          $filename = (get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}).Name
+          $jobname = $filename -replace ".{4}$"
           dotnet signclient.dll sign `
             -r ansyssigning@ansys.com `
             -s '${{ secrets.SIGNTOOL_PWD }}' `
             -c AppSettings.json `
             -n $jobname `
-            -i $filename
+            -i installer/$filename
 
       - uses: actions/upload-artifact@v3
         with:
