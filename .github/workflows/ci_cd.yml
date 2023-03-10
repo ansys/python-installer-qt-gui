@@ -139,7 +139,7 @@ jobs:
         working-directory: signtool
         run: |
           $filename = get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}
-          $jobname = $filename -replace ".{4}$"
+          $jobname = $filename.Name -replace ".{4}$"
           dotnet signclient.dll sign `
             -r ansyssigning@ansys.com `
             -s '${{ secrets.SIGNTOOL_PWD }}' `
