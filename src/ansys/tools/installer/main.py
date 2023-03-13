@@ -276,12 +276,14 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 )
         else:
             LOG.debug("Up to date.")
-            QtWidgets.QMessageBox(
+            msgBox = QtWidgets.QMessageBox(
                 QtWidgets.QMessageBox.Information,
                 "Information",
                 f"Ansys Python Installer is up-to-date.\n\nVersion is {__version__}",
                 QtWidgets.QMessageBox.Ok,
-            ).exec_()
+            )
+            msgBox.setWindowIcon(QtGui.QIcon("assets/ansys-favicon.png"))
+            msgBox.exec_()
 
     def visit_website(self):
         """Access the Ansys Python Manager documentation."""
