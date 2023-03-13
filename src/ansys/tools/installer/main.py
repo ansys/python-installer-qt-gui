@@ -580,5 +580,3 @@ def open_gui():
     window = AnsysPythonInstaller()
     window.show()
     sys.exit(app.exec())
-
-open_gui()
