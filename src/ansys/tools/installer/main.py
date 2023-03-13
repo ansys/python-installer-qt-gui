@@ -6,6 +6,9 @@ import os
 import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
+
 from packaging import version
 import requests
 
@@ -283,6 +286,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 QtWidgets.QMessageBox.Ok,
             )
             msgBox.setWindowIcon(QtGui.QIcon("assets/ansys-favicon.png"))
+            pixmap = QPixmap("assets/ansys-favicon.png").scaledToHeight(32, Qt.SmoothTransformation)
+            msgBox.setIconPixmap(pixmap)
             msgBox.exec_()
 
     def visit_website(self):
@@ -575,3 +580,5 @@ def open_gui():
     window = AnsysPythonInstaller()
     window.show()
     sys.exit(app.exec())
+
+open_gui()
