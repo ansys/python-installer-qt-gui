@@ -7,8 +7,8 @@ import time
 
 from PySide6 import QtCore, QtWidgets
 
-from PySide6.QtWidgets import QComboBox, QHBoxLayout, QApplication, QWidget, QVBoxLayout
-from PySide6.QtGui import QStandardItemModel, QStandardItem, QFont
+from PySide6.QtWidgets import QComboBox
+from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 # from ansys.tools.installer.common import threaded
 from ansys.tools.installer.common import get_pkg_versions

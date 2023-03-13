@@ -160,9 +160,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self.installation_type_select.addItem("Standard", "vanilla")
         self.installation_type_select.addItem("Conda (miniforge)", "miniconda")
         installation_type_layout.addWidget(self.installation_type_select)
-        self.installation_type_select.currentIndexChanged.connect(
-            self._install_type_changed
-        )
+        self.installation_type_select.currentIndexChanged.connect(self._install_type_changed)
 
         installation_type_box_layout.addWidget(installation_type)
         form_layout.addWidget(installation_type_box)
@@ -287,9 +285,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
     def visit_website(self):
         """Access the Ansys Python Manager documentation."""
-        url = QtCore.QUrl(
-            "https://installer.docs.pyansys.com/version/dev/installer.html"
-        )
+        url = QtCore.QUrl("https://installer.docs.pyansys.com/version/dev/installer.html")
         QtGui.QDesktopServices.openUrl(url)
 
     def show_about_dialog(self):
@@ -476,9 +472,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         # initiate the download
         session = requests.Session()
-        response = session.get(
-            url, allow_redirects=True, stream=True, headers=request_headers
-        )
+        response = session.get(url, allow_redirects=True, stream=True, headers=request_headers)
         tsize = int(response.headers.get("Content-Length", 0))
 
         if response.status_code != 200:
