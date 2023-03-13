@@ -5,6 +5,9 @@ import logging
 import sys
 from threading import Thread
 import traceback
+import json
+from urllib import request
+from pkg_resources import parse_version
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
@@ -50,3 +53,8 @@ def protected(fn):
                 self._show_error(exception)
 
     return wrapper
+
+def get_pkg_versions(pkg_name):
+    url = f'https://pypi.python.org/pypi/{pkg_name}/json'
+    releases = json.loads(request.urlopen(url).read())['releases']
+    return sorted(releases, key=parse_version, reverse=True)

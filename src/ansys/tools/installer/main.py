@@ -203,7 +203,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         # Submit button
         self.submit_button = QtWidgets.QPushButton("Install")
-        self.submit_button.setStyleSheet("background-color: orange;")
+        self.submit_button.setStyleSheet("background-color: #ffb71b")
         self.submit_button.clicked.connect(self.download_and_install)
         form_layout.addWidget(self.submit_button)
 
@@ -579,3 +579,5 @@ def open_gui():
     window = AnsysPythonInstaller()
     window.show()
     sys.exit(app.exec())
+
+open_gui()
