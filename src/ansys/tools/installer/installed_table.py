@@ -195,23 +195,6 @@ class InstalledTab(QtWidgets.QWidget):
         for key, value in self.package_pip_dict.items():
             data[key] = get_pkg_versions(value)
 
-        #
-        # data = {
-        #     "PyAnsys-Metapackage": get_pkg_versions("pyansys"),
-        #     "PyAEDT": get_pkg_versions("pyaedt"),
-        #     "PyDPF-Core": get_pkg_versions("ansys-dpf-core"),
-        #     "PyDPF-Post": get_pkg_versions("ansys-dpf-post"),
-        #     "PyFluent": get_pkg_versions("ansys-fluent-core"),
-        #     "PyFluent-Parametric": get_pkg_versions("ansys-fluent-parametric"),
-        #     "PyFluent-Visualization": get_pkg_versions("ansys-fluent-visualization"),
-        #     # "PyFluent-all": ["latest"],
-        #     "PyMAPDL": get_pkg_versions("ansys-mapdl-core"),
-        #     "PyMAPDL Reader": get_pkg_versions("ansys-mapdl-reader"),
-        #     # "PyMAPDL-all": ["latest"],
-        #     "PyPIM": get_pkg_versions("ansys-platform-instancemanagement"),
-        #     "Granta MI BoM Analytics": get_pkg_versions("ansys-grantami-bomanalytics"),
-        #     "Shared Components": get_pkg_versions("ansys-openapi-common"),
-        # }
         for k, v in data.items():
             package = QStandardItem(k)
             self.model.appendRow(package)
@@ -219,8 +202,8 @@ class InstalledTab(QtWidgets.QWidget):
                 version = QStandardItem(value)
                 package.appendRow(version)
 
-        self.packages_combo.currentIndexChanged.connect(self.updatePackageCombo)
-        self.updatePackageCombo(0)
+        self.packages_combo.currentIndexChanged.connect(self.update_package_combo)
+        self.update_package_combo(0)
 
         hbox_install_pyansys.addWidget(self.packages_combo)
         hbox_install_pyansys.addWidget(self.versions_combo)
@@ -296,28 +279,10 @@ class InstalledTab(QtWidgets.QWidget):
         chosen_pkg = self.packages_combo.currentText()
         chosen_ver = self.versions_combo.currentText()
 
-        # package_pip_dict = {
-        #     "PyAEDT": "pyaedt",
-        #     "PyDPF-Core": "ansys-dpf-core",
-        #     "PyDPF-Post": "ansys-dpf-post",
-        #     "PyFluent": "ansys-fluent-core",
-        #     "PyFluent-Parametric": "ansys-fluent-parametric",
-        #     "PyFluent-Visualization": "ansys-fluent-visualization",
-        #     "PyMAPDL": "ansys-mapdl-core",
-        #     "PyMAPDL Reader": "ansys-mapdl-reader",
-        #     "PyPIM": "ansys-platform-instancemanagement",
-        #     "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
-        #     "Shared Components": "ansys-openapi-common",
-        # }
-
         if chosen_pkg == "PyAnsys-Metapackage":
             cmd = "pip install pyansys=={} && timeout 3 && exit || echo Failed to install PyAnsys Metapackage. Try reinstalling it with pip install pyansys=={} --force-reinstall".format(
                 chosen_ver, chosen_ver
             )
-        # elif chosen_pkg == "PyMAPDL-all" and chosen_ver == "latest":
-        #     cmd = "pip install pyansys[mapdl-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys mapdl-all packages. Try reinstalling it with pip install pyansys[mapdl-all]^>=2023 --force-reinstall"
-        # elif chosen_pkg == "PyFluent-all" and chosen_ver == "latest":
-        #     cmd = "pip install pyansys[fluent-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys fluent-all packages. Try reinstalling it with pip install pyansys[fluent-all]^>=2023 --force-reinstall"
         else:
             cmd = "pip install {}=={} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {}=={} --force-reinstall".format(
                 self.package_pip_dict[chosen_pkg],
@@ -328,17 +293,12 @@ class InstalledTab(QtWidgets.QWidget):
 
         self._update_pck_mnger()
         self.launch_cmd(cmd)
-        # print(self.packages_combo.currentText())
-        # print(self.versions_combo.currentText())
-        # self.launch_cmd("notepad")
 
-    def updatePackageCombo(self, index):
+    def update_package_combo(self, index):
         """Update the dropdown of available versions based on the package chosen."""
         indx = self.model.index(index, 0, self.packages_combo.rootModelIndex())
         self.versions_combo.setRootModelIndex(indx)
         self.versions_combo.setCurrentIndex(0)
-        # print(self.packages_combo.currentText())
-        # print(self.versions_combo.currentText())
 
     def list_packages(self):
         """List installed Python packages."""
