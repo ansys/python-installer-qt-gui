@@ -168,26 +168,47 @@ class InstalledTab(QtWidgets.QWidget):
         self.versions_combo.setModel(self.model)
 
         self.button_launch_cmd = QtWidgets.QPushButton("Install")
-        self.button_launch_cmd.setStyleSheet("background-color: #ffb71b;")
+        # self.button_launch_cmd.setStyleSheet("background-color: #ffb71b;")
         self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
 
-        # add data
-        data = {
-            "PyAnsys-all": ["latest"],
-            "PyAEDT": get_pkg_versions("pyaedt"),
-            "PyDPF-Core": get_pkg_versions("ansys-dpf-core"),
-            "PyDPF-Post": get_pkg_versions("ansys-dpf-post"),
-            "PyFluent": get_pkg_versions("ansys-fluent-core"),
-            "PyFluent-Parametric": get_pkg_versions("ansys-fluent-parametric"),
-            "PyFluent-Visualization": get_pkg_versions("ansys-fluent-visualization"),
-            "PyFluent-all": ["latest"],
-            "PyMAPDL": get_pkg_versions("ansys-mapdl-core"),
-            "PyMAPDL Reader": get_pkg_versions("ansys-mapdl-reader"),
-            "PyMAPDL-all": ["latest"],
-            "PyPIM": get_pkg_versions("ansys-platform-instancemanagement"),
-            "Granta MI BoM Analytics": get_pkg_versions("ansys-grantami-bomanalytics"),
-            "Shared Components": get_pkg_versions("ansys-openapi-common"),
+        self.package_pip_dict = {
+            "PyAnsys-Metapackage":"pyansys",
+            "PyAEDT": "pyaedt",
+            "PyDPF-Core": "ansys-dpf-core",
+            "PyDPF-Post": "ansys-dpf-post",
+            "PyFluent": "ansys-fluent-core",
+            "PyFluent-Parametric": "ansys-fluent-parametric",
+            "PyFluent-Visualization": "ansys-fluent-visualization",
+            "PyMAPDL": "ansys-mapdl-core",
+            "PyMAPDL Reader": "ansys-mapdl-reader",
+            "PyPIM": "ansys-platform-instancemanagement",
+            "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
+            "Shared Components": "ansys-openapi-common",
         }
+
+        # add data
+        data ={}
+
+        for key,value in self.package_pip_dict.items():
+            data[key] = get_pkg_versions(value)
+
+        #
+        # data = {
+        #     "PyAnsys-Metapackage": get_pkg_versions("pyansys"),
+        #     "PyAEDT": get_pkg_versions("pyaedt"),
+        #     "PyDPF-Core": get_pkg_versions("ansys-dpf-core"),
+        #     "PyDPF-Post": get_pkg_versions("ansys-dpf-post"),
+        #     "PyFluent": get_pkg_versions("ansys-fluent-core"),
+        #     "PyFluent-Parametric": get_pkg_versions("ansys-fluent-parametric"),
+        #     "PyFluent-Visualization": get_pkg_versions("ansys-fluent-visualization"),
+        #     # "PyFluent-all": ["latest"],
+        #     "PyMAPDL": get_pkg_versions("ansys-mapdl-core"),
+        #     "PyMAPDL Reader": get_pkg_versions("ansys-mapdl-reader"),
+        #     # "PyMAPDL-all": ["latest"],
+        #     "PyPIM": get_pkg_versions("ansys-platform-instancemanagement"),
+        #     "Granta MI BoM Analytics": get_pkg_versions("ansys-grantami-bomanalytics"),
+        #     "Shared Components": get_pkg_versions("ansys-openapi-common"),
+        # }
         for k, v in data.items():
             package = QStandardItem(k)
             self.model.appendRow(package)
@@ -272,29 +293,29 @@ class InstalledTab(QtWidgets.QWidget):
         chosen_pkg = self.packages_combo.currentText()
         chosen_ver = self.versions_combo.currentText()
 
-        package_pip_dict = {
-            "PyAEDT": "pyaedt",
-            "PyDPF-Core": "ansys-dpf-core",
-            "PyDPF-Post": "ansys-dpf-post",
-            "PyFluent": "ansys-fluent-core",
-            "PyFluent-Parametric": "ansys-fluent-parametric",
-            "PyFluent-Visualization": "ansys-fluent-visualization",
-            "PyMAPDL": "ansys-mapdl-core",
-            "PyMAPDL Reader": "ansys-mapdl-reader",
-            "PyPIM": "ansys-platform-instancemanagement",
-            "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
-            "Shared Components": "ansys-openapi-common",
-        }
+        # package_pip_dict = {
+        #     "PyAEDT": "pyaedt",
+        #     "PyDPF-Core": "ansys-dpf-core",
+        #     "PyDPF-Post": "ansys-dpf-post",
+        #     "PyFluent": "ansys-fluent-core",
+        #     "PyFluent-Parametric": "ansys-fluent-parametric",
+        #     "PyFluent-Visualization": "ansys-fluent-visualization",
+        #     "PyMAPDL": "ansys-mapdl-core",
+        #     "PyMAPDL Reader": "ansys-mapdl-reader",
+        #     "PyPIM": "ansys-platform-instancemanagement",
+        #     "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
+        #     "Shared Components": "ansys-openapi-common",
+        # }
 
-        if chosen_pkg == "PyAnsys-all" and chosen_ver == "latest":
-            cmd = "pip install pyansys^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys^>=2023 --force-reinstall"
-        elif chosen_pkg == "PyMAPDL-all" and chosen_ver == "latest":
-            cmd = "pip install pyansys[mapdl-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys mapdl-all packages. Try reinstalling it with pip install pyansys[mapdl-all]^>=2023 --force-reinstall"
-        elif chosen_pkg == "PyFluent-all" and chosen_ver == "latest":
-            cmd = "pip install pyansys[fluent-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys fluent-all packages. Try reinstalling it with pip install pyansys[fluent-all]^>=2023 --force-reinstall"
+        if chosen_pkg == "PyAnsys-Metapackage" :
+            cmd = "pip install pyansys=={} && timeout 3 && exit || echo Failed to install PyAnsys Metapackage. Try reinstalling it with pip install pyansys=={} --force-reinstall".format(chosen_ver,chosen_ver)
+        # elif chosen_pkg == "PyMAPDL-all" and chosen_ver == "latest":
+        #     cmd = "pip install pyansys[mapdl-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys mapdl-all packages. Try reinstalling it with pip install pyansys[mapdl-all]^>=2023 --force-reinstall"
+        # elif chosen_pkg == "PyFluent-all" and chosen_ver == "latest":
+        #     cmd = "pip install pyansys[fluent-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys fluent-all packages. Try reinstalling it with pip install pyansys[fluent-all]^>=2023 --force-reinstall"
         else:
-            cmd = "pip install {}=={} && timeout 3 && exit || echo Failed to install pymapdl package. Try reinstalling it with pip install ansys-mapdl-core=={} --force-reinstall".format(
-                package_pip_dict[chosen_pkg], chosen_ver, chosen_ver
+            cmd = "pip install {}=={} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {}=={} --force-reinstall".format(
+                self.package_pip_dict[chosen_pkg], chosen_ver,self.package_pip_dict[chosen_pkg], chosen_ver
             )
 
         self._update_pck_mnger()

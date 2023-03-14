@@ -56,6 +56,7 @@ def protected(fn):
 
 
 def get_pkg_versions(pkg_name):
+    """Get the available versions pf a package"""
     url = f"https://pypi.python.org/pypi/{pkg_name}/json"
     releases = json.loads(request.urlopen(url).read())["releases"]
     return sorted(releases, key=parse_version, reverse=True)
