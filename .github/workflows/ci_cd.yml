@@ -108,20 +108,6 @@ jobs:
           $ErrorActionPreference = "Stop"
           makensis setup.nsi
 
-      - name: Sign application
-        shell: pwsh
-        run: |
-          $env:Path = "C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x64\;" + $env:Path
-          $filename = get-ChildItem dist -recurse | where {$_.name -like "*Setup*"}
-          # Proceed to sign app
-          signtool sign /f src\ansys\tools\installer\assets\python-installer.pfx `
-            /fd SHA256 `
-            /tr http://timestamp.digicert.com `
-            /td SHA256 `
-            /p '${{ secrets.PYTHON_INSTALLER_CERT_PWD }}' `
-            /d Ansys-Python-Manager `
-            $filename
-
       - name: List output
         run: ls -R dist
 
@@ -130,10 +116,48 @@ jobs:
           name: Python-Installer
           path: dist/*Setup*.exe
 
+  sign-application:
+    name: Sign application
+    needs: [build-application]
+    runs-on: 
+      group: ansys-internal
+      labels: [self-hosted, Windows, signtool]
+    steps:
+      - name: Checkout the SignTool
+        uses: actions/checkout@v3
+        with:
+          repository: pyansys/signtool-ansys-apps
+          token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Python-Installer
+          path: signtool/installer
+
+      - name: List current structure
+        run: ls -R
+      
+      - name: Sign application
+        working-directory: signtool
+        run: |
+          $filename = (get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}).Name
+          $jobname = $filename -replace ".{4}$"
+          dotnet signclient.dll sign `
+            -r ansyssigning@ansys.com `
+            -s '${{ secrets.SIGNTOOL_PWD }}' `
+            -c AppSettings.json `
+            -n $jobname `
+            -i installer/$filename
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Python-Installer
+          path: signtool/installer/*Setup*.exe
+
   release:
     name: Release application
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [build-application]
+    needs: [sign-application]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
