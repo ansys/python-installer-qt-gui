@@ -156,6 +156,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         installation_type.setLayout(installation_type_layout)
 
         installation_type_text = QtWidgets.QLabel(INSTALL_TEXT)
+        installation_type_text.setOpenExternalLinks(True)
         installation_type_layout.addWidget(installation_type_text)
 
         self.installation_type_select = QtWidgets.QComboBox()
