@@ -1,12 +1,13 @@
 """Common module for Ansys Python Manager."""
 
 from functools import wraps
+import json
 import logging
 import sys
 from threading import Thread
 import traceback
-import json
 from urllib import request
+
 from pkg_resources import parse_version
 
 LOG = logging.getLogger(__name__)
@@ -56,7 +57,7 @@ def protected(fn):
 
 
 def get_pkg_versions(pkg_name):
-    """Get the available versions pf a package"""
+    """Get the available versions pf a package."""
     url = f"https://pypi.python.org/pypi/{pkg_name}/json"
     releases = json.loads(request.urlopen(url).read())["releases"]
     return sorted(releases, key=parse_version, reverse=True)

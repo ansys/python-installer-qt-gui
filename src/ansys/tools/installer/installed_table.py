@@ -6,9 +6,8 @@ import subprocess
 import time
 
 from PySide6 import QtCore, QtWidgets
-
+from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
-from PySide6.QtGui import QStandardItemModel, QStandardItem
 
 # from ansys.tools.installer.common import threaded
 from ansys.tools.installer.common import get_pkg_versions
@@ -142,7 +141,9 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install = QtWidgets.QHBoxLayout()
         layout.addLayout(hbox_install)
 
-        self.button_install_defaults = QtWidgets.QPushButton("Install Python default packages")
+        self.button_install_defaults = QtWidgets.QPushButton(
+            "Install Python default packages"
+        )
         self.button_install_defaults.clicked.connect(self.install_defaults)
         hbox_install.addWidget(self.button_install_defaults)
 
@@ -154,7 +155,9 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_list_packages.clicked.connect(self.list_packages)
         hbox_install.addWidget(self.button_list_packages)
 
-        package_management2 = QtWidgets.QLabel("Package management for PyAnsys Libraries")
+        package_management2 = QtWidgets.QLabel(
+            "Package management for PyAnsys Libraries"
+        )
         package_management2.setContentsMargins(0, 10, 0, 0)
         layout.addWidget(package_management2)
         hbox_install_pyansys = QtWidgets.QHBoxLayout()
@@ -172,7 +175,7 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
 
         self.package_pip_dict = {
-            "PyAnsys-Metapackage":"pyansys",
+            "PyAnsys-Metapackage": "pyansys",
             "PyAEDT": "pyaedt",
             "PyDPF-Core": "ansys-dpf-core",
             "PyDPF-Post": "ansys-dpf-post",
@@ -187,9 +190,9 @@ class InstalledTab(QtWidgets.QWidget):
         }
 
         # add data
-        data ={}
+        data = {}
 
-        for key,value in self.package_pip_dict.items():
+        for key, value in self.package_pip_dict.items():
             data[key] = get_pkg_versions(value)
 
         #
@@ -307,15 +310,20 @@ class InstalledTab(QtWidgets.QWidget):
         #     "Shared Components": "ansys-openapi-common",
         # }
 
-        if chosen_pkg == "PyAnsys-Metapackage" :
-            cmd = "pip install pyansys=={} && timeout 3 && exit || echo Failed to install PyAnsys Metapackage. Try reinstalling it with pip install pyansys=={} --force-reinstall".format(chosen_ver,chosen_ver)
+        if chosen_pkg == "PyAnsys-Metapackage":
+            cmd = "pip install pyansys=={} && timeout 3 && exit || echo Failed to install PyAnsys Metapackage. Try reinstalling it with pip install pyansys=={} --force-reinstall".format(
+                chosen_ver, chosen_ver
+            )
         # elif chosen_pkg == "PyMAPDL-all" and chosen_ver == "latest":
         #     cmd = "pip install pyansys[mapdl-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys mapdl-all packages. Try reinstalling it with pip install pyansys[mapdl-all]^>=2023 --force-reinstall"
         # elif chosen_pkg == "PyFluent-all" and chosen_ver == "latest":
         #     cmd = "pip install pyansys[fluent-all]^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys fluent-all packages. Try reinstalling it with pip install pyansys[fluent-all]^>=2023 --force-reinstall"
         else:
             cmd = "pip install {}=={} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {}=={} --force-reinstall".format(
-                self.package_pip_dict[chosen_pkg], chosen_ver,self.package_pip_dict[chosen_pkg], chosen_ver
+                self.package_pip_dict[chosen_pkg],
+                chosen_ver,
+                self.package_pip_dict[chosen_pkg],
+                chosen_ver,
             )
 
         self._update_pck_mnger()
@@ -325,6 +333,7 @@ class InstalledTab(QtWidgets.QWidget):
         # self.launch_cmd("notepad")
 
     def updatePackageCombo(self, index):
+        """Update the dropdown of available versions based on the package chosen."""
         indx = self.model.index(index, 0, self.packages_combo.rootModelIndex())
         self.versions_combo.setRootModelIndex(indx)
         self.versions_combo.setCurrentIndex(0)

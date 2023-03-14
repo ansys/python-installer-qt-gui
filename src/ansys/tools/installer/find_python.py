@@ -61,9 +61,9 @@ def _find_miniforge(admin=False):
                         access=winreg.KEY_READ,
                     ) as sub_key:
                         ver = winreg.QueryValueEx(sub_key, "DisplayVersion")[0]
-                        uninstall_exe = winreg.QueryValueEx(sub_key, "UninstallString")[0].replace(
-                            '"', ""
-                        )
+                        uninstall_exe = winreg.QueryValueEx(sub_key, "UninstallString")[
+                            0
+                        ].replace('"', "")
                         miniforge_path = os.path.dirname(uninstall_exe)
                         paths[miniforge_path] = (ver, admin)
     except FileNotFoundError:
