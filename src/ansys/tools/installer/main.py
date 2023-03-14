@@ -13,6 +13,7 @@ from ansys.tools.installer import CACHE_DIR, __version__
 from ansys.tools.installer.auto_updater import READ_ONLY_PAT, query_gh_latest_release
 from ansys.tools.installer.common import protected, threaded
 from ansys.tools.installer.installed_table import InstalledTab
+from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installer import install_python, run_ps
 from ansys.tools.installer.misc import ImageWidget, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
@@ -132,6 +133,10 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self._table_tab = InstalledTab(self)
         self.tab_widget.addTab(self._table_tab, "Manage Python Environments")
 
+        # Add tabs to the tab widget
+        self._table_tab = CreateVenvTab(self)
+        self.tab_widget.addTab(self._table_tab, "Create Virtual Environments")
+
         # Create the layout for the container
         container_layout = QtWidgets.QVBoxLayout()
         self.tab_install_python.setLayout(container_layout)
@@ -203,7 +208,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         # Submit button
         self.submit_button = QtWidgets.QPushButton("Install")
-        self.submit_button.setStyleSheet("background-color: orange;")
         self.submit_button.clicked.connect(self.download_and_install)
         form_layout.addWidget(self.submit_button)
 
