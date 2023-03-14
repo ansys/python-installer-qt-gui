@@ -6,16 +6,19 @@ import os
 import subprocess
 import time
 
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets, QtGui
 
 # from ansys.tools.installer.common import threaded
 from ansys.tools.installer.find_python import find_all_python, find_miniforge
-from ansys.tools.installer.installed_table import PyInstalledTable
+from ansys.tools.installer.installed_table import PyInstalledTable, PyVenvTable
+from ansys.tools.installer.constants import ASSETS_PATH
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
+
+
 
 
 class CreateVenvTab(QtWidgets.QWidget):
@@ -27,17 +30,20 @@ class CreateVenvTab(QtWidgets.QWidget):
         self._parent = parent
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
+        # QIcon object from an image file
+        self.app_icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
 
 
         # Create Virtual Environment
-        file_browse_title = QtWidgets.QLabel('Note: Virtual environments are created under user directory.')
+        file_browse_title = QtWidgets.QLabel('Note: Virtual environments are created under user directory .ansys_python_venv. \nPlease select the python version from below list to create respective virtual environment.')
         file_browse_title.setContentsMargins(0, 0, 0, 0)
 
         # file_browse = QtWidgets.QPushButton('Browse')
         # file_browse.setContentsMargins(0,0,0,1)
         # file_browse.clicked.connect(self.open_dir_dialog)
         self.venv_name = QtWidgets.QLineEdit()
-        self.venv_name.setText("Enter virutal environment name here....")
+        self.caption = 'Enter virutal environment name here....'
+        self.venv_name.setText(self.caption)
         # self.venv_name.textChanged.connect(self.textchanged)
 
         create_env_btn = QtWidgets.QPushButton('Create Virtual Environment')
@@ -71,6 +77,14 @@ class CreateVenvTab(QtWidgets.QWidget):
         self.table = PyInstalledTable()
         layout.addWidget(self.table)
 
+        # Form
+        venv_form_title = QtWidgets.QLabel("Available Virtual Environments")
+        venv_form_title.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(venv_form_title)
+
+        self.table_venv = PyVenvTable()
+        layout.addWidget(self.table_venv)
+
         # ensure the table is always in focus
         self.installEventFilter(self)
 
@@ -80,19 +94,53 @@ class CreateVenvTab(QtWidgets.QWidget):
         import os
         from pathlib import Path
         user_directory = os.path.expanduser( '~' )
-        venv_dir = '.ansys_python_venv'        
-        
-        user_venv_dir = Path(f"{user_directory}/{venv_dir}/{self.venv_name.text()}").mkdir(parents=True, exist_ok=False)
-
-        cmd = f'python venv {user_venv_dir} '
-
-        self.launch_cmd(extra=cmd)      
+        venv_dir = '.ansys_python_venv'       
+        user_venv_dir = f'{user_directory}/{venv_dir}/{self.venv_name.text()}'        
+        isExist = os.path.exists(user_venv_dir)
 
 
+        if isExist:
+            self.failed_to_create_dialog(case_1=True)
+        elif self.venv_name.text() == '' or self.venv_name.text() == self.caption:
+            self.failed_to_create_dialog(case_2=True)
+        else:
+            Path(f"{user_directory}/{venv_dir}/{self.venv_name.text()}").mkdir(parents=True, exist_ok=True)
+            user_venv_dir = f'{user_directory}/{venv_dir}/{self.venv_name.text()}'
+            cmd = f'python -m venv "{user_venv_dir}" '
+            self.launch_cmd(extra=cmd) 
+            self.update_table()
+
+
+    def failed_to_create_dialog(self, case_1 = False, case_2=False):
+        if case_1:
+            msg = QtWidgets.QMessageBox()       
+            msg.setText("Warning: Failed to create virtual environment!")
+            msg.setInformativeText('Environment already exists with this name.')
+            msg.setWindowTitle("Warning")
+            msg.setIcon(msg.Icon.Warning)
+            msg.setWindowIcon(self.app_icon)
+            msg.exec_()    
+        elif case_2:
+            msg = QtWidgets.QMessageBox()       
+            msg.setText("Warning: Failed to create virtual environment!")
+            msg.setInformativeText('Enter a valid name for virtual environment to create.')
+            msg.setWindowTitle("Warning")
+            msg.setIcon(msg.Icon.Warning)
+            msg.setWindowIcon(self.app_icon)
+            msg.exec_()   
+        else:
+            msg = QtWidgets.QMessageBox()       
+            msg.setText("Error: Failed to create virtual environment!")
+            msg.setInformativeText('There might be some issue with application.')
+            msg.setWindowTitle("Error")
+            msg.setIcon(msg.Icon.Critical)
+            msg.setWindowIcon(self.app_icon)
+            msg.exec_()  
 
     def update_table(self):
-        """Update the Python version table."""
+        """Update the Python version table."""        
         self.table.update()
+        self.table_venv.update()
 
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""
@@ -157,6 +205,7 @@ class CreateVenvTab(QtWidgets.QWidget):
             Whether the window should run minimized or not.
         """
         py_path = self.table.active_path
+        user_profile = os.path.expanduser( '~' )
         min_win = "/w /min" if minimized_window else ""
         if "Python" in self.table.active_version:
             scripts_path = os.path.join(py_path, "Scripts")
@@ -168,8 +217,8 @@ class CreateVenvTab(QtWidgets.QWidget):
                 cmd = f"& echo Python set to {py_path}"
 
             subprocess.call(
-                f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
-                shell=True,
+                f'start {min_win} cmd /K "set PATH={new_path};{cmd}"',
+                shell=True, cwd = user_profile
             )
         else:  # probably conda
             if extra:
@@ -180,5 +229,5 @@ class CreateVenvTab(QtWidgets.QWidget):
                 cmd = f"& echo Activating conda forge at path {py_path}"
             subprocess.call(
                 f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"',
-                shell=True,
+                shell=True, cwd = user_profile
             )

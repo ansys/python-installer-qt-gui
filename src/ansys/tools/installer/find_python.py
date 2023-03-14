@@ -133,3 +133,25 @@ def find_all_python():
     paths = _find_installed_python(True)
     paths.update(_find_installed_python(False))
     return paths
+
+
+
+def get_all_python_venv(admin=False):
+    """Get a list of all created python 
+    virtual environments.
+
+    Returns
+    -------
+    dict
+    """
+    paths = {}
+    import os
+    from pathlib import Path
+    user_directory = os.path.expanduser( '~' )
+    venv_dir = os.path.join(user_directory, '.ansys_python_venv')
+
+    for venv_dir_name in os.listdir(venv_dir):
+        if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
+            path = os.path.join(venv_dir, venv_dir_name, 'Scripts')
+            paths[path] = (venv_dir_name, admin)
+    return paths
