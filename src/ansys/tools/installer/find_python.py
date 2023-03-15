@@ -146,8 +146,14 @@ def get_all_python_venv(admin=False):
     """
     paths = {}
     import os
+    from pathlib import Path
 
     user_directory = os.path.expanduser("~")
+    ansys_venv_maintain_dir = ".ansys_python_venv"
+    Path(f"{user_directory}/{ansys_venv_maintain_dir}").mkdir(
+        parents=True, exist_ok=True
+    )
+
     venv_dir = os.path.join(user_directory, ".ansys_python_venv")
 
     for venv_dir_name in os.listdir(venv_dir):
