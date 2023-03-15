@@ -147,10 +147,6 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_install_defaults.clicked.connect(self.install_defaults)
         hbox_install.addWidget(self.button_install_defaults)
 
-        self.button_install_pyansys = QtWidgets.QPushButton("Install PyAnsys")
-        self.button_install_pyansys.clicked.connect(self.install_pyansys)
-        hbox_install.addWidget(self.button_install_pyansys)
-
         self.button_list_packages = QtWidgets.QPushButton("List installed packages")
         self.button_list_packages.clicked.connect(self.list_packages)
         hbox_install.addWidget(self.button_list_packages)
@@ -171,7 +167,7 @@ class InstalledTab(QtWidgets.QWidget):
         self.versions_combo.setModel(self.model)
 
         self.button_launch_cmd = QtWidgets.QPushButton("Install")
-        # self.button_launch_cmd.setStyleSheet("background-color: #ffb71b;")
+        self.button_launch_cmd.setStyleSheet("background-color: #ffb71b;")
         self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
 
         self.package_pip_dict = {
@@ -265,12 +261,6 @@ class InstalledTab(QtWidgets.QWidget):
     def install_defaults(self):
         """Install Python default packages."""
         cmd = "pip install numpy pandas scipy scikit-learn matplotlib && timeout 3 && exit || echo Failed to install default Python packages. Try reinstalling it with pip install numpy pandas scipy scikit-learn matplotlib --force-reinstall"
-        self._update_pck_mnger()
-        self.launch_cmd(cmd)
-
-    def install_pyansys(self):
-        """Install PyAnsys metapackage."""
-        cmd = "pip install pyansys^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys^>=2023 --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd)
 
