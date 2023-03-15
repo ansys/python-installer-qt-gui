@@ -60,4 +60,8 @@ def get_pkg_versions(pkg_name):
     """Get the available versions pf a package."""
     url = f"https://pypi.python.org/pypi/{pkg_name}/json"
     releases = json.loads(request.urlopen(url).read())["releases"]
-    return sorted(releases, key=parse_version, reverse=True)
+    all_versions = sorted(releases, key=parse_version, reverse=True)
+    if pkg_name == "pyansys":
+        all_versions = [x for x in all_versions if int(x.split(".")[0]) > 0]
+        print(all_versions)
+    return all_versions
