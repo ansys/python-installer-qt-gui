@@ -265,13 +265,22 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         if ver > cur_ver:
             LOG.debug("Update available.")
-            reply = QtWidgets.QMessageBox.question(
-                None,
+            pixmap = QPixmap("assets/ansys-favicon.png").scaledToHeight(
+                32, Qt.SmoothTransformation
+            )
+
+            msgBox = QtWidgets.QMessageBox()
+            msgBox.setWindowIcon(QtGui.QIcon("assets/ansys-favicon.png"))
+            msgBox.setIconPixmap(pixmap)
+
+            reply = msgBox.question(
+                msgBox,
                 "Update",
                 f"The latest available version is {ver}. You are currently running version {cur_ver}. Do you want to update?",
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
                 QtWidgets.QMessageBox.Yes,
             )
+
             if reply == QtWidgets.QMessageBox.Yes:
                 self._download(
                     url,
@@ -588,3 +597,6 @@ def open_gui():
     window = AnsysPythonInstaller()
     window.show()
     sys.exit(app.exec())
+
+
+open_gui()
