@@ -9,6 +9,7 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
+from ansys.tools.installer.common import get_pkg_versions
 from ansys.tools.installer.find_python import (
     find_all_python,
     find_miniforge,
