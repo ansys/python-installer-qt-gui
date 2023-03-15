@@ -15,8 +15,7 @@ ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
-class chk_active_table:
-    dict
+
 
 class PyInstalledTable(QtWidgets.QTableWidget):
     """Table of locally installed Python environments."""
