@@ -11,14 +11,14 @@ Section "Uninstall"
 
   ; Remove the installed files
   Delete "$INSTDIR\*.*"
-  RMDir "$INSTDIR"
+  RMDir /r /REBOOTOK "$INSTDIR"
 
   ; Remove the registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
   ; Remove the start menu shortcut and directory
   Delete "$SMPROGRAMS\Ansys Python Manager\Ansys Python Manager.lnk"
-  RMDir "$SMPROGRAMS\Ansys Python Manager"
+  RMDir /r /REBOOTOK "$SMPROGRAMS\Ansys Python Manager"
 
   ; Display the uninstallation complete message
   MessageBox MB_OK|MB_ICONINFORMATION "${PRODUCT_NAME} ${PRODUCT_VERSION} has been successfully uninstalled."
