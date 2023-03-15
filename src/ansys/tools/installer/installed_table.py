@@ -6,8 +6,11 @@ import subprocess
 import time
 
 from PySide6 import QtCore, QtWidgets
+from PySide6.QtGui import QStandardItem, QStandardItemModel
+from PySide6.QtWidgets import QComboBox
 
 # from ansys.tools.installer.common import threaded
+from ansys.tools.installer.common import get_pkg_versions
 from ansys.tools.installer.find_python import find_all_python, find_miniforge
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
@@ -144,13 +147,67 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_install_defaults.clicked.connect(self.install_defaults)
         hbox_install.addWidget(self.button_install_defaults)
 
-        self.button_install_pyansys = QtWidgets.QPushButton("Install PyAnsys")
-        self.button_install_pyansys.clicked.connect(self.install_pyansys)
-        hbox_install.addWidget(self.button_install_pyansys)
-
         self.button_list_packages = QtWidgets.QPushButton("List installed packages")
         self.button_list_packages.clicked.connect(self.list_packages)
         hbox_install.addWidget(self.button_list_packages)
+
+        package_management2 = QtWidgets.QLabel(
+            "Package management for PyAnsys Libraries"
+        )
+        package_management2.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(package_management2)
+        hbox_install_pyansys = QtWidgets.QHBoxLayout()
+        layout.addLayout(hbox_install_pyansys)
+
+        self.model = QStandardItemModel()
+        self.packages_combo = QComboBox()
+        self.packages_combo.setModel(self.model)
+
+        self.versions_combo = QComboBox()
+        self.versions_combo.setModel(self.model)
+
+        self.button_launch_cmd = QtWidgets.QPushButton("Install")
+        self.button_launch_cmd.setStyleSheet("background-color: #ffb71b;")
+        self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
+
+        self.package_pip_dict = {
+            "PyAnsys-Metapackage": "pyansys",
+            "PyAEDT": "pyaedt",
+            "PyDPF-Core": "ansys-dpf-core",
+            "PyDPF-Post": "ansys-dpf-post",
+            "PyDPF Composites": "ansys-dpf-composites",
+            "PyFluent": "ansys-fluent-core",
+            "PyFluent-Parametric": "ansys-fluent-parametric",
+            "PyFluent-Visualization": "ansys-fluent-visualization",
+            "PyMAPDL": "ansys-mapdl-core",
+            "PyMAPDL Reader": "ansys-mapdl-reader",
+            "PyPIM": "ansys-platform-instancemanagement",
+            "PyPrimeMesh": "ansys-meshing-prime",
+            "PySeascape": "ansys-seascape",
+            "PyTwin": "pytwin",
+            "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
+            "Shared Components": "ansys-openapi-common",
+        }
+
+        # add data
+        data = {}
+
+        for key, value in self.package_pip_dict.items():
+            data[key] = get_pkg_versions(value)
+
+        for k, v in data.items():
+            package = QStandardItem(k)
+            self.model.appendRow(package)
+            for value in v:
+                version = QStandardItem(value)
+                package.appendRow(version)
+
+        self.packages_combo.currentIndexChanged.connect(self.update_package_combo)
+        self.update_package_combo(0)
+
+        hbox_install_pyansys.addWidget(self.packages_combo)
+        hbox_install_pyansys.addWidget(self.versions_combo)
+        hbox_install_pyansys.addWidget(self.button_launch_cmd)
 
         # Form
         form_title = QtWidgets.QLabel("Available Python installations")
@@ -211,11 +268,19 @@ class InstalledTab(QtWidgets.QWidget):
         self._update_pck_mnger()
         self.launch_cmd(cmd)
 
-    def install_pyansys(self):
-        """Install PyAnsys metapackage."""
-        cmd = "pip install pyansys^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys^>=2023 --force-reinstall"
+    def install_pyansys_packages(self):
+        """Install PyAnsys - chosen packages."""
+        chosen_pkg = self.packages_combo.currentText()
+        chosen_ver = self.versions_combo.currentText()
+        cmd = f"pip install {self.package_pip_dict[chosen_pkg]}=={chosen_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {self.package_pip_dict[chosen_pkg]}=={chosen_ver} --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd)
+
+    def update_package_combo(self, index):
+        """Update the dropdown of available versions based on the package chosen."""
+        indx = self.model.index(index, 0, self.packages_combo.rootModelIndex())
+        self.versions_combo.setRootModelIndex(indx)
+        self.versions_combo.setCurrentIndex(0)
 
     def list_packages(self):
         """List installed Python packages."""
