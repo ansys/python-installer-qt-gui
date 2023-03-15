@@ -270,16 +270,9 @@ class InstalledTab(QtWidgets.QWidget):
         chosen_ver = self.versions_combo.currentText()
 
         if chosen_pkg == "PyAnsys-Metapackage":
-            cmd = "pip install pyansys=={} && timeout 3 && exit || echo Failed to install PyAnsys Metapackage. Try reinstalling it with pip install pyansys=={} --force-reinstall".format(
-                chosen_ver, chosen_ver
-            )
+            cmd = f"pip install pyansys=={chosen_ver} && timeout 3 && exit || echo Failed to install PyAnsys Metapackage. Try reinstalling it with pip install pyansys=={chosen_ver} --force-reinstall"
         else:
-            cmd = "pip install {}=={} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {}=={} --force-reinstall".format(
-                self.package_pip_dict[chosen_pkg],
-                chosen_ver,
-                self.package_pip_dict[chosen_pkg],
-                chosen_ver,
-            )
+            cmd = f"pip install {self.package_pip_dict[chosen_pkg]}=={chosen_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {self.package_pip_dict[chosen_pkg]}=={chosen_ver} --force-reinstall"
 
         self._update_pck_mnger()
         self.launch_cmd(cmd)
