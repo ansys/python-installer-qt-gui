@@ -399,7 +399,10 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         if not isinstance(text, str):
             text = str(text)
         self._err_message_box = QtWidgets.QMessageBox(
-            QtWidgets.QMessageBox.Critical, "Error", text, QtWidgets.QMessageBox.Ok
+            QtWidgets.QMessageBox.Critical,
+            "Error",
+            text,
+            QtWidgets.QMessageBox.Ok,
         )
         self._err_message_box.show()
 
