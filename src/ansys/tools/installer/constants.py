@@ -1,11 +1,10 @@
-"""constants file"""
+"""Constants file."""
 
 import logging
-from math import floor
 import os
 import sys
-from ansys.tools.installer import CACHE_DIR, __version__
 
+from ansys.tools.installer import __version__
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
@@ -39,4 +38,3 @@ else:
 
 
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
-

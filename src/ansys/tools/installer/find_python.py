@@ -135,23 +135,23 @@ def find_all_python():
     return paths
 
 
-
 def get_all_python_venv(admin=False):
-    """Get a list of all created python 
-    virtual environments.
+    """Get a list of all created python virtual environments.
 
     Returns
     -------
     dict
+        Dictionary containing a key for each path and a ``tuple``
+        containing ``(version_str, is_admin)``.
     """
     paths = {}
     import os
-    from pathlib import Path
-    user_directory = os.path.expanduser( '~' )
-    venv_dir = os.path.join(user_directory, '.ansys_python_venv')
+
+    user_directory = os.path.expanduser("~")
+    venv_dir = os.path.join(user_directory, ".ansys_python_venv")
 
     for venv_dir_name in os.listdir(venv_dir):
         if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
-            path = os.path.join(venv_dir, venv_dir_name, 'Scripts')
+            path = os.path.join(venv_dir, venv_dir_name, "Scripts")
             paths[path] = (venv_dir_name, admin)
     return paths

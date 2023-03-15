@@ -8,13 +8,16 @@ import time
 from PySide6 import QtCore, QtWidgets
 
 # from ansys.tools.installer.common import threaded
-from ansys.tools.installer.find_python import find_all_python, find_miniforge, get_all_python_venv
+from ansys.tools.installer.find_python import (
+    find_all_python,
+    find_miniforge,
+    get_all_python_venv,
+)
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
-
 
 
 class PyInstalledTable(QtWidgets.QTableWidget):
@@ -47,7 +50,8 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         self.signal_update.emit()
 
     def getClickedCell(self, row, column):
-        print('clicked!--', row, column)    
+        """Get the clicked cell form table."""
+        print("clicked!--", row, column)
 
     def populate(self):
         """Populate the table."""
@@ -62,7 +66,7 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         if self._destroyed:
             return
 
-        tot = len(installed_python) + len(installed_forge) 
+        tot = len(installed_python) + len(installed_forge)
         self.setRowCount(tot)
         self.setColumnCount(3)
         self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
@@ -103,22 +107,15 @@ class PyInstalledTable(QtWidgets.QTableWidget):
     def active_version(self):
         """Version of the active row."""
         return self.item(self.currentRow(), 0).text()
-    
 
     def set_status(self):
-        """Get the table status"""
-        self.setFocus()
-    
+        """Get the table status."""
+        return self.setFocus()
+
     @property
     def get_status(self):
-        """Get the table status"""
-        return self.hasFocus()        
-
-
-
-
-    
-    
+        """Get the table status."""
+        return self.hasFocus()
 
 
 class PyVenvTable(QtWidgets.QTableWidget):
@@ -149,10 +146,9 @@ class PyVenvTable(QtWidgets.QTableWidget):
 
         self.signal_update.emit()
 
-    
-
     def getClickedCell(self, row, column):
-        print('clicked!', row, column)    
+        """Get the clicked cell form table."""
+        print("clicked!", row, column)
 
     def populate(self):
         """Populate the table."""
@@ -178,7 +174,7 @@ class PyVenvTable(QtWidgets.QTableWidget):
             self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Virtual Env {version}"))
             self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
             self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-            row += 1    
+            row += 1
 
         self.resizeColumnsToContents()
         self.selectRow(0)
@@ -201,15 +197,16 @@ class PyVenvTable(QtWidgets.QTableWidget):
     def active_version(self):
         """Version of the active row."""
         return self.item(self.currentRow(), 0).text()
-    
 
     def get_status(self):
-        """Get the table status"""
-        self.setFocus()
+        """Get the table status."""
+        return self.setFocus()
+
     @property
     def get_status(self):
-        """Get the table status"""
+        """Get the table status."""
         return self.hasFocus()
+
 
 class InstalledTab(QtWidgets.QWidget):
     """Installed Python versions tab."""
@@ -284,26 +281,19 @@ class InstalledTab(QtWidgets.QWidget):
         layout.addWidget(self.table)
 
         # Form
-        venv_form_title = QtWidgets.QLabel("Available Virtual Environemnts")
+        venv_form_title = QtWidgets.QLabel("Available Virtual Environments")
         venv_form_title.setContentsMargins(0, 10, 0, 0)
         layout.addWidget(venv_form_title)
 
         self.table_venv = PyVenvTable()
         layout.addWidget(self.table_venv)
 
-        
- 
         self.table_venv.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
-
-
-        
 
         self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
         # ensure the table is always in focus
         self.installEventFilter(self)
-
-
 
     def update_table(self):
         """Update the Python version table."""
@@ -371,20 +361,6 @@ class InstalledTab(QtWidgets.QWidget):
         minimized_window : bool, default: False
             Whether the window should run minimized or not.
         """
-
-        a = self.table.set_status
-        b = self.table_venv.get_status
-        print('----------',a)
-        print('----------',b)
-        # b = self.table.signal_update.emit()
-        # print('$$$$$$$$$$',b)
-
-        # if s:
-        #     py_path = self.table.active_path
-        # else:
-        #     py_path = self.table_venv.active_path   
-
-
         py_path = self.table.active_path
 
         min_win = "/w /min" if minimized_window else ""
@@ -412,6 +388,3 @@ class InstalledTab(QtWidgets.QWidget):
                 f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"',
                 shell=True,
             )
-
-
-

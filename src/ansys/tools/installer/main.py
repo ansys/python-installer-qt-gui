@@ -12,8 +12,8 @@ import requests
 from ansys.tools.installer import CACHE_DIR, __version__
 from ansys.tools.installer.auto_updater import READ_ONLY_PAT, query_gh_latest_release
 from ansys.tools.installer.common import protected, threaded
-from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
+from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python, run_ps
 from ansys.tools.installer.misc import ImageWidget, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
