@@ -26,6 +26,7 @@ ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Created by the PyAnsys Team.</p>
 <p>If you have any questions or issues, please open an issue the <a href='https://github.com/pyansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
 <p>Alternatively, you can contact us at <a href='mailto:pyansys.core@ansys.com'>pyansys.core@ansys.com</a>.</p>
+<p> By using this installer, you accept to ...</p>
 <p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
 """
 
