@@ -2,6 +2,7 @@
 
 ; Set the name, version, and output path of the installer
 !define VERSION_FILE "src/ansys/tools/installer/VERSION"
+!define LICENSE_FILE "LICENSE"
 !define PRODUCT_NAME "Ansys Python Manager"
 !define /file PRODUCT_VERSION "src/ansys/tools/installer/VERSION"
 !define OUTFILE_NAME "Ansys-Python-Manager-Setup-v${PRODUCT_VERSION}.exe"
@@ -15,6 +16,7 @@ OutFile "dist\${OUTFILE_NAME}"
 !include "InstallOptions.nsh"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE oneclickpre
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE oneclickleave
+!insertmacro MUI_PAGE_LICENSE "${LICENSE_FILE}"
 !insertmacro MUI_PAGE_INSTFILES
 !include "uninstall.nsi"
 
