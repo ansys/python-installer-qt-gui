@@ -49,7 +49,7 @@ doc = [
     "sphinx-copybutton==0.5.1",
 ]
 freeze = [
-    "pyinstaller==5.8.0",
+    "pyinstaller==5.9.0",
 ]
 
 [tool.flit.module]
