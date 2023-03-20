@@ -1,4 +1,4 @@
-Ansys Python Installer (QT)
+Ansys Python Manager (QT)
 ===========================
 
 This is a simple cross-platform `QT <https://www.qt.io/>`_ application
