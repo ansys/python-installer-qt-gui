@@ -2,6 +2,7 @@
 
 ; Set the name, version, and output path of the installer
 !define VERSION_FILE "src/ansys/tools/installer/VERSION"
+!define LICENSE_FILE "LICENSE"
 !define PRODUCT_NAME "Ansys Python Manager"
 !define /file PRODUCT_VERSION "src/ansys/tools/installer/VERSION"
 !define OUTFILE_NAME "Ansys-Python-Manager-Setup-v${PRODUCT_VERSION}.exe"
@@ -14,7 +15,7 @@ OutFile "dist\${OUTFILE_NAME}"
 !include "MUI2.nsh"
 !include "InstallOptions.nsh"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE oneclickpre
-!define MUI_PAGE_CUSTOMFUNCTION_LEAVE oneclickleave
+!insertmacro MUI_PAGE_LICENSE "${LICENSE_FILE}"
 !insertmacro MUI_PAGE_INSTFILES
 !include "uninstall.nsi"
 
@@ -46,6 +47,9 @@ Section "Ansys Python Manager" SEC01
   ; start after install
   Exec "$INSTDIR\Ansys Python Manager.exe"
 
+  ; After installation succeeded, wait and close
+  Sleep 5000
+  Quit
 SectionEnd
 
 ; Define the uninstaller section
@@ -69,11 +73,6 @@ Function oneclickpre
   HideWindow
 FunctionEnd
 
-Function oneclickleave
-  Quit
-FunctionEnd
-
 ; Call the MUI2 OneClick plugin
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
-

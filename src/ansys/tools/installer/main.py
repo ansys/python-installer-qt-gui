@@ -26,6 +26,7 @@ ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Created by the PyAnsys Team.</p>
 <p>If you have any questions or issues, please open an issue the <a href='https://github.com/pyansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
 <p>Alternatively, you can contact us at <a href='mailto:pyansys.core@ansys.com'>pyansys.core@ansys.com</a>.</p>
+<p>Your use of this software is governed by the MIT License. In addition, this installer allows you to access and install software that is licensed under separate terms ("Separately Licensed Software"). If you chose to install such Separately Licensed Software, you acknowledge that you are responsible for complying with any associated terms and conditions.</p>
 <p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
 """
 
