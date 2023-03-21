@@ -38,3 +38,5 @@ else:
 
 
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
+
+ANSYS_VENVS = ".ansys_python_venvs"

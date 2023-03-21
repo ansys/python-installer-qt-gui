@@ -3,6 +3,8 @@
 import logging
 import os
 
+from ansys.tools.installer.constants import ANSYS_VENVS
+
 try:
     import winreg
 except ModuleNotFoundError as err:
@@ -149,12 +151,9 @@ def get_all_python_venv(admin=False):
     from pathlib import Path
 
     user_directory = os.path.expanduser("~")
-    ansys_venv_maintain_dir = ".ansys_python_venv"
-    Path(f"{user_directory}/{ansys_venv_maintain_dir}").mkdir(
-        parents=True, exist_ok=True
-    )
+    Path(f"{user_directory}/{ANSYS_VENVS}").mkdir(parents=True, exist_ok=True)
 
-    venv_dir = os.path.join(user_directory, ".ansys_python_venv")
+    venv_dir = os.path.join(user_directory, ANSYS_VENVS)
 
     for venv_dir_name in os.listdir(venv_dir):
         if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):

@@ -7,7 +7,7 @@ import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from ansys.tools.installer.constants import ASSETS_PATH
+from ansys.tools.installer.constants import ANSYS_VENVS, ASSETS_PATH
 from ansys.tools.installer.installed_table import DataTable, InstalledTab
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
@@ -31,7 +31,7 @@ class CreateVenvTab(QtWidgets.QWidget):
 
         # Create Virtual Environment
         file_browse_title = QtWidgets.QLabel(
-            "NOTE: Virtual environments are created under user directory .ansys_python_venv.\
+            f"NOTE: Virtual environments are created under user directory {ANSYS_VENVS}.\
             \nPlease select the python version from above table to create respective virtual environment.\
             \nCurrently Conda Forge Versions are not supported. \n"
         )
@@ -71,7 +71,7 @@ class CreateVenvTab(QtWidgets.QWidget):
     def create_venv(self):
         """Create virtual environment at selected directory."""
         user_directory = os.path.expanduser("~")
-        venv_dir = ".ansys_python_venv"
+        venv_dir = ANSYS_VENVS
         user_venv_dir = f"{user_directory}/{venv_dir}/{self.venv_name.text()}"
         isExist = os.path.exists(user_venv_dir)
 
