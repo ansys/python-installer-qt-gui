@@ -29,19 +29,11 @@ class CreateVenvTab(QtWidgets.QWidget):
         # QIcon object from an image file
         self.app_icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
 
-        # Form
-        form_title = QtWidgets.QLabel("Available Python Installations")
-        form_title.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(form_title)
-
-        # Python Version, Forge Version Table
-        self.table = DataTable(installed_python=True, installed_forge=True)
-        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
-        layout.addWidget(self.table)
-
         # Create Virtual Environment
         file_browse_title = QtWidgets.QLabel(
-            "Note: Virtual environments are created under user directory .ansys_python_venv. \nPlease select the python version from above table to create respective virtual environment. \nCurrently Conda Forge Versions are not supported."
+            "NOTE: Virtual environments are created under user directory .ansys_python_venv.\
+            \nPlease select the python version from above table to create respective virtual environment.\
+            \nCurrently Conda Forge Versions are not supported. \n"
         )
         file_browse_title.setContentsMargins(0, 10, 0, 0)
 
@@ -56,6 +48,16 @@ class CreateVenvTab(QtWidgets.QWidget):
         layout.addWidget(file_browse_title)
         layout.addWidget(self.venv_name)
         layout.addWidget(create_env_btn)
+
+        # Form
+        form_title = QtWidgets.QLabel("Available Python Installations")
+        form_title.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(form_title)
+
+        # Python Version, Forge Version Table
+        self.table = DataTable(installed_python=True, installed_forge=True)
+        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        layout.addWidget(self.table)
 
         # Group 1: Installation type
         installation_type_box = QtWidgets.QGroupBox("Installation Type")

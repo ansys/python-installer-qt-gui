@@ -158,7 +158,7 @@ class InstalledTab(QtWidgets.QWidget):
 
     # Class variable to update virtual environment table on the fly.
     VENV_TABLE = None
-    CHK_BOX_STATE = True
+    CHK_BOX_STATE = False
 
     def __init__(self, parent=None):
         """Initialize this tab."""
@@ -169,16 +169,9 @@ class InstalledTab(QtWidgets.QWidget):
         self.setLayout(layout)
 
         form_note_1 = QtWidgets.QLabel(
-            "Note: Virtual environments are recommended to use with 'Lauching Options' & 'Install' action."
+            "NOTE: Virtual environments are recommended to use with 'Lauching Options' & 'Install' action."
         )
         layout.addWidget(form_note_1)
-
-        check_box_venv = QtWidgets.QCheckBox(
-            "Launch and Install with Virtual Environments."
-        )
-        check_box_venv.setCheckState(QtCore.Qt.CheckState.Checked)
-        layout.addWidget(check_box_venv)
-        check_box_venv.stateChanged.connect(self.get_chk_box_state)
 
         # Form
         venv_form_title = QtWidgets.QLabel("Available Virtual Environments")
@@ -287,6 +280,13 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys.addWidget(self.versions_combo)
         hbox_install_pyansys.addWidget(self.button_launch_cmd)
 
+        self.check_box_opt = QtWidgets.QCheckBox(
+            "NOT RECOMMENDED: Use of general Python installation"
+        )
+        self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
+        layout.addWidget(self.check_box_opt)
+        self.check_box_opt.stateChanged.connect(self.get_chk_box_state)
+
         # Form
         form_title = QtWidgets.QLabel("Available Python installations")
         form_title.setContentsMargins(0, 10, 0, 0)
@@ -320,13 +320,16 @@ class InstalledTab(QtWidgets.QWidget):
         """Get the changed state of check box for virtual environment."""
         if state:
             InstalledTab.CHK_BOX_STATE = True
+            self.table.setFocus()
+
         else:
             InstalledTab.CHK_BOX_STATE = False
+            InstalledTab.VENV_TABLE.setFocus()
 
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
-            self.table.setFocus()
+            InstalledTab.VENV_TABLE.setFocus()
         return super().eventFilter(source, event)
 
     def launch_spyder(self):
@@ -394,12 +397,12 @@ class InstalledTab(QtWidgets.QWidget):
             Whether the window should run minimized or not.
         """
         if InstalledTab.CHK_BOX_STATE:
-            py_path = InstalledTab.VENV_TABLE.active_path
-        else:
             py_path = self.table.active_path
+        else:
+            py_path = InstalledTab.VENV_TABLE.active_path
 
         min_win = "/w /min" if minimized_window else ""
-        if "Python" in self.table.active_version and not InstalledTab.CHK_BOX_STATE:
+        if "Python" in self.table.active_version and InstalledTab.CHK_BOX_STATE:
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
 
@@ -412,7 +415,7 @@ class InstalledTab(QtWidgets.QWidget):
                 f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
                 shell=True,
             )
-        elif InstalledTab.CHK_BOX_STATE:
+        elif not InstalledTab.CHK_BOX_STATE:
             # Launch with active virtual environment
             if extra:
                 cmd = f"& {extra}"
