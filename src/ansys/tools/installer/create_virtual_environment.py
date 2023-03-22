@@ -33,8 +33,8 @@ class CreateVenvTab(QtWidgets.QWidget):
         # Create Virtual Environment
         file_browse_title = QtWidgets.QLabel(
             f"NOTE: Virtual environments are created under user directory {ANSYS_VENVS}.\
-            \nPlease select the python version from above table to create respective virtual environment.\
-            \nCurrently Conda Forge Versions are not supported. \n"
+            \nPlease select the python version from Available Python Installations table to create\
+            \nrespective virtual environment. Currently Conda Forge Versions are not supported. \n"
         )
         file_browse_title.setContentsMargins(0, 10, 0, 0)
 
