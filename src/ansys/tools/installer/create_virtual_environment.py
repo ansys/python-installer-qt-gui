@@ -75,9 +75,9 @@ class CreateVenvTab(QtWidgets.QWidget):
         user_venv_dir = f"{user_directory}/{venv_dir}/{self.venv_name.text()}"
         isExist = os.path.exists(user_venv_dir)
 
-        if isExist:
+        if self.venv_name.text() == "":
             self.failed_to_create_dialog(case_1=True)
-        elif self.venv_name.text() == "" or self.venv_name.text() == self.caption:
+        elif isExist:
             self.failed_to_create_dialog(case_2=True)
         else:
             Path(f"{user_directory}/{venv_dir}/{self.venv_name.text()}").mkdir(
@@ -101,22 +101,23 @@ class CreateVenvTab(QtWidgets.QWidget):
     def failed_to_create_dialog(self, case_1=False, case_2=False):
         """Dialogs for if environment gets failed to create."""
         if case_1:
-            # Case 1: if environment already exists or blank name
+            # Case 1: check for name of environment
             msg = QtWidgets.QMessageBox()
             msg.setText("Warning: Failed to create virtual environment!")
             msg.setInformativeText(
-                "Either environment is already exists. Or Please enter valid environment name."
+                "Enter a valid name for virtual environment creation."
             )
             msg.setWindowTitle("Warning")
             msg.setIcon(msg.Icon.Warning)
             msg.setWindowIcon(self.app_icon)
             msg.exec_()
+
         elif case_2:
-            # Case 1: check for name of environment
+            # Case 2: if environment already exists
             msg = QtWidgets.QMessageBox()
             msg.setText("Warning: Failed to create virtual environment!")
             msg.setInformativeText(
-                "Enter a valid name for virtual environment to create."
+                "Virtual environment already exists. Please enter a different virtual environment name."
             )
             msg.setWindowTitle("Warning")
             msg.setIcon(msg.Icon.Warning)
