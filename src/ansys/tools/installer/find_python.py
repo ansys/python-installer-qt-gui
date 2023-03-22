@@ -137,7 +137,7 @@ def find_all_python():
     return paths
 
 
-def get_all_python_venv(admin=False):
+def get_all_python_venv():
     """Get a list of all created python virtual environments.
 
     Returns
@@ -158,5 +158,8 @@ def get_all_python_venv(admin=False):
     for venv_dir_name in os.listdir(venv_dir):
         if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
             path = os.path.join(venv_dir, venv_dir_name, "Scripts")
-            paths[path] = (venv_dir_name, admin)
+            paths[path] = (
+                venv_dir_name,
+                False,
+            )  # venvs will always be user-like, hence False
     return paths

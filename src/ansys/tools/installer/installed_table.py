@@ -98,38 +98,16 @@ class DataTable(QtWidgets.QTableWidget):
             venv_lst = get_all_python_venv()
             tot = len(venv_lst)
             self.setRowCount(tot)
-            self.setColumnCount(3)
-            self.setHorizontalHeaderLabels(["Virtual Environment", "Admin", "Path"])
+            self.setColumnCount(2)
+            self.setHorizontalHeaderLabels(["Virtual Environment", "Path"])
             self.verticalHeader().setVisible(False)
             self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
             row = 0
-            for path, (version, admin) in venv_lst.items():
-                self.setItem(
-                    row, 0, QtWidgets.QTableWidgetItem(f"Virtual Env {version}")
-                )
-                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
+            for path, (version, _) in venv_lst.items():
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"{version}"))
+                self.setItem(row, 1, QtWidgets.QTableWidgetItem(path))
                 row += 1
-        else:
-            # Check for if there are no virtual environements
-            if not self.created_venv:
-                no_env_dict = {
-                    "virtual environment are not available": ("None", "None"),
-                }
-                tot = len(no_env_dict)
-                self.setRowCount(tot)
-                self.setColumnCount(3)
-                self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
-                self.verticalHeader().setVisible(False)
-                self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-
-                for path, (version, admin) in no_env_dict.items():
-                    row = 0
-                    self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"{version}"))
-                    self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-                    self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-                    row += 1
 
         self.resizeColumnsToContents()
         self.selectRow(0)
