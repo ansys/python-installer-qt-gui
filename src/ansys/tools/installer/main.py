@@ -87,6 +87,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         help_menu.addAction(issue_action)
 
         help_menu.addSeparator()  # -------------------------------------------
+
+        # Create an "About" action
         about_action = QtGui.QAction("&About", self)
         about_action.triggered.connect(self.show_about_dialog)
 
