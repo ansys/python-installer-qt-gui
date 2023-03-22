@@ -39,8 +39,7 @@ class CreateVenvTab(QtWidgets.QWidget):
         file_browse_title.setContentsMargins(0, 10, 0, 0)
 
         self.venv_name = QtWidgets.QLineEdit()
-        self.caption = "Enter virtual environment name here!"
-        self.venv_name.setText(self.caption)
+        self.venv_name.setPlaceholderText("Enter virtual environment name")
 
         create_env_btn = QtWidgets.QPushButton("Create Virtual Environments")
         create_env_btn.clicked.connect(self.create_venv)
