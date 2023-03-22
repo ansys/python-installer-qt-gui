@@ -3,6 +3,8 @@
 import logging
 import os
 
+from ansys.tools.installer.constants import ANSYS_VENVS
+
 try:
     import winreg
 except ModuleNotFoundError as err:
@@ -132,4 +134,32 @@ def find_all_python():
     """
     paths = _find_installed_python(True)
     paths.update(_find_installed_python(False))
+    return paths
+
+
+def get_all_python_venv():
+    """Get a list of all created python virtual environments.
+
+    Returns
+    -------
+    dict
+        Dictionary containing a key for each path and a ``tuple``
+        containing ``(version_str, is_admin)``.
+    """
+    paths = {}
+    import os
+    from pathlib import Path
+
+    user_directory = os.path.expanduser("~")
+    Path(f"{user_directory}/{ANSYS_VENVS}").mkdir(parents=True, exist_ok=True)
+
+    venv_dir = os.path.join(user_directory, ANSYS_VENVS)
+
+    for venv_dir_name in os.listdir(venv_dir):
+        if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
+            path = os.path.join(venv_dir, venv_dir_name, "Scripts")
+            paths[path] = (
+                venv_dir_name,
+                False,
+            )  # venvs will always be user-like, hence False
     return paths

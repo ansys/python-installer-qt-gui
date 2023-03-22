@@ -9,24 +9,37 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
-# from ansys.tools.installer.common import threaded
 from ansys.tools.installer.common import get_pkg_versions
-from ansys.tools.installer.find_python import find_all_python, find_miniforge
+from ansys.tools.installer.find_python import (
+    find_all_python,
+    find_miniforge,
+    get_all_python_venv,
+)
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
-
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
 
-class PyInstalledTable(QtWidgets.QTableWidget):
-    """Table of locally installed Python environments."""
+class DataTable(QtWidgets.QTableWidget):
+    """Common Table of locally installed Python environments/Virtual Environments."""
 
     signal_update = QtCore.Signal()
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        installed_python=False,
+        installed_forge=False,
+        created_venv=False,
+    ):
         """Initialize the table by populating it."""
         super().__init__(1, 1, parent)
+
+        self.installed_python = installed_python
+        self.installed_forge = installed_forge
+        self.created_venv = created_venv
+
         self._destroyed = False
         self._locked = True
         self.populate()
@@ -52,39 +65,58 @@ class PyInstalledTable(QtWidgets.QTableWidget):
         LOG.debug("Populating the table")
         self.clear()
 
-        # query for all installations of Python
-        installed_python = find_all_python()
-        installed_forge = find_miniforge()
-
         if self._destroyed:
             return
 
-        tot = len(installed_python) + len(installed_forge)
-        self.setRowCount(tot)
-        self.setColumnCount(3)
-        self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
-        self.verticalHeader().setVisible(False)
-        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        # Check for python & conda forge versions
+        if self.installed_python or self.installed_forge:
+            python_lst = find_all_python()
+            conda_lst = find_miniforge()
 
-        row = 0
-        for path, (version, admin) in installed_python.items():
-            self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python {version}"))
-            self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-            self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-            row += 1
+            tot = len(python_lst) + len(conda_lst)
+            self.setRowCount(tot)
+            self.setColumnCount(3)
+            self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
+            self.verticalHeader().setVisible(False)
+            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
-        for path, (version, admin) in installed_forge.items():
-            self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Conda {version}"))
-            self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-            self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-            row += 1
+            row = 0
+            for path, (version, admin) in python_lst.items():
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python {version}"))
+                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
+                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
+                row += 1
+
+            for path, (version, admin) in conda_lst.items():
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Conda {version}"))
+                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
+                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
+                row += 1
+        elif self.created_venv:
+            # Check for virtual environments
+            venv_lst = get_all_python_venv()
+            tot = len(venv_lst)
+            if tot == 0:
+                venv_lst["None"] = (None, None)
+                tot = 1
+            self.setRowCount(tot)
+            self.setColumnCount(3)
+            self.setHorizontalHeaderLabels(["Virtual Environment", "Admin", "Path"])
+            self.verticalHeader().setVisible(False)
+            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+
+            row = 0
+            for path, (version, admin) in venv_lst.items():
+                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"{version}"))
+                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
+                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
+                row += 1
 
         self.resizeColumnsToContents()
         self.selectRow(0)
         self.horizontalHeader().setStretchLastSection(True)
 
         self.destroyed.connect(self.stop)
-
         self._locked = False
 
     def stop(self):
@@ -105,12 +137,28 @@ class PyInstalledTable(QtWidgets.QTableWidget):
 class InstalledTab(QtWidgets.QWidget):
     """Installed Python versions tab."""
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         """Initialize this tab."""
         super().__init__()
         self._parent = parent
+
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
+
+        form_note_1 = QtWidgets.QLabel(
+            "NOTE: Virtual environments are recommended to use with 'Lauching Options' & 'Install' action."
+        )
+        layout.addWidget(form_note_1)
+
+        # Form
+        venv_form_title = QtWidgets.QLabel("Available Virtual Environments")
+        venv_form_title.setContentsMargins(0, 10, 0, 0)
+        layout.addWidget(venv_form_title)
+
+        # Virtual Environment Table
+        self.venv_table = DataTable(created_venv=True)
+        self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        layout.addWidget(self.venv_table)
 
         launching_options = QtWidgets.QLabel("Launching options")
         launching_options.setContentsMargins(0, 10, 0, 0)
@@ -209,6 +257,13 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys.addWidget(self.versions_combo)
         hbox_install_pyansys.addWidget(self.button_launch_cmd)
 
+        self.check_box_opt = QtWidgets.QCheckBox(
+            "NOT RECOMMENDED: Use of general Python installation"
+        )
+        self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
+        layout.addWidget(self.check_box_opt)
+        self.check_box_opt.stateChanged.connect(self.set_chk_box_focus)
+
         # Form
         form_title = QtWidgets.QLabel("Available Python installations")
         form_title.setContentsMargins(0, 10, 0, 0)
@@ -225,8 +280,10 @@ class InstalledTab(QtWidgets.QWidget):
         installation_type_box_layout.setContentsMargins(10, 20, 10, 20)
         installation_type_box.setLayout(installation_type_box_layout)
 
-        self.table = PyInstalledTable()
+        # Python Version, Forge Version Table
+        self.table = DataTable(installed_python=True, installed_forge=True)
         layout.addWidget(self.table)
+        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
         # ensure the table is always in focus
         self.installEventFilter(self)
@@ -234,11 +291,24 @@ class InstalledTab(QtWidgets.QWidget):
     def update_table(self):
         """Update the Python version table."""
         self.table.update()
+        self.venv_table.update()
+
+    def set_chk_box_focus(self, state):
+        """Set the focus accordingly depending on check box."""
+        self.table.setFocus() if state else self.venv_table.setFocus()
+
+    def is_chk_box_active(self):
+        """Get the value of the check box."""
+        return (
+            True
+            if self.check_box_opt.checkState() is QtCore.Qt.CheckState.Checked
+            else False
+        )
 
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
-            self.table.setFocus()
+            self.set_chk_box_focus(self.is_chk_box_active())
         return super().eventFilter(source, event)
 
     def launch_spyder(self):
@@ -305,9 +375,13 @@ class InstalledTab(QtWidgets.QWidget):
         minimized_window : bool, default: False
             Whether the window should run minimized or not.
         """
-        py_path = self.table.active_path
+        if self.is_chk_box_active():
+            py_path = self.table.active_path
+        else:
+            py_path = self.venv_table.active_path
+
         min_win = "/w /min" if minimized_window else ""
-        if "Python" in self.table.active_version:
+        if "Python" in self.table.active_version and self.is_chk_box_active():
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
 
@@ -318,6 +392,16 @@ class InstalledTab(QtWidgets.QWidget):
 
             subprocess.call(
                 f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
+                shell=True,
+            )
+        elif not self.is_chk_box_active():
+            # Launch with active virtual environment
+            if extra:
+                cmd = f"& {extra}"
+            else:
+                cmd = f"& echo Python set to {py_path}"
+            subprocess.call(
+                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path}&cd %userprofile%{cmd}"',
                 shell=True,
             )
         else:  # probably conda

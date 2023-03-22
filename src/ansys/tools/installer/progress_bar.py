@@ -17,7 +17,8 @@ class ProgressBar(QtWidgets.QDialog):
             label_widget = QtWidgets.QLabel()
             label_widget.setText(label)
             label_widget.setSizePolicy(
-                QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding
+                QtWidgets.QSizePolicy.Expanding,
+                QtWidgets.QSizePolicy.Expanding,
             )
             label_widget.setAlignment(QtCore.Qt.AlignCenter)
             self.layout.addWidget(label_widget)

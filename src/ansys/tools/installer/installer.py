@@ -11,7 +11,10 @@ def run_ps(command, wait=True):
     ps_command = ["powershell.exe", command]
     LOG.debug("Running: %s", str(ps_command))
     proc = subprocess.Popen(
-        ps_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True
+        ps_command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        shell=True,
     )
     out, error = proc.communicate()
 
