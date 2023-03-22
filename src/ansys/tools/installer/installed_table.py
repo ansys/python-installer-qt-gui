@@ -101,15 +101,16 @@ class DataTable(QtWidgets.QTableWidget):
                 venv_lst["None"] = (None, None)
                 tot = 1
             self.setRowCount(tot)
-            self.setColumnCount(2)
-            self.setHorizontalHeaderLabels(["Virtual Environment", "Path"])
+            self.setColumnCount(3)
+            self.setHorizontalHeaderLabels(["Virtual Environment", "Admin", "Path"])
             self.verticalHeader().setVisible(False)
             self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
             row = 0
-            for path, (version, _) in venv_lst.items():
+            for path, (version, admin) in venv_lst.items():
                 self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"{version}"))
-                self.setItem(row, 1, QtWidgets.QTableWidgetItem(path))
+                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
+                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
                 row += 1
 
         self.resizeColumnsToContents()
