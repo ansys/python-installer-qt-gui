@@ -44,7 +44,6 @@ class DataTable(QtWidgets.QTableWidget):
         self._locked = True
         self.populate()
         self.signal_update.connect(self.populate)
-        self.selected = None
 
     def update(self, timeout=1.0):
         """Update this table.
