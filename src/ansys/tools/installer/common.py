@@ -63,5 +63,4 @@ def get_pkg_versions(pkg_name):
     all_versions = sorted(releases, key=parse_version, reverse=True)
     if pkg_name == "pyansys":
         all_versions = [x for x in all_versions if int(x.split(".")[0]) > 0]
-        print(all_versions)
     return all_versions
