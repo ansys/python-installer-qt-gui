@@ -81,6 +81,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         visit_action.triggered.connect(self.visit_website)
         help_menu.addAction(visit_action)
 
+        # Create a "Report issue" action
+        issue_action = QtGui.QAction("&Report issue", self)
+        issue_action.triggered.connect(self.report_issue)
+        help_menu.addAction(issue_action)
+
         # Create an "About" action
         about_action = QtGui.QAction("&About", self)
         about_action.triggered.connect(self.show_about_dialog)
@@ -285,6 +290,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         url = QtCore.QUrl(
             "https://installer.docs.pyansys.com/version/dev/installer.html"
         )
+        QtGui.QDesktopServices.openUrl(url)
+
+    def report_issue(self):
+        """Access the Ansys Python Manager issues tracker."""
+        url = QtCore.QUrl("https://github.com/pyansys/python-installer-qt-gui/issues")
         QtGui.QDesktopServices.openUrl(url)
 
     def show_about_dialog(self):
