@@ -8,7 +8,7 @@ import subprocess
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from ansys.tools.installer.constants import ANSYS_VENVS, ASSETS_PATH
-from ansys.tools.installer.installed_table import DataTable, InstalledTab
+from ansys.tools.installer.installed_table import DataTable
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
 
@@ -23,6 +23,7 @@ class CreateVenvTab(QtWidgets.QWidget):
         """Initialize this tab."""
         super().__init__()
         self._parent = parent
+        self.venv_table = parent.installed_table_tab.venv_table
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
@@ -135,59 +136,13 @@ class CreateVenvTab(QtWidgets.QWidget):
     def update_table(self):
         """Update the Python version table."""
         self.table.update()
-        InstalledTab.VENV_TABLE.update()
+        self.venv_table.update()
 
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
             self.table.setFocus()
         return super().eventFilter(source, event)
-
-    def launch_spyder(self):
-        """Launch spyder IDE."""
-        # handle errors
-        error_msg = "pip install spyder && spyder || echo Failed to launch. Try reinstalling spyder with pip install spyder --force-reinstall"
-        self._update_pck_mnger()
-        self.launch_cmd(f"spyder || {error_msg}")
-
-    def launch_jupyterlab(self):
-        """Launch Jupyterlab."""
-        # handle errors
-        error_msg = "pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab --force-reinstall"
-        self._update_pck_mnger()
-        self.launch_cmd(f"python -m jupyter lab || {error_msg}")
-
-    def launch_jupyter_notebook(self):
-        """Launch Jupyter Notebook."""
-        # handle errors
-        error_msg = "pip install jupyter && python -m jupyter notebook || echo Failed to launch. Try reinstalling jupyter with pip install jupyter --force-reinstall"
-        self._update_pck_mnger()
-        self.launch_cmd(f"python -m jupyter notebook || {error_msg}")
-
-    def install_defaults(self):
-        """Install Python default packages."""
-        cmd = "pip install numpy pandas scipy scikit-learn matplotlib && timeout 3 && exit || echo Failed to install default Python packages. Try reinstalling it with pip install numpy pandas scipy scikit-learn matplotlib --force-reinstall"
-        self._update_pck_mnger()
-        self.launch_cmd(cmd)
-
-    def install_pyansys(self):
-        """Install PyAnsys metapackage."""
-        cmd = "pip install pyansys^>=2023 && timeout 3 && exit || echo Failed to install PyAnsys metapackage. Try reinstalling it with pip install pyansys^>=2023 --force-reinstall"
-        self._update_pck_mnger()
-        self.launch_cmd(cmd)
-
-    def list_packages(self):
-        """List installed Python packages."""
-        self.launch_cmd("pip list")
-
-    def _update_pck_mnger(self):
-        """Update package manager if needed."""
-        cmd = ""
-        if "Python" in self.table.active_version:
-            cmd = "python -m pip install -U pip & exit"
-        elif "Conda" in self.table.active_version:
-            cmd = "conda update conda & exit"
-        self.launch_cmd(cmd, True)
 
     def launch_cmd(self, extra="", minimized_window=False, exit_cmd=""):
         """Run a command in a new command prompt.

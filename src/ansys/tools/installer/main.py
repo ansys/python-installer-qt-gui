@@ -106,12 +106,10 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self.tab_widget.addTab(self.tab_install_python, "Install Python")
 
         # Add tabs to the tab widget
-        self._table_tab = CreateVenvTab(self)
-        self.tab_widget.addTab(self._table_tab, "Create Virtual Environments")
-
-        # Add tabs to the tab widget
-        self._table_tab = InstalledTab(self)
-        self.tab_widget.addTab(self._table_tab, "Manage Python Environments")
+        self.installed_table_tab = InstalledTab(self)
+        self.venv_table_tab = CreateVenvTab(self)
+        self.tab_widget.addTab(self.venv_table_tab, "Create Virtual Environments")
+        self.tab_widget.addTab(self.installed_table_tab, "Manage Python Environments")
 
         # Create the layout for the container
         container_layout = QtWidgets.QVBoxLayout()
@@ -533,7 +531,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         out, error = install_python(filename)
 
         LOG.debug("Triggering table widget update")
-        self._table_tab.update_table()
+        self.installed_table_tab.update_table()
+        self.venv_table_tab.update_table()
 
         self.setEnabled(True)
 

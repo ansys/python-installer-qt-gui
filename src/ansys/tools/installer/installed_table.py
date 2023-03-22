@@ -97,6 +97,9 @@ class DataTable(QtWidgets.QTableWidget):
             # Check for virtual environments
             venv_lst = get_all_python_venv()
             tot = len(venv_lst)
+            if tot == 0:
+                venv_lst["None"] = (None, None)
+                tot = 1
             self.setRowCount(tot)
             self.setColumnCount(2)
             self.setHorizontalHeaderLabels(["Virtual Environment", "Path"])
@@ -134,10 +137,6 @@ class DataTable(QtWidgets.QTableWidget):
 class InstalledTab(QtWidgets.QWidget):
     """Installed Python versions tab."""
 
-    # Class variable to update virtual environment table on the fly.
-    VENV_TABLE = None
-    CHK_BOX_STATE = False
-
     def __init__(self, parent=None):
         """Initialize this tab."""
         super().__init__()
@@ -157,9 +156,9 @@ class InstalledTab(QtWidgets.QWidget):
         layout.addWidget(venv_form_title)
 
         # Virtual Environment Table
-        InstalledTab.VENV_TABLE = DataTable(created_venv=True)
-        InstalledTab.VENV_TABLE.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
-        layout.addWidget(InstalledTab.VENV_TABLE)
+        self.venv_table = DataTable(created_venv=True)
+        self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        layout.addWidget(self.venv_table)
 
         launching_options = QtWidgets.QLabel("Launching options")
         launching_options.setContentsMargins(0, 10, 0, 0)
@@ -263,7 +262,7 @@ class InstalledTab(QtWidgets.QWidget):
         )
         self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
         layout.addWidget(self.check_box_opt)
-        self.check_box_opt.stateChanged.connect(self.get_chk_box_state)
+        self.check_box_opt.stateChanged.connect(self.set_chk_box_focus)
 
         # Form
         form_title = QtWidgets.QLabel("Available Python installations")
@@ -292,22 +291,24 @@ class InstalledTab(QtWidgets.QWidget):
     def update_table(self):
         """Update the Python version table."""
         self.table.update()
-        InstalledTab.VENV_TABLE.update()
+        self.venv_table.update()
 
-    def get_chk_box_state(self, state):
-        """Get the changed state of check box for virtual environment."""
-        if state:
-            InstalledTab.CHK_BOX_STATE = True
-            self.table.setFocus()
+    def set_chk_box_focus(self, state):
+        """Set the focus accordingly depending on check box."""
+        self.table.setFocus() if state else self.venv_table.setFocus()
 
-        else:
-            InstalledTab.CHK_BOX_STATE = False
-            InstalledTab.VENV_TABLE.setFocus()
+    def is_chk_box_active(self):
+        """Get the value of the check box."""
+        return (
+            True
+            if self.check_box_opt.checkState() is QtCore.Qt.CheckState.Checked
+            else False
+        )
 
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
-            InstalledTab.VENV_TABLE.setFocus()
+            self.set_chk_box_focus(self.is_chk_box_active())
         return super().eventFilter(source, event)
 
     def launch_spyder(self):
@@ -374,13 +375,13 @@ class InstalledTab(QtWidgets.QWidget):
         minimized_window : bool, default: False
             Whether the window should run minimized or not.
         """
-        if InstalledTab.CHK_BOX_STATE:
+        if self.is_chk_box_active():
             py_path = self.table.active_path
         else:
-            py_path = InstalledTab.VENV_TABLE.active_path
+            py_path = self.venv_table.active_path
 
         min_win = "/w /min" if minimized_window else ""
-        if "Python" in self.table.active_version and InstalledTab.CHK_BOX_STATE:
+        if "Python" in self.table.active_version and self.is_chk_box_active():
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
 
@@ -393,7 +394,7 @@ class InstalledTab(QtWidgets.QWidget):
                 f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
                 shell=True,
             )
-        elif not InstalledTab.CHK_BOX_STATE:
+        elif not self.is_chk_box_active():
             # Launch with active virtual environment
             if extra:
                 cmd = f"& {extra}"
