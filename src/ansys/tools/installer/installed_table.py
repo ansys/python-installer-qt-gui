@@ -215,7 +215,6 @@ class InstalledTab(QtWidgets.QWidget):
         self.versions_combo.setModel(self.model)
 
         self.button_launch_cmd = QtWidgets.QPushButton("Install")
-        self.button_launch_cmd.setStyleSheet("background-color: #ffb71b;")
         self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
 
         self.package_pip_dict = {

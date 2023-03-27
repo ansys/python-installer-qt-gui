@@ -43,7 +43,6 @@ class CreateVenvTab(QtWidgets.QWidget):
 
         create_env_btn = QtWidgets.QPushButton("Create Virtual Environments")
         create_env_btn.clicked.connect(self.create_venv)
-        create_env_btn.setStyleSheet("background-color: #ffb71b;")
 
         layout.addWidget(file_browse_title)
         layout.addWidget(self.venv_name)
