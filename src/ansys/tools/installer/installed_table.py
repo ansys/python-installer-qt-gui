@@ -6,6 +6,7 @@ import subprocess
 import time
 
 from PySide6 import QtCore, QtWidgets
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
@@ -145,13 +146,15 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        form_note_1 = QtWidgets.QLabel(
-            "NOTE: Virtual environments are recommended to use with 'Lauching Options' & 'Install' action."
-        )
+        note_text = "<b>NOTE:</b> Virtual environments are recommended to use the <i><b>Launching Options</b></i> and <i><b>Install</b></i> actions below."
+
+        form_note_1 = QtWidgets.QLabel()
+        form_note_1.setText(note_text)
+        form_note_1.setAlignment(Qt.AlignCenter)
+        form_note_1.setWordWrap(True)
+
         layout.addWidget(form_note_1)
         font = form_note_1.font()
-        font.setItalic(True)
-        font.setBold(True)
         form_note_1.setFont(font)
 
         # Form

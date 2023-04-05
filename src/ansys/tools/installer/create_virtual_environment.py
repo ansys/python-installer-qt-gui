@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtCore import Qt
 
 from ansys.tools.installer.constants import ANSYS_VENVS, ASSETS_PATH
 from ansys.tools.installer.installed_table import DataTable
@@ -31,14 +32,16 @@ class CreateVenvTab(QtWidgets.QWidget):
         self.app_icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
 
         # Create Virtual Environment
-        file_browse_title = QtWidgets.QLabel(
-            f"NOTE: Virtual environments are created under user directory {ANSYS_VENVS}.\
-            \nPlease select the python version from Available Python Installations table to create\
+        venv_note_text = f"<b>NOTE:</b>  Virtual environments are created under user directory <i>'{ANSYS_VENVS}'</i>.\
+            \nPlease select the python version from <i><b>Available Python Installations</b></i> table to create\
             \nrespective virtual environment. Currently Conda Forge Versions are not supported. \n"
-        )
+
+        file_browse_title = QtWidgets.QLabel()
+        file_browse_title.setText(venv_note_text)
+        file_browse_title.setAlignment(Qt.AlignCenter)
+        file_browse_title.setWordWrap(True)
         file_browse_title.setContentsMargins(0, 10, 0, 0)
         font = file_browse_title.font()
-        font.setItalic(True)
         file_browse_title.setFont(font)
 
         self.venv_name = QtWidgets.QLineEdit()
