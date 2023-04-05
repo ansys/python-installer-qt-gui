@@ -203,6 +203,9 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         # create central widget
         central_widget = QtWidgets.QWidget()
+        self.setMaximumWidth(900)
+        self.setMaximumHeight(900)
+
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
 
