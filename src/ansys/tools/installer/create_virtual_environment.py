@@ -6,7 +6,6 @@ from pathlib import Path
 import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtCore import Qt
 
 from ansys.tools.installer.constants import ANSYS_VENVS, ASSETS_PATH
 from ansys.tools.installer.installed_table import DataTable
