@@ -37,6 +37,9 @@ class CreateVenvTab(QtWidgets.QWidget):
             \nrespective virtual environment. Currently Conda Forge Versions are not supported. \n"
         )
         file_browse_title.setContentsMargins(0, 10, 0, 0)
+        font = file_browse_title.font()
+        font.setItalic(True)
+        file_browse_title.setFont(font)
 
         self.venv_name = QtWidgets.QLineEdit()
         self.venv_name.setPlaceholderText("Enter virtual environment name")

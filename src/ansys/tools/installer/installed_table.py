@@ -149,6 +149,10 @@ class InstalledTab(QtWidgets.QWidget):
             "NOTE: Virtual environments are recommended to use with 'Lauching Options' & 'Install' action."
         )
         layout.addWidget(form_note_1)
+        font = form_note_1.font()
+        font.setItalic(True)
+        font.setBold(True)
+        form_note_1.setFont(font)
 
         # Form
         venv_form_title = QtWidgets.QLabel("Available Virtual Environments")
