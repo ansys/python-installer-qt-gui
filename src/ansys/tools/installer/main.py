@@ -162,6 +162,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         python_version_text = QtWidgets.QLabel(PYTHON_VERSION_TEXT)
         python_version_text.setWordWrap(True)
+        python_version_text.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         python_version_box_layout.addWidget(python_version_text)
 
         # Python version

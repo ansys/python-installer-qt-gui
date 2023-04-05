@@ -37,7 +37,7 @@ class CreateVenvTab(QtWidgets.QWidget):
 
         file_browse_title = QtWidgets.QLabel()
         file_browse_title.setText(venv_note_text)
-        file_browse_title.setAlignment(QtCore.Qt.AlignCenter)
+        file_browse_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         file_browse_title.setWordWrap(True)
         file_browse_title.setContentsMargins(0, 10, 0, 0)
         font = file_browse_title.font()

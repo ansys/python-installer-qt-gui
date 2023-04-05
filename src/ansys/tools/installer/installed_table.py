@@ -6,7 +6,6 @@ import subprocess
 import time
 
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
@@ -150,7 +149,7 @@ class InstalledTab(QtWidgets.QWidget):
 
         form_note_1 = QtWidgets.QLabel()
         form_note_1.setText(note_text)
-        form_note_1.setAlignment(Qt.AlignCenter)
+        form_note_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         form_note_1.setWordWrap(True)
 
         layout.addWidget(form_note_1)
