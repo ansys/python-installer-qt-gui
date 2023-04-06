@@ -31,12 +31,17 @@ class CreateVenvTab(QtWidgets.QWidget):
         self.app_icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
 
         # Create Virtual Environment
-        file_browse_title = QtWidgets.QLabel(
-            f"NOTE: Virtual environments are created under user directory {ANSYS_VENVS}.\
-            \nPlease select the python version from Available Python Installations table to create\
+        venv_note_text = f"<b>NOTE:</b>  Virtual environments are created under user directory <i>'{ANSYS_VENVS}'</i>.\
+            \nPlease select the python version from <i><b>Available Python Installations</b></i> table to create\
             \nrespective virtual environment. Currently Conda Forge Versions are not supported. \n"
-        )
+
+        file_browse_title = QtWidgets.QLabel()
+        file_browse_title.setText(venv_note_text)
+        file_browse_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
+        file_browse_title.setWordWrap(True)
         file_browse_title.setContentsMargins(0, 10, 0, 0)
+        font = file_browse_title.font()
+        file_browse_title.setFont(font)
 
         self.venv_name = QtWidgets.QLineEdit()
         self.venv_name.setPlaceholderText("Enter virtual environment name")
