@@ -88,8 +88,13 @@ class CreateVenvTab(QtWidgets.QWidget):
                 parents=True, exist_ok=True
             )
             user_venv_dir = f"{user_directory}/{venv_dir}/{self.venv_name.text()}"
-            cmd = f'python -m venv "{user_venv_dir}"'
-            self.launch_cmd(cmd, minimized_window=True, exit_cmd="^& exit")
+            cmd_python = f'python -m venv "{user_venv_dir}"'
+            self.launch_cmd(
+                cmd_python,
+                minimized_window=True,
+                exit_cmd="^& exit",
+                user_venv_dir=user_venv_dir,
+            )
             self.update_table()
             self.venv_success_dialog()
 
@@ -148,7 +153,9 @@ class CreateVenvTab(QtWidgets.QWidget):
             self.table.setFocus()
         return super().eventFilter(source, event)
 
-    def launch_cmd(self, extra="", minimized_window=False, exit_cmd=""):
+    def launch_cmd(
+        self, extra="", minimized_window=False, exit_cmd="", user_venv_dir=""
+    ):
         """Run a command in a new command prompt.
 
         Parameters
@@ -159,31 +166,19 @@ class CreateVenvTab(QtWidgets.QWidget):
             Whether the window should run minimized or not.
         """
         py_path = self.table.active_path
-        user_profile = os.path.expanduser("~")
         min_win = "/w /min" if minimized_window else ""
+
         if "Python" in self.table.active_version:
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
-
-            if extra:
-                cmd = f"& {extra} {exit_cmd}"
-            else:
-                cmd = f"& echo Python set to {py_path}"
+            cmd = f"& {extra} {exit_cmd}"
 
             subprocess.call(
                 f'start {min_win} cmd /K "set PATH={new_path};{cmd}"{exit_cmd}',
                 shell=True,
-                cwd=user_profile,
             )
-        else:  # probably conda
-            if extra:
-                # Replace the pip install command for conda
-                extra = extra.replace("pip", "conda")
-                cmd = f"& {extra} {exit_cmd}"
-            else:
-                cmd = f"& echo Activating conda forge at path {py_path}"
+        else:  #  conda
             subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"{exit_cmd}',
+                f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat &conda create --prefix {user_venv_dir} -y{exit_cmd}',
                 shell=True,
-                cwd=user_profile,
             )

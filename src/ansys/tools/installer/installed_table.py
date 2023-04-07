@@ -313,7 +313,7 @@ class InstalledTab(QtWidgets.QWidget):
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
-            self.set_chk_box_focus(self.is_chk_box_active())
+            self.set_chk_box_focus(self.is_chk_box_active)
         return super().eventFilter(source, event)
 
     def launch_spyder(self):
@@ -370,7 +370,7 @@ class InstalledTab(QtWidgets.QWidget):
             cmd = "conda update conda & exit"
         self.launch_cmd(cmd, True)
 
-    def launch_cmd(self, extra="", minimized_window=False):
+    def launch_cmd_old(self, extra="", minimized_window=False):
         """Run a command in a new command prompt.
 
         Parameters
@@ -418,5 +418,103 @@ class InstalledTab(QtWidgets.QWidget):
                 cmd = f"& echo Activating conda forge at path {py_path}"
             subprocess.call(
                 f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"',
+                shell=True,
+            )
+
+    def launch_cmd(self, extra="", minimized_window=False):
+        """Run a command in a new command prompt.
+
+        Parameters
+        ----------
+        extra : str, default: ""
+            Any additional command(s).
+        minimized_window : bool, default: False
+            Whether the window should run minimized or not.
+        """
+        min_win = "/w /min" if minimized_window else ""
+
+        # venv_yes    -  True :  virtual environment , False: user chose (checked box) base python installation
+        # python_yes  -  True : Python , False : Miniforge/Conda
+
+        if self.is_chk_box_active():
+            venv_yes = False
+            # when base python installation  is chosen in the table
+            py_path = self.table.active_path
+            py_version = self.table.active_version
+            # chosen_general_base_is_python = True if "Python" in py_version else False
+
+            miniforge_path = "" if "Python" in py_version else py_path
+            python_yes = True if miniforge_path == "" else False
+        else:
+            venv_yes = True
+            # when virtual environment is chosen in the table
+            py_path = self.venv_table.active_path
+            parent_path = os.path.dirname(py_path)  # No Scripts Folder
+            # If py_path has a folder called conda-meta . then it is a conda environment
+            python_yes = False if "conda-meta" in os.listdir(parent_path) else True
+            if python_yes:
+                miniforge_path = ""
+            else:
+                py_path = os.path.dirname(py_path)  # No Scripts Folder
+                # If it is a conda environment, then we need to get the path to the miniforge installation
+                with open(os.path.join(py_path, "conda-meta", "history"), "r") as f:
+                    for line in f:
+                        if line.startswith("# cmd:"):
+                            line = line.lstrip("# cmd: ")
+                            path = line.strip().split("create --prefix")[0]
+                            miniforge_path = (
+                                path.strip().split("Scripts")[0].rstrip("\\")
+                            )
+                            break
+            python_yes = True if miniforge_path == "" else False
+        print("py_path           : ", py_path)
+        print("python_yes        : ", python_yes)
+        print("venv_yes          : ", venv_yes)
+        print("miniforge_path    : ", miniforge_path)
+
+        if python_yes and not venv_yes:
+            scripts_path = os.path.join(py_path, "Scripts")
+            new_path = f"{py_path};{scripts_path};%PATH%"
+
+            if extra:
+                cmd = f"& {extra}"
+            else:
+                cmd = f"& echo Python set to {py_path}"
+
+            subprocess.call(
+                f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
+                shell=True,
+            )
+        elif python_yes and venv_yes:
+            # Launch with active python virtual environment
+            if extra:
+                cmd = f"& {extra}"
+            else:
+                cmd = f"& echo Python set to {py_path}"
+            subprocess.call(
+                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path}&cd %userprofile%{cmd}"',
+                shell=True,
+            )
+        elif not python_yes and venv_yes:
+            # Launch with active conda virtual environment
+            if extra:
+                # Replace the pip install command for conda
+                extra = extra.replace("pip", "conda")
+                cmd = f"& {extra}"
+            else:  # not python_yes and not venv_yes
+                cmd = f"& echo Activating conda forge at path {py_path}"
+            subprocess.call(
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info &cd %userprofile%{cmd}"',
+                shell=True,
+            )
+        else:
+            if extra:
+                # Replace the pip install command for conda
+                extra = extra.replace("pip", "conda")
+                cmd = f"& {extra}"
+            else:
+                cmd = f"& echo Activating conda forge at path {py_path}"
+            subprocess.call(
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info &cd %userprofile%{cmd}"',
                 shell=True,
             )
