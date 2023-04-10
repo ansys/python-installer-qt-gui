@@ -370,57 +370,6 @@ class InstalledTab(QtWidgets.QWidget):
             cmd = "conda update conda & exit"
         self.launch_cmd(cmd, True)
 
-    def launch_cmd_old(self, extra="", minimized_window=False):
-        """Run a command in a new command prompt.
-
-        Parameters
-        ----------
-        extra : str, default: ""
-            Any additional command(s).
-        minimized_window : bool, default: False
-            Whether the window should run minimized or not.
-        """
-        if self.is_chk_box_active():
-            py_path = self.table.active_path
-        else:
-            py_path = self.venv_table.active_path
-
-        min_win = "/w /min" if minimized_window else ""
-        if "Python" in self.table.active_version and self.is_chk_box_active():
-            scripts_path = os.path.join(py_path, "Scripts")
-            new_path = f"{py_path};{scripts_path};%PATH%"
-
-            if extra:
-                cmd = f"& {extra}"
-            else:
-                cmd = f"& echo Python set to {py_path}"
-
-            subprocess.call(
-                f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
-                shell=True,
-            )
-        elif not self.is_chk_box_active():
-            # Launch with active virtual environment
-            if extra:
-                cmd = f"& {extra}"
-            else:
-                cmd = f"& echo Python set to {py_path}"
-            subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path}&cd %userprofile%{cmd}"',
-                shell=True,
-            )
-        else:  # probably conda
-            if extra:
-                # Replace the pip install command for conda
-                extra = extra.replace("pip", "conda")
-                cmd = f"& {extra}"
-            else:
-                cmd = f"& echo Activating conda forge at path {py_path}"
-            subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"',
-                shell=True,
-            )
-
     def launch_cmd(self, extra="", minimized_window=False):
         """Run a command in a new command prompt.
 
@@ -508,10 +457,13 @@ class InstalledTab(QtWidgets.QWidget):
                 f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info &cd %userprofile%{cmd}"',
                 shell=True,
             )
-        else:  # not python_yes and not venv_yes
+        else:
+            # not python_yes and not venv_yes
             if extra:
                 # Replace the pip install command for conda
                 extra = extra.replace("pip", "conda")
+                extra = extra.replace("conda update conda", "conda update conda --yes")
+                extra = extra.replace("conda install", "conda install --yes")
                 cmd = f"& {extra}"
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
