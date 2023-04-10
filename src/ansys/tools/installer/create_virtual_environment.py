@@ -7,7 +7,7 @@ import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from ansys.tools.installer.constants import ANSYS_VENVS, ASSETS_PATH
+from ansys.tools.installer.constants import ANSYS_VENVS, ASSETS_PATH, VENV_NOTE
 from ansys.tools.installer.installed_table import DataTable
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
@@ -31,17 +31,21 @@ class CreateVenvTab(QtWidgets.QWidget):
         self.app_icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
 
         # Create Virtual Environment
-        venv_note_text = f"<b>NOTE:</b>  Virtual environments are created under user directory <i>'{ANSYS_VENVS}'</i>.\
-            \nPlease select the python version from <i><b>Available Python Installations</b></i> table to create\
-            \nrespective virtual environment. Currently Conda Forge Versions are not supported. \n"
 
         file_browse_title = QtWidgets.QLabel()
-        file_browse_title.setText(venv_note_text)
+        file_browse_title.setText(VENV_NOTE)
         file_browse_title.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         file_browse_title.setWordWrap(True)
         file_browse_title.setContentsMargins(0, 10, 0, 0)
         font = file_browse_title.font()
         file_browse_title.setFont(font)
+        layout.addWidget(file_browse_title)
+
+        # Group 1: Create Virtual Environment
+        create_venv_box = QtWidgets.QGroupBox("Create Virtual Environments")
+        create_venv_box_layout = QtWidgets.QVBoxLayout()
+        create_venv_box_layout.setContentsMargins(10, 20, 10, 20)
+        create_venv_box.setLayout(create_venv_box_layout)
 
         self.venv_name = QtWidgets.QLineEdit()
         self.venv_name.setPlaceholderText("Enter virtual environment name")
@@ -49,25 +53,24 @@ class CreateVenvTab(QtWidgets.QWidget):
         create_env_btn = QtWidgets.QPushButton("Create Virtual Environments")
         create_env_btn.clicked.connect(self.create_venv)
 
-        layout.addWidget(file_browse_title)
-        layout.addWidget(self.venv_name)
-        layout.addWidget(create_env_btn)
+        create_venv_box_layout.addWidget(self.venv_name)
+        create_venv_box_layout.addWidget(create_env_btn)
+        layout.addWidget(create_venv_box)
 
-        # Form
-        form_title = QtWidgets.QLabel("Available Python Installations")
-        form_title.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(form_title)
+        # Group 2: Available Python Installations
+        available_python_install_box = QtWidgets.QGroupBox(
+            "Available Python Installations"
+        )
+        available_python_install_box_layout = QtWidgets.QVBoxLayout()
+        available_python_install_box_layout.setContentsMargins(10, 20, 10, 20)
+        available_python_install_box.setLayout(available_python_install_box_layout)
 
         # Python Version, Forge Version Table
         self.table = DataTable(installed_python=True, installed_forge=True)
         self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
-        layout.addWidget(self.table)
+        available_python_install_box_layout.addWidget(self.table)
 
-        # Group 1: Installation type
-        installation_type_box = QtWidgets.QGroupBox("Installation Type")
-        installation_type_box_layout = QtWidgets.QVBoxLayout()
-        installation_type_box_layout.setContentsMargins(10, 20, 10, 20)
-        installation_type_box.setLayout(installation_type_box_layout)
+        layout.addWidget(available_python_install_box)
 
         # ensure the table is always in focus
         self.installEventFilter(self)

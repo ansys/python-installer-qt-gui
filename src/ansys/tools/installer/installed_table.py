@@ -10,6 +10,7 @@ from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
 from ansys.tools.installer.common import get_pkg_versions
+from ansys.tools.installer.constants import NOTE_FOR_MANAGE_TAB
 from ansys.tools.installer.find_python import (
     find_all_python,
     find_miniforge,
@@ -145,10 +146,8 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        note_text = "<b>NOTE:</b> Virtual environments are recommended to use the <i><b>Launching Options</b></i> and <i><b>Install</b></i> actions below."
-
         form_note_1 = QtWidgets.QLabel()
-        form_note_1.setText(note_text)
+        form_note_1.setText(NOTE_FOR_MANAGE_TAB)
         form_note_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         form_note_1.setWordWrap(True)
 
@@ -156,22 +155,27 @@ class InstalledTab(QtWidgets.QWidget):
         font = form_note_1.font()
         form_note_1.setFont(font)
 
-        # Form
-        venv_form_title = QtWidgets.QLabel("Available Virtual Environments")
-        venv_form_title.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(venv_form_title)
+        # Group 1: Available Virtual Environments
+        available_venv_box = QtWidgets.QGroupBox("Available Virtual Environments")
+        available_venv_box_layout = QtWidgets.QVBoxLayout()
+        available_venv_box_layout.setContentsMargins(10, 20, 10, 20)
+        available_venv_box.setLayout(available_venv_box_layout)
 
         # Virtual Environment Table
         self.venv_table = DataTable(created_venv=True)
         self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
-        layout.addWidget(self.venv_table)
 
-        launching_options = QtWidgets.QLabel("Launching options")
-        launching_options.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(launching_options)
+        available_venv_box_layout.addWidget(self.venv_table)
+        layout.addWidget(available_venv_box)
+
+        # Group 2: Launching Options
+        launching_options_box = QtWidgets.QGroupBox("Launching options")
+        launching_options_box_layout = QtWidgets.QVBoxLayout()
+        launching_options_box_layout.setContentsMargins(10, 20, 10, 20)
+        launching_options_box.setLayout(launching_options_box_layout)
 
         hbox = QtWidgets.QHBoxLayout()
-        layout.addLayout(hbox)
+        launching_options_box_layout.addLayout(hbox)
         self.button_launch_cmd = QtWidgets.QPushButton("Launch Console")
         self.button_launch_cmd.clicked.connect(self.launch_cmd)
         hbox.addWidget(self.button_launch_cmd)
@@ -188,12 +192,16 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_launch_spyder.clicked.connect(self.launch_spyder)
         hbox.addWidget(self.button_launch_spyder)
 
-        package_management = QtWidgets.QLabel("Package management")
-        package_management.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(package_management)
+        layout.addWidget(launching_options_box)
+
+        # Group 3: Package Management
+        pkg_manage_box = QtWidgets.QGroupBox("Package management")
+        pkg_manage_box_layout = QtWidgets.QVBoxLayout()
+        pkg_manage_box_layout.setContentsMargins(10, 20, 10, 20)
+        pkg_manage_box.setLayout(pkg_manage_box_layout)
 
         hbox_install = QtWidgets.QHBoxLayout()
-        layout.addLayout(hbox_install)
+        pkg_manage_box_layout.addLayout(hbox_install)
 
         self.button_install_defaults = QtWidgets.QPushButton(
             "Install Python default packages"
@@ -205,13 +213,17 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_list_packages.clicked.connect(self.list_packages)
         hbox_install.addWidget(self.button_list_packages)
 
-        package_management2 = QtWidgets.QLabel(
-            "Package management for PyAnsys Libraries"
-        )
-        package_management2.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(package_management2)
+        layout.addWidget(pkg_manage_box)
+
+        # Group 4: PyAnsys Package Management
+
+        pyansys_pkg_manage_box = QtWidgets.QGroupBox("Package management")
+        pyansys_pkg_manage_box_layout = QtWidgets.QVBoxLayout()
+        pyansys_pkg_manage_box_layout.setContentsMargins(10, 20, 10, 20)
+        pyansys_pkg_manage_box.setLayout(pyansys_pkg_manage_box_layout)
+
         hbox_install_pyansys = QtWidgets.QHBoxLayout()
-        layout.addLayout(hbox_install_pyansys)
+        pyansys_pkg_manage_box_layout.addLayout(hbox_install_pyansys)
 
         self.model = QStandardItemModel()
         self.packages_combo = QComboBox()
@@ -262,33 +274,34 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys.addWidget(self.versions_combo)
         hbox_install_pyansys.addWidget(self.button_launch_cmd)
 
+        layout.addWidget(pyansys_pkg_manage_box)
+
         self.check_box_opt = QtWidgets.QCheckBox(
             "NOT RECOMMENDED: Use of general Python installation"
         )
         self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
         layout.addWidget(self.check_box_opt)
         self.check_box_opt.stateChanged.connect(self.set_chk_box_focus)
+        self.check_box_opt.stateChanged.connect(self.display_ctrl)
 
-        # Form
-        form_title = QtWidgets.QLabel("Available Python installations")
-        form_title.setContentsMargins(0, 10, 0, 0)
-        layout.addWidget(form_title)
-
-        form = QtWidgets.QWidget()
-        form_layout = QtWidgets.QVBoxLayout()
-        form_layout.setContentsMargins(0, 0, 0, 0)
-        form.setLayout(form_layout)
-
-        # Group 1: Installation type
-        installation_type_box = QtWidgets.QGroupBox("Installation Type")
-        installation_type_box_layout = QtWidgets.QVBoxLayout()
-        installation_type_box_layout.setContentsMargins(10, 20, 10, 20)
-        installation_type_box.setLayout(installation_type_box_layout)
+        # Group 5: Available Python installation
+        self.available_python_install_box = QtWidgets.QGroupBox(
+            "Available Python installations"
+        )
+        self.available_python_install_box_layout = QtWidgets.QVBoxLayout()
+        self.available_python_install_box_layout.setContentsMargins(10, 20, 10, 20)
+        self.available_python_install_box.setLayout(
+            self.available_python_install_box_layout
+        )
 
         # Python Version, Forge Version Table
         self.table = DataTable(installed_python=True, installed_forge=True)
-        layout.addWidget(self.table)
         self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        self.available_python_install_box_layout.addWidget(self.table)
+        layout.addWidget(self.available_python_install_box)
+
+        self.isHidden = True
+        self.available_python_install_box.hide()
 
         # ensure the table is always in focus
         self.installEventFilter(self)
@@ -297,6 +310,15 @@ class InstalledTab(QtWidgets.QWidget):
         """Update the Python version table."""
         self.table.update()
         self.venv_table.update()
+
+    def display_ctrl(self):
+        """Set the focus accordingly depending on check box."""
+        if self.isHidden:
+            self.available_python_install_box.show()
+            self.isHidden = False
+        else:
+            self.available_python_install_box.hide()
+            self.isHidden = True
 
     def set_chk_box_focus(self, state):
         """Set the focus accordingly depending on check box."""
