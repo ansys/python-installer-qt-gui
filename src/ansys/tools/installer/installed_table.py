@@ -500,6 +500,7 @@ class InstalledTab(QtWidgets.QWidget):
             if extra:
                 # Replace the pip install command for conda
                 extra = extra.replace("pip", "conda")
+                extra = extra.replace("conda install", "conda install --yes")
                 cmd = f"& {extra}"
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
