@@ -10,7 +10,7 @@ from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
 from ansys.tools.installer.common import get_pkg_versions
-from ansys.tools.installer.constants import NOTE_FOR_MANAGE_TAB
+from ansys.tools.installer.constants import SELECT_VENV_MANAGE_TAB
 from ansys.tools.installer.find_python import (
     find_all_python,
     find_miniforge,
@@ -102,7 +102,7 @@ class DataTable(QtWidgets.QTableWidget):
                 tot = 1
             self.setRowCount(tot)
             self.setColumnCount(3)
-            self.setHorizontalHeaderLabels(["Virtual Environment", "Admin", "Path"])
+            self.setHorizontalHeaderLabels(["Virtual environment", "Admin", "Path"])
             self.verticalHeader().setVisible(False)
             self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
@@ -146,22 +146,20 @@ class InstalledTab(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
 
-        form_note_1 = QtWidgets.QLabel()
-        form_note_1.setText(NOTE_FOR_MANAGE_TAB)
-        form_note_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
-        form_note_1.setWordWrap(True)
-
-        layout.addWidget(form_note_1)
-        font = form_note_1.font()
-        form_note_1.setFont(font)
-
         # Group 1: Available Virtual Environments
-        available_venv_box = QtWidgets.QGroupBox("Available Virtual Environments")
+        available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
         available_venv_box_layout = QtWidgets.QVBoxLayout()
         available_venv_box_layout.setContentsMargins(10, 20, 10, 20)
         available_venv_box.setLayout(available_venv_box_layout)
 
-        # Virtual Environment Table
+        # --> Add text for available virtual environments
+        available_venv_box_text = QtWidgets.QLabel()
+        available_venv_box_text.setText(SELECT_VENV_MANAGE_TAB)
+        available_venv_box_text.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
+        available_venv_box_text.setWordWrap(True)
+        available_venv_box_layout.addWidget(available_venv_box_text)
+
+        # --> Add the virtual environment table
         self.venv_table = DataTable(created_venv=True)
         self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
@@ -176,7 +174,7 @@ class InstalledTab(QtWidgets.QWidget):
 
         hbox = QtWidgets.QHBoxLayout()
         launching_options_box_layout.addLayout(hbox)
-        self.button_launch_cmd = QtWidgets.QPushButton("Launch Console")
+        self.button_launch_cmd = QtWidgets.QPushButton("Launch console")
         self.button_launch_cmd.clicked.connect(self.launch_cmd)
         hbox.addWidget(self.button_launch_cmd)
 
@@ -195,7 +193,7 @@ class InstalledTab(QtWidgets.QWidget):
         layout.addWidget(launching_options_box)
 
         # Group 3: Package Management
-        pkg_manage_box = QtWidgets.QGroupBox("Package management")
+        pkg_manage_box = QtWidgets.QGroupBox("General package management")
         pkg_manage_box_layout = QtWidgets.QVBoxLayout()
         pkg_manage_box_layout.setContentsMargins(10, 20, 10, 20)
         pkg_manage_box.setLayout(pkg_manage_box_layout)
@@ -216,8 +214,7 @@ class InstalledTab(QtWidgets.QWidget):
         layout.addWidget(pkg_manage_box)
 
         # Group 4: PyAnsys Package Management
-
-        pyansys_pkg_manage_box = QtWidgets.QGroupBox("Package management")
+        pyansys_pkg_manage_box = QtWidgets.QGroupBox("PyAnsys package management")
         pyansys_pkg_manage_box_layout = QtWidgets.QVBoxLayout()
         pyansys_pkg_manage_box_layout.setContentsMargins(10, 20, 10, 20)
         pyansys_pkg_manage_box.setLayout(pyansys_pkg_manage_box_layout)
@@ -273,11 +270,11 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys.addWidget(self.packages_combo)
         hbox_install_pyansys.addWidget(self.versions_combo)
         hbox_install_pyansys.addWidget(self.button_launch_cmd)
-
         layout.addWidget(pyansys_pkg_manage_box)
 
+        # EXTRA: Use general Python installations for the above actions
         self.check_box_opt = QtWidgets.QCheckBox(
-            "NOT RECOMMENDED: Use of general Python installation"
+            "NOT RECOMMENDED: Use base Python environments for the above actions."
         )
         self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
         layout.addWidget(self.check_box_opt)
