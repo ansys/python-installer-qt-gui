@@ -27,17 +27,13 @@ PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
 
 
-VENV_NOTE = f"""Virtual environments are created under user directory <i>{ANSYS_VENVS}</i>.\
-            Please select the Python version from the table below to create\
-            its respective virtual environment. Currently Conda Forge Versions are not supported."""
-
 PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for your virtual environment.
 
 Please select the Python version from the table below to create its respective virtual environment. Currently Conda Forge Versions are not supported."""
 
-NAME_FOR_VENV = """Provide the name for your virtual environment.
+NAME_FOR_VENV = f"""Provide the name for your virtual environment.
 
-If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation."""
+Virtual environments are created under user directory <i>{ANSYS_VENVS}</i>. If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation."""
 
 
 NOTE_FOR_MANAGE_TAB = """<b>NOTE:</b> Virtual environments are recommended to use the <i>Launching Options</i> and\
