@@ -62,6 +62,7 @@ class CreateVenvTab(QtWidgets.QWidget):
         # ---> Add text for virtual environment name
         venv_name_box_text = QtWidgets.QLabel()
         venv_name_box_text.setText(NAME_FOR_VENV)
+        venv_name_box_text.setTextFormat(QtCore.Qt.TextFormat.RichText)
         venv_name_box_text.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         venv_name_box_text.setWordWrap(True)
         venv_name_box_layout.addWidget(venv_name_box_text)
