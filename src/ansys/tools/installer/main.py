@@ -42,7 +42,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         """Instantiate Ansys Python Manager main class."""
         super().__init__()
         self.setWindowTitle("Ansys Python Manager")
-        self.setGeometry(50, 50, 500, 700)  # width should auto-update
+        self.setGeometry(50, 50, 500, 900)  # width should auto-update
         self._exceptions = []
 
         self._pbar = None
@@ -62,7 +62,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         file_menu = menubar.addMenu("&File")
 
-        updates_action = QtGui.QAction("Check for Updates", self)
+        updates_action = QtGui.QAction("Check for updates", self)
         updates_action.triggered.connect(self.check_for_updates)
         file_menu.addAction(updates_action)
 
@@ -77,7 +77,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         help_menu = menubar.addMenu("&Help")
 
         # Create a "Visit Website" action
-        visit_action = QtGui.QAction("&Online Documentation", self)
+        visit_action = QtGui.QAction("&Online documentation", self)
         visit_action.triggered.connect(self.visit_website)
         help_menu.addAction(visit_action)
 
@@ -115,8 +115,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         # Add tabs to the tab widget
         self.installed_table_tab = InstalledTab(self)
         self.venv_table_tab = CreateVenvTab(self)
-        self.tab_widget.addTab(self.venv_table_tab, "Create Virtual Environments")
-        self.tab_widget.addTab(self.installed_table_tab, "Manage Python Environments")
+        self.tab_widget.addTab(self.venv_table_tab, "Create virtual environments")
+        self.tab_widget.addTab(self.installed_table_tab, "Manage Python environments")
 
         # Create the layout for the container
         container_layout = QtWidgets.QVBoxLayout()
@@ -129,7 +129,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         form.setLayout(form_layout)
 
         # Group 1: Installation type
-        installation_type_box = QtWidgets.QGroupBox("Installation Type")
+        installation_type_box = QtWidgets.QGroupBox("Installation type")
         installation_type_box_layout = QtWidgets.QVBoxLayout()
         installation_type_box_layout.setContentsMargins(10, 20, 10, 20)
         installation_type_box.setLayout(installation_type_box_layout)
@@ -155,7 +155,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         form_layout.addWidget(installation_type_box)
 
         # Group 2: Python version
-        python_version_box = QtWidgets.QGroupBox("Python Version")
+        python_version_box = QtWidgets.QGroupBox("Python version")
         python_version_box_layout = QtWidgets.QVBoxLayout()
         python_version_box_layout.setContentsMargins(10, 20, 10, 20)
         python_version_box.setLayout(python_version_box_layout)
