@@ -103,7 +103,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         # Header icon
         self.menu_heading = ImageWidget()
-        pixmap = QtGui.QPixmap(os.path.join(ASSETS_PATH, "pyansys-light-crop.png"))
+        pixmap = QtGui.QPixmap(os.path.join(ASSETS_PATH, "pyansys-light.png"))
         self.menu_heading.setPixmap(pixmap)
         header_layout.addWidget(self.menu_heading)
 
