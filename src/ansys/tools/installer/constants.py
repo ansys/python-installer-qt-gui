@@ -9,6 +9,7 @@ from ansys.tools.installer import __version__
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
+
 ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Created by the PyAnsys Team.</p>
 <p>If you have any questions or issues, please open an issue in <a href='https://github.com/pyansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
@@ -17,6 +18,7 @@ ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
 """
 
+ANSYS_VENVS = ".ansys_python_venvs"
 
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
 
@@ -24,6 +26,16 @@ PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
 
+
+PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for your virtual environment.
+
+Please select the Python version from the table below to create its respective virtual environment. Currently Conda Forge Versions are not supported."""
+
+NAME_FOR_VENV = f"""Provide the name for your virtual environment.<br><br>Virtual environments are created under user directory <i>{ANSYS_VENVS}</i>. If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation."""
+
+SELECT_VENV_MANAGE_TAB = """Choose a virtual environment to manage.
+
+It is recommended to use virtual environments for package management and launching options."""
 
 if getattr(sys, "frozen", False):
     # If the application is run as a bundle, the PyInstaller bootloader
@@ -39,5 +51,3 @@ else:
 
 
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
-
-ANSYS_VENVS = ".ansys_python_venvs"
