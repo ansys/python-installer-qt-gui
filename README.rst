@@ -5,6 +5,7 @@ This is a simple cross-platform `QT <https://www.qt.io/>`_ application
 you can use to install Python and (optional) PyAnsys packages.
 
 .. image:: images/app-image.png
+   :align: center
    :alt: Screenshot of Python Installer application
 
 Installation
