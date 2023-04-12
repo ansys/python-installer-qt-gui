@@ -385,13 +385,18 @@ class InstalledTab(QtWidgets.QWidget):
         self.launch_cmd("pip list")
 
     def _update_pck_mnger(self):
-        """Update package manager if needed."""
-        cmd = ""
-        if "Python" in self.table.active_version:
-            cmd = "python -m pip install -U pip & exit"
-        elif "Conda" in self.table.active_version:
-            cmd = "conda update conda & exit"
-        self.launch_cmd(cmd, True)
+        """Update package manager if needed.
+
+        Notes
+        -----
+        Only working on base Python installations, for now.
+        """
+        if self.is_chk_box_active():
+            if "Python" in self.table.active_version:
+                cmd = "python -m pip install -U pip && exit"
+            else:  # Otherwise, conda
+                cmd = "conda update conda --yes && exit"
+            self.launch_cmd(cmd, minimized_window=True)
 
     def launch_cmd(self, extra="", minimized_window=False):
         """Run a command in a new command prompt.
@@ -405,8 +410,8 @@ class InstalledTab(QtWidgets.QWidget):
         """
         min_win = "/w /min" if minimized_window else ""
 
-        # is_venv            -  True :  virtual environment , False: user chose (checked box) base python installation
-        # is_vanilla_python  -  True : Python , False : Miniforge/Conda
+        # is_venv            -  True : virtual environment , False: base python installation
+        # is_vanilla_python  -  True : Vanilla Python , False : Miniforge/Conda
 
         if self.is_chk_box_active():
             is_venv = False
@@ -447,22 +452,22 @@ class InstalledTab(QtWidgets.QWidget):
             new_path = f"{py_path};{scripts_path};%PATH%"
 
             if extra:
-                cmd = f"& {extra}"
+                cmd = f"&& {extra}"
             else:
-                cmd = f"& echo Python set to {py_path}"
+                cmd = f"&& echo Python set to {py_path}"
 
             subprocess.call(
-                f'start {min_win} cmd /K "set PATH={new_path} & cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "set PATH={new_path} && cd %userprofile% {cmd}"',
                 shell=True,
             )
         elif is_vanilla_python and is_venv:
             # Launch with active python virtual environment
             if extra:
-                cmd = f"& {extra}"
+                cmd = f"&& {extra}"
             else:
-                cmd = f"& echo Python set to {py_path}"
+                cmd = f"&& echo Python set to {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path} & cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path} && cd %userprofile% {cmd}"',
                 shell=True,
             )
         elif not is_vanilla_python and is_venv:
@@ -471,11 +476,11 @@ class InstalledTab(QtWidgets.QWidget):
                 # Replace the pip install command for conda
                 extra = extra.replace("pip", "conda")
                 extra = extra.replace("conda install", "conda install --yes")
-                cmd = f"& {extra}"
+                cmd = f"&& {extra}"
             else:
-                cmd = f"& echo Activating conda forge at path {py_path}"
+                cmd = f"&& echo Activating conda forge at path {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info & cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
                 shell=True,
             )
         else:
@@ -483,12 +488,11 @@ class InstalledTab(QtWidgets.QWidget):
             if extra:
                 # Replace the pip install command for conda
                 extra = extra.replace("pip", "conda")
-                extra = extra.replace("conda update conda", "conda update conda --yes")
                 extra = extra.replace("conda install", "conda install --yes")
                 cmd = f"& {extra}"
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info & cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
                 shell=True,
             )
