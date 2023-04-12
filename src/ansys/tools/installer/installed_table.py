@@ -17,7 +17,7 @@ from ansys.tools.installer.find_python import (
     get_all_python_venv,
 )
 
-ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
+ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
@@ -147,10 +147,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.setLayout(layout)
 
         # Group 1: Available Virtual Environments
-        available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
+        self.available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
         available_venv_box_layout = QtWidgets.QVBoxLayout()
         available_venv_box_layout.setContentsMargins(10, 20, 10, 20)
-        available_venv_box.setLayout(available_venv_box_layout)
+        self.available_venv_box.setLayout(available_venv_box_layout)
 
         # --> Add text for available virtual environments
         available_venv_box_text = QtWidgets.QLabel()
@@ -164,7 +164,35 @@ class InstalledTab(QtWidgets.QWidget):
         self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
         available_venv_box_layout.addWidget(self.venv_table)
-        layout.addWidget(available_venv_box)
+        layout.addWidget(self.available_venv_box)
+
+        # EXTRA Group: Available Python installation
+        self.available_python_install_box = QtWidgets.QGroupBox(
+            "Available base Python versions"
+        )
+        available_python_install_box_layout = QtWidgets.QVBoxLayout()
+        available_python_install_box_layout.setContentsMargins(10, 20, 10, 20)
+        self.available_python_install_box.setLayout(available_python_install_box_layout)
+
+        # Python Version, Forge Version Table
+        self.table = DataTable(installed_python=True, installed_forge=True)
+        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        available_python_install_box_layout.addWidget(self.table)
+        layout.addWidget(self.available_python_install_box)
+
+        # Hide it at first
+        self.available_python_install_box.hide()
+
+        # EXTRA: Use general Python installations for the above actions
+        self.check_box_opt = QtWidgets.QCheckBox(
+            "NOT RECOMMENDED: Use base Python versions instead of virtual environments."
+        )
+        self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
+        layout.addWidget(self.check_box_opt)
+        self.check_box_opt.stateChanged.connect(self.set_chk_box_focus)
+        self.check_box_opt.stateChanged.connect(self.display_ctrl)
+
+        ####### Launching and package management options #######
 
         # Group 2: Launching Options
         launching_options_box = QtWidgets.QGroupBox("Launching options")
@@ -234,6 +262,7 @@ class InstalledTab(QtWidgets.QWidget):
 
         self.package_pip_dict = {
             "PyAnsys-Metapackage": "pyansys",
+            "PyAnsys-Math": "ansys-math-core",
             "PyAEDT": "pyaedt",
             "PyDPF-Core": "ansys-dpf-core",
             "PyDPF-Post": "ansys-dpf-post",
@@ -243,9 +272,12 @@ class InstalledTab(QtWidgets.QWidget):
             "PyFluent-Visualization": "ansys-fluent-visualization",
             "PyMAPDL": "ansys-mapdl-core",
             "PyMAPDL Reader": "ansys-mapdl-reader",
+            "PyMechanical": "ansys-mechanical-core",
+            "PyMotorCAD": "ansys-motorcad-core",
             "PyPIM": "ansys-platform-instancemanagement",
             "PyPrimeMesh": "ansys-meshing-prime",
             "PySeascape": "ansys-seascape",
+            "PySystem Coupling": "ansys-systemcoupling-core",
             "PyTwin": "pytwin",
             "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
             "Shared Components": "ansys-openapi-common",
@@ -272,34 +304,6 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys.addWidget(self.button_launch_cmd)
         layout.addWidget(pyansys_pkg_manage_box)
 
-        # EXTRA: Use general Python installations for the above actions
-        self.check_box_opt = QtWidgets.QCheckBox(
-            "NOT RECOMMENDED: Use base Python environments for the above actions."
-        )
-        self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
-        layout.addWidget(self.check_box_opt)
-        self.check_box_opt.stateChanged.connect(self.set_chk_box_focus)
-        self.check_box_opt.stateChanged.connect(self.display_ctrl)
-
-        # Group 5: Available Python installation
-        self.available_python_install_box = QtWidgets.QGroupBox(
-            "Available Python installations"
-        )
-        self.available_python_install_box_layout = QtWidgets.QVBoxLayout()
-        self.available_python_install_box_layout.setContentsMargins(10, 20, 10, 20)
-        self.available_python_install_box.setLayout(
-            self.available_python_install_box_layout
-        )
-
-        # Python Version, Forge Version Table
-        self.table = DataTable(installed_python=True, installed_forge=True)
-        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
-        self.available_python_install_box_layout.addWidget(self.table)
-        layout.addWidget(self.available_python_install_box)
-
-        self.isHidden = True
-        self.available_python_install_box.hide()
-
         # ensure the table is always in focus
         self.installEventFilter(self)
 
@@ -310,12 +314,12 @@ class InstalledTab(QtWidgets.QWidget):
 
     def display_ctrl(self):
         """Set the focus accordingly depending on check box."""
-        if self.isHidden:
+        if self.is_chk_box_active():
             self.available_python_install_box.show()
-            self.isHidden = False
+            self.available_venv_box.hide()
         else:
             self.available_python_install_box.hide()
-            self.isHidden = True
+            self.available_venv_box.show()
 
     def set_chk_box_focus(self, state):
         """Set the focus accordingly depending on check box."""
@@ -381,13 +385,18 @@ class InstalledTab(QtWidgets.QWidget):
         self.launch_cmd("pip list")
 
     def _update_pck_mnger(self):
-        """Update package manager if needed."""
-        cmd = ""
-        if "Python" in self.table.active_version:
-            cmd = "python -m pip install -U pip & exit"
-        elif "Conda" in self.table.active_version:
-            cmd = "conda update conda & exit"
-        self.launch_cmd(cmd, True)
+        """Update package manager if needed.
+
+        Notes
+        -----
+        Only working on base Python installations, for now.
+        """
+        if self.is_chk_box_active():
+            if "Python" in self.table.active_version:
+                cmd = "python -m pip install -U pip && exit"
+            else:  # Otherwise, conda
+                cmd = "conda update conda --yes && exit"
+            self.launch_cmd(cmd, minimized_window=True)
 
     def launch_cmd(self, extra="", minimized_window=False):
         """Run a command in a new command prompt.
@@ -399,43 +408,91 @@ class InstalledTab(QtWidgets.QWidget):
         minimized_window : bool, default: False
             Whether the window should run minimized or not.
         """
-        if self.is_chk_box_active():
-            py_path = self.table.active_path
-        else:
-            py_path = self.venv_table.active_path
-
         min_win = "/w /min" if minimized_window else ""
-        if "Python" in self.table.active_version and self.is_chk_box_active():
+
+        # is_venv            -  True : virtual environment , False: base python installation
+        # is_vanilla_python  -  True : Vanilla Python , False : Miniforge/Conda
+
+        if self.is_chk_box_active():
+            is_venv = False
+            # when base python installation  is chosen in the table
+            py_path = self.table.active_path
+            py_version = self.table.active_version
+            # chosen_general_base_is_python = True if "Python" in py_version else False
+
+            miniforge_path = "" if "Python" in py_version else py_path
+            is_vanilla_python = True if miniforge_path == "" else False
+        else:
+            is_venv = True
+            # when virtual environment is chosen in the table
+            py_path = self.venv_table.active_path
+            parent_path = os.path.dirname(py_path)  # No Scripts Folder
+            # If py_path has a folder called conda-meta . then it is a conda environment
+            is_vanilla_python = (
+                False if "conda-meta" in os.listdir(parent_path) else True
+            )
+            if is_vanilla_python:
+                miniforge_path = ""
+            else:
+                py_path = os.path.dirname(py_path)  # No Scripts Folder
+                # If it is a conda environment, then we need to get the path to the miniforge installation
+                with open(os.path.join(py_path, "conda-meta", "history"), "r") as f:
+                    for line in f:
+                        if line.startswith("# cmd:"):
+                            line = line.lstrip("# cmd: ")
+                            path = line.strip().split("create --prefix")[0]
+                            miniforge_path = (
+                                path.strip().split("Scripts")[0].rstrip("\\")
+                            )
+                            break
+            is_vanilla_python = True if miniforge_path == "" else False
+
+        if is_vanilla_python and not is_venv:
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
 
             if extra:
-                cmd = f"& {extra}"
+                cmd = f"&& {extra}"
             else:
-                cmd = f"& echo Python set to {py_path}"
+                cmd = f"&& echo Python set to {py_path}"
 
             subprocess.call(
-                f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "set PATH={new_path} && cd %userprofile% {cmd}"',
                 shell=True,
             )
-        elif not self.is_chk_box_active():
-            # Launch with active virtual environment
+        elif is_vanilla_python and is_venv:
+            # Launch with active python virtual environment
             if extra:
-                cmd = f"& {extra}"
+                cmd = f"&& {extra}"
             else:
-                cmd = f"& echo Python set to {py_path}"
+                cmd = f"&& echo Python set to {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path}&cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path} && cd %userprofile% {cmd}"',
                 shell=True,
             )
-        else:  # probably conda
+        elif not is_vanilla_python and is_venv:
+            # Launch with active conda virtual environment
             if extra:
                 # Replace the pip install command for conda
                 extra = extra.replace("pip", "conda")
-                cmd = f"& {extra}"
+                extra = extra.replace("conda install", "conda install --yes")
+                cmd = f"&& {extra}"
             else:
-                cmd = f"& echo Activating conda forge at path {py_path}"
+                cmd = f"&& echo Activating conda forge at path {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat {py_path}&cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
+                shell=True,
+            )
+        else:
+            # not is_vanilla_python and not is_venv
+            if extra:
+                # Replace the pip install command for conda
+                extra = extra.replace("pip", "conda")
+                extra = extra.replace("conda install", "conda install --yes")
+                cmd = f"&& {extra}"
+            else:
+                cmd = f"&& echo Activating conda forge at path {py_path}"
+            subprocess.call(
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
                 shell=True,
             )

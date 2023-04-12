@@ -29,7 +29,7 @@ While choosing the latest version of Python is generally recommended, some third
 
 PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for your virtual environment.
 
-Please select the Python version from the table below to create its respective virtual environment. Currently Conda Forge Versions are not supported."""
+Please select the Python version from the table below to create its respective virtual environment."""
 
 NAME_FOR_VENV = f"""Provide the name for your virtual environment.<br><br>Virtual environments are created under user directory <i>{ANSYS_VENVS}</i>. If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation."""
 
