@@ -147,10 +147,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.setLayout(layout)
 
         # Group 1: Available Virtual Environments
-        available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
+        self.available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
         available_venv_box_layout = QtWidgets.QVBoxLayout()
         available_venv_box_layout.setContentsMargins(10, 20, 10, 20)
-        available_venv_box.setLayout(available_venv_box_layout)
+        self.available_venv_box.setLayout(available_venv_box_layout)
 
         # --> Add text for available virtual environments
         available_venv_box_text = QtWidgets.QLabel()
@@ -164,7 +164,35 @@ class InstalledTab(QtWidgets.QWidget):
         self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
         available_venv_box_layout.addWidget(self.venv_table)
-        layout.addWidget(available_venv_box)
+        layout.addWidget(self.available_venv_box)
+
+        # EXTRA Group: Available Python installation
+        self.available_python_install_box = QtWidgets.QGroupBox(
+            "Available base Python versions"
+        )
+        available_python_install_box_layout = QtWidgets.QVBoxLayout()
+        available_python_install_box_layout.setContentsMargins(10, 20, 10, 20)
+        self.available_python_install_box.setLayout(available_python_install_box_layout)
+
+        # Python Version, Forge Version Table
+        self.table = DataTable(installed_python=True, installed_forge=True)
+        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        available_python_install_box_layout.addWidget(self.table)
+        layout.addWidget(self.available_python_install_box)
+
+        # Hide it at first
+        self.available_python_install_box.hide()
+
+        # EXTRA: Use general Python installations for the above actions
+        self.check_box_opt = QtWidgets.QCheckBox(
+            "NOT RECOMMENDED: Use base Python versions instead of virtual environments."
+        )
+        self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
+        layout.addWidget(self.check_box_opt)
+        self.check_box_opt.stateChanged.connect(self.set_chk_box_focus)
+        self.check_box_opt.stateChanged.connect(self.display_ctrl)
+
+        ####### Launching and package management options #######
 
         # Group 2: Launching Options
         launching_options_box = QtWidgets.QGroupBox("Launching options")
@@ -272,34 +300,6 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys.addWidget(self.button_launch_cmd)
         layout.addWidget(pyansys_pkg_manage_box)
 
-        # EXTRA: Use general Python installations for the above actions
-        self.check_box_opt = QtWidgets.QCheckBox(
-            "NOT RECOMMENDED: Use base Python environments for the above actions."
-        )
-        self.check_box_opt.setCheckState(QtCore.Qt.CheckState.Unchecked)
-        layout.addWidget(self.check_box_opt)
-        self.check_box_opt.stateChanged.connect(self.set_chk_box_focus)
-        self.check_box_opt.stateChanged.connect(self.display_ctrl)
-
-        # Group 5: Available Python installation
-        self.available_python_install_box = QtWidgets.QGroupBox(
-            "Available Python installations"
-        )
-        self.available_python_install_box_layout = QtWidgets.QVBoxLayout()
-        self.available_python_install_box_layout.setContentsMargins(10, 20, 10, 20)
-        self.available_python_install_box.setLayout(
-            self.available_python_install_box_layout
-        )
-
-        # Python Version, Forge Version Table
-        self.table = DataTable(installed_python=True, installed_forge=True)
-        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
-        self.available_python_install_box_layout.addWidget(self.table)
-        layout.addWidget(self.available_python_install_box)
-
-        self.isHidden = True
-        self.available_python_install_box.hide()
-
         # ensure the table is always in focus
         self.installEventFilter(self)
 
@@ -310,12 +310,12 @@ class InstalledTab(QtWidgets.QWidget):
 
     def display_ctrl(self):
         """Set the focus accordingly depending on check box."""
-        if self.isHidden:
+        if self.is_chk_box_active():
             self.available_python_install_box.show()
-            self.isHidden = False
+            self.available_venv_box.hide()
         else:
             self.available_python_install_box.hide()
-            self.isHidden = True
+            self.available_venv_box.show()
 
     def set_chk_box_focus(self, state):
         """Set the focus accordingly depending on check box."""
