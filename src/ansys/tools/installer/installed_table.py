@@ -489,9 +489,9 @@ class InstalledTab(QtWidgets.QWidget):
                 # Replace the pip install command for conda
                 extra = extra.replace("pip", "conda")
                 extra = extra.replace("conda install", "conda install --yes")
-                cmd = f"& {extra}"
+                cmd = f"&& {extra}"
             else:
-                cmd = f"& echo Activating conda forge at path {py_path}"
+                cmd = f"&& echo Activating conda forge at path {py_path}"
             subprocess.call(
                 f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
                 shell=True,
