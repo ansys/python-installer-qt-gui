@@ -15,7 +15,7 @@ from ansys.tools.installer.constants import (
 )
 from ansys.tools.installer.installed_table import DataTable
 
-ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
+ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")

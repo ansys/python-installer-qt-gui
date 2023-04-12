@@ -17,7 +17,7 @@ from ansys.tools.installer.find_python import (
     get_all_python_venv,
 )
 
-ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.WindowActivate, QtCore.QEvent.Show]
+ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
@@ -332,7 +332,7 @@ class InstalledTab(QtWidgets.QWidget):
     def eventFilter(self, source, event):
         """Filter events and ensure that the table always remains in focus."""
         if event.type() in ALLOWED_FOCUS_EVENTS and source is self:
-            self.set_chk_box_focus(self.is_chk_box_active)
+            self.set_chk_box_focus(self.is_chk_box_active())
         return super().eventFilter(source, event)
 
     def launch_spyder(self):
