@@ -405,26 +405,28 @@ class InstalledTab(QtWidgets.QWidget):
         """
         min_win = "/w /min" if minimized_window else ""
 
-        # venv_yes    -  True :  virtual environment , False: user chose (checked box) base python installation
-        # python_yes  -  True : Python , False : Miniforge/Conda
+        # is_venv            -  True :  virtual environment , False: user chose (checked box) base python installation
+        # is_vanilla_python  -  True : Python , False : Miniforge/Conda
 
         if self.is_chk_box_active():
-            venv_yes = False
+            is_venv = False
             # when base python installation  is chosen in the table
             py_path = self.table.active_path
             py_version = self.table.active_version
             # chosen_general_base_is_python = True if "Python" in py_version else False
 
             miniforge_path = "" if "Python" in py_version else py_path
-            python_yes = True if miniforge_path == "" else False
+            is_vanilla_python = True if miniforge_path == "" else False
         else:
-            venv_yes = True
+            is_venv = True
             # when virtual environment is chosen in the table
             py_path = self.venv_table.active_path
             parent_path = os.path.dirname(py_path)  # No Scripts Folder
             # If py_path has a folder called conda-meta . then it is a conda environment
-            python_yes = False if "conda-meta" in os.listdir(parent_path) else True
-            if python_yes:
+            is_vanilla_python = (
+                False if "conda-meta" in os.listdir(parent_path) else True
+            )
+            if is_vanilla_python:
                 miniforge_path = ""
             else:
                 py_path = os.path.dirname(py_path)  # No Scripts Folder
@@ -438,13 +440,9 @@ class InstalledTab(QtWidgets.QWidget):
                                 path.strip().split("Scripts")[0].rstrip("\\")
                             )
                             break
-            python_yes = True if miniforge_path == "" else False
-        print("py_path           : ", py_path)
-        print("python_yes        : ", python_yes)
-        print("venv_yes          : ", venv_yes)
-        print("miniforge_path    : ", miniforge_path)
+            is_vanilla_python = True if miniforge_path == "" else False
 
-        if python_yes and not venv_yes:
+        if is_vanilla_python and not is_venv:
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
 
@@ -457,7 +455,7 @@ class InstalledTab(QtWidgets.QWidget):
                 f'start {min_win} cmd /K "set PATH={new_path} & cd %userprofile%{cmd}"',
                 shell=True,
             )
-        elif python_yes and venv_yes:
+        elif is_vanilla_python and is_venv:
             # Launch with active python virtual environment
             if extra:
                 cmd = f"& {extra}"
@@ -467,7 +465,7 @@ class InstalledTab(QtWidgets.QWidget):
                 f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path} & cd %userprofile%{cmd}"',
                 shell=True,
             )
-        elif not python_yes and venv_yes:
+        elif not is_vanilla_python and is_venv:
             # Launch with active conda virtual environment
             if extra:
                 # Replace the pip install command for conda
@@ -481,7 +479,7 @@ class InstalledTab(QtWidgets.QWidget):
                 shell=True,
             )
         else:
-            # not python_yes and not venv_yes
+            # not is_vanilla_python and not is_venv
             if extra:
                 # Replace the pip install command for conda
                 extra = extra.replace("pip", "conda")
