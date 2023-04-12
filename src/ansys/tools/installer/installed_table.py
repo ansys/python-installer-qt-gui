@@ -450,7 +450,7 @@ class InstalledTab(QtWidgets.QWidget):
                 cmd = f"& echo Python set to {py_path}"
 
             subprocess.call(
-                f'start {min_win} cmd /K "set PATH={new_path}&cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "set PATH={new_path} & cd %userprofile%{cmd}"',
                 shell=True,
             )
         elif python_yes and venv_yes:
@@ -460,7 +460,7 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"& echo Python set to {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path}&cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path} & cd %userprofile%{cmd}"',
                 shell=True,
             )
         elif not python_yes and venv_yes:
@@ -473,7 +473,7 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info &cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info & cd %userprofile%{cmd}"',
                 shell=True,
             )
         else:
@@ -487,6 +487,6 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"& echo Activating conda forge at path {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info &cd %userprofile%{cmd}"',
+                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && conda info & cd %userprofile%{cmd}"',
                 shell=True,
             )

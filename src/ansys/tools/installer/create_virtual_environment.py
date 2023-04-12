@@ -86,27 +86,20 @@ class CreateVenvTab(QtWidgets.QWidget):
 
     def create_venv(self):
         """Create virtual environment at selected directory."""
-        user_directory = os.path.expanduser("~")
-        venv_dir = ANSYS_VENVS
-        user_venv_dir = f"{user_directory}/{venv_dir}/{self.venv_name.text()}"
-        isExist = os.path.exists(user_venv_dir)
+        venv_dir = Path(Path.home(), ANSYS_VENVS, self.venv_name.text())
 
         if self.venv_name.text() == "":
             self.failed_to_create_dialog(case_1=True)
-        elif isExist:
+        elif venv_dir.exists():
             self.failed_to_create_dialog(case_2=True)
         else:
-            Path(f"{user_directory}/{venv_dir}/{self.venv_name.text()}").mkdir(
-                parents=True, exist_ok=True
-            )
-            user_venv_dir = f"{user_directory}/{venv_dir}/{self.venv_name.text()}"
-            cmd_python = f'python -m venv "{user_venv_dir}"'
-            self.launch_cmd(
-                cmd_python,
-                minimized_window=True,
-                exit_cmd="^& exit",
-                user_venv_dir=user_venv_dir,
-            )
+            venv_dir.mkdir(parents=True, exist_ok=True)
+
+            try:
+                self.cmd_create_venv(venv_dir)
+            except:
+                self.failed_to_create_dialog()
+
             self.update_table()
             self.venv_success_dialog()
 
@@ -165,32 +158,25 @@ class CreateVenvTab(QtWidgets.QWidget):
             self.table.setFocus()
         return super().eventFilter(source, event)
 
-    def launch_cmd(
-        self, extra="", minimized_window=False, exit_cmd="", user_venv_dir=""
-    ):
-        """Run a command in a new command prompt.
+    def cmd_create_venv(self, venv_dir):
+        """Create a virtual environment in a new command prompt.
 
         Parameters
         ----------
-        extra : str, default: ""
-            Any additional command(s).
-        minimized_window : bool, default: False
-            Whether the window should run minimized or not.
+        venv_dir : str
+            The location for the virtual environment.
         """
         py_path = self.table.active_path
-        min_win = "/w /min" if minimized_window else ""
 
         if "Python" in self.table.active_version:
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
-            cmd = f"& {extra} {exit_cmd}"
-
             subprocess.call(
-                f'start {min_win} cmd /K "set PATH={new_path};{cmd}"{exit_cmd}',
+                f'start /w /min cmd /K "set PATH={new_path} && python -m venv {venv_dir} && exit"',
                 shell=True,
             )
         else:  #  conda
             subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat &conda create --prefix {user_venv_dir} -y{exit_cmd}',
+                f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} -y && exit"',
                 shell=True,
             )
