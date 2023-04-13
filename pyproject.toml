@@ -16,7 +16,7 @@ maintainers = [
 ]
 dependencies = [
     "packaging",
-    "PyGitHub",
+    "PyGithub",
     "appdirs",
     "requests",
     "PySide6",
