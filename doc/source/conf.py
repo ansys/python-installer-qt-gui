@@ -33,6 +33,7 @@ html_theme_options = {
         "json_url": f"https://{cname}/versions.json",
         "version_match": switcher_version,
     },
+    "check_switcher": False,
     "github_url": "https://github.com/pyansys/python-installer-qt-gui",
     "show_prev_next": False,
     "show_breadcrumbs": True,
