@@ -73,13 +73,13 @@ guide`_. You will need to follow these steps:
 #. Install the project in editable mode:
 
    .. code:: bash
-      
+
       python -m pip install -e .[tests,doc]
 
 #. Finally, verify your development installation by running:
 
    .. code:: bash
-         
+
       pytest tests -v
 
 
