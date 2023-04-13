@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import time
+import winreg
 
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtGui import QStandardItem, QStandardItemModel
@@ -135,6 +136,11 @@ class DataTable(QtWidgets.QTableWidget):
         """Version of the active row."""
         return self.item(self.currentRow(), 0).text()
 
+    @property
+    def active_admin(self):
+        """Version of the active row."""
+        return self.item(self.currentRow(), 1).text()
+
 
 class InstalledTab(QtWidgets.QWidget):
     """Installed Python versions tab."""
@@ -167,7 +173,7 @@ class InstalledTab(QtWidgets.QWidget):
         available_venv_box_layout.addWidget(self.venv_table)
         self.venv_table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.venv_table.customContextMenuRequested.connect(
-            self.on_venv_table_context_menu_requested
+            self.delete_virtual_environment
         )
         layout.addWidget(self.available_venv_box)
 
@@ -183,6 +189,8 @@ class InstalledTab(QtWidgets.QWidget):
         self.table = DataTable(installed_python=True, installed_forge=True)
         self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
         available_python_install_box_layout.addWidget(self.table)
+        self.table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self.delete_installed_python)
         layout.addWidget(self.available_python_install_box)
 
         # Hide it at first
@@ -426,8 +434,91 @@ class InstalledTab(QtWidgets.QWidget):
         is_vanilla_python = True if miniforge_path == "" else False
         return is_vanilla_python, miniforge_path, parent_path
 
-    def on_venv_table_context_menu_requested(self, point):
-        """Delete Using Right Click for the virtual environment table."""
+    def delete_vanilla_python(self, version):
+        """Delete a vanilla python installation."""
+        version = (
+            str(version.split(".")[0]) + "." + str(version.split(".")[1])
+            if len(version.split(".")) > 2
+            else version
+        )
+        print(version)
+
+        # Define the registry key where Python is installed
+        print(self.table.active_admin)
+
+        if self.table.active_admin == True:
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Python\PythonCore\{}".format(version),
+                0,
+                winreg.KEY_ALL_ACCESS,
+            )
+        else:
+            key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                r"SOFTWARE\Python\PythonCore\{}".format(version),
+                0,
+                winreg.KEY_ALL_ACCESS,
+            )
+        print(key)
+
+        install_path_key = winreg.OpenKey(key, "InstallPath")
+        install_path = winreg.QueryValueEx(install_path_key, "")[0]
+        print(f"Python {version}: {install_path}")
+
+        # Get the Python install location
+        # location = winreg.QueryValue(install_path, "InstallPath")
+
+        # Delete the registry keys for Python
+        winreg.CloseKey(install_path_key)
+        winreg.CloseKey(key)
+        winreg.DeleteKey(key, r"SOFTWARE\Python\PythonCore\{}".format(version))
+        # winreg.DeleteKey(key, "")
+
+        # winreg.DeleteKey(root_key, "SOFTWARE\\Python\\PythonCore\\{0}-32\\".format(version))
+
+        # Delete the Python install directory
+        shutil.rmtree(install_path)
+
+    def delete_installed_python(self, point):
+        """Delete Base Python Installation Using Right Click."""
+        # Get the cell that was right-clicked
+        index = self.table.indexAt(point)
+        if not index.isValid():
+            return
+
+        is_vanilla_python = "Python" in self.table.active_version
+        path = self.table.active_path
+
+        # Create the context menu
+        menu = QtWidgets.QMenu(self)
+        DeleteAction = (
+            menu.addAction("Uninstall this Python Installation")
+            if is_vanilla_python
+            else menu.addAction("Uninstall this Conda Installation")
+        )
+
+        # Show the context menu and handle the user's choice
+        action = menu.exec(self.table.mapToGlobal(point))
+
+        if is_vanilla_python and action == DeleteAction:
+            version = self.table.active_version.split(" ")[-1]
+            print(version)
+
+            print(self.table.active_version)
+            print(self.table.active_path)
+            self.delete_vanilla_python(version)
+            self.table.update()
+        elif not is_vanilla_python and action == DeleteAction:
+            file_path = os.path.join(path, "Uninstall-Miniforge3.exe")
+            LOG.info("Uninstalling miniconda from %s", file_path)
+            cmd = f"{file_path} /S --yes & exit"
+            self.launch_cmd(cmd, minimized_window=True)
+            self.table.populate()
+            self.table.update()
+
+    def delete_virtual_environment(self, point):
+        """Delete Virtual Environment Using Right Click."""
         # Get the cell that was right-clicked
         index = self.venv_table.indexAt(point)
         if not index.isValid():
