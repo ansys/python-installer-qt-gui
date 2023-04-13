@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shutil
 import subprocess
 import time
 
@@ -164,6 +165,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
         available_venv_box_layout.addWidget(self.venv_table)
+        self.venv_table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.venv_table.customContextMenuRequested.connect(
+            self.on_venv_table_context_menu_requested
+        )
         layout.addWidget(self.available_venv_box)
 
         # EXTRA Group: Available Python installation
@@ -397,6 +402,62 @@ class InstalledTab(QtWidgets.QWidget):
             else:  # Otherwise, conda
                 cmd = "conda update conda --yes && exit"
             self.launch_cmd(cmd, minimized_window=True)
+
+    def find_env_type(self, table_name):
+        """Find if this is a conda or vanilla python environment."""
+        sel_table = self.venv_table if table_name == "venv_table" else self.table
+
+        py_path = sel_table.active_path
+        parent_path = os.path.dirname(py_path)  # No Scripts Folder
+        # If py_path has a folder called conda-meta . then it is a conda environment
+        is_vanilla_python = False if "conda-meta" in os.listdir(parent_path) else True
+        if is_vanilla_python:
+            miniforge_path = ""
+        else:
+            py_path = os.path.dirname(py_path)  # No Scripts Folder
+            # If it is a conda environment, then we need to get the path to the miniforge installation
+            with open(os.path.join(py_path, "conda-meta", "history"), "r") as f:
+                for line in f:
+                    if line.startswith("# cmd:"):
+                        line = line.lstrip("# cmd: ")
+                        path = line.strip().split("create --prefix")[0]
+                        miniforge_path = path.strip().split("Scripts")[0].rstrip("\\")
+                        break
+        is_vanilla_python = True if miniforge_path == "" else False
+        return is_vanilla_python, miniforge_path, parent_path
+
+    def on_venv_table_context_menu_requested(self, point):
+        """Delete Using Right Click for the virtual environment table."""
+        # Get the cell that was right-clicked
+        index = self.venv_table.indexAt(point)
+        if not index.isValid():
+            return
+
+        # Create the context menu
+        menu = QtWidgets.QMenu(self)
+        DeleteAction = menu.addAction("Delete this Virtual Environment")
+
+        # Show the context menu and handle the user's choice
+        action = menu.exec(self.venv_table.mapToGlobal(point))
+
+        is_vanilla_python, miniforge_path, parent_path = self.find_env_type(
+            "venv_table"
+        )
+
+        if is_vanilla_python and action == DeleteAction:
+            # Delete the python virtual environment
+            try:
+                shutil.rmtree(parent_path)
+            except:
+                pass
+        elif not is_vanilla_python and action == DeleteAction:
+            try:
+                # Delete the conda environment
+                cmd = f"conda activate base & conda env remove --prefix {parent_path} --yes & exit"
+                self.launch_cmd(cmd, minimized_window=True)
+            except:
+                pass
+        self.venv_table.update()
 
     def launch_cmd(self, extra="", minimized_window=False):
         """Run a command in a new command prompt.
