@@ -1,5 +1,5 @@
 Ansys Python Manager (QT)
-===========================
+=========================
 
 This is a simple cross-platform `QT <https://www.qt.io/>`_ application
 you can use to install Python and (optional) PyAnsys packages.
@@ -7,6 +7,8 @@ you can use to install Python and (optional) PyAnsys packages.
 .. image:: images/app-image.png
    :align: center
    :alt: Screenshot of Python Installer application
+
+.. contribute_start
 
 Installation
 ~~~~~~~~~~~~
@@ -103,9 +105,12 @@ style guidelines. For example:
    blacken-docs.............................................................Passed
    flake8...................................................................Passed
    codespell................................................................Passed
+   pydocstyle...............................................................Passed
    check for merge conflicts................................................Passed
    debug statements (python)................................................Passed
-   Validate GitHub Workflows............................(no files to check)Skipped
+   check yaml...............................................................Passed
+   trim trailing whitespace.................................................Passed
+   Validate GitHub Workflows................................................Passed
 
 If you need to run it again on all files and not just staged files, run:
 
