@@ -67,7 +67,7 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
-  
+
   doc-deploy:
     name: "Deploy development documentation"
     runs-on: ubuntu-latest
@@ -120,7 +120,7 @@ jobs:
   sign-application:
     name: Sign application
     needs: [build-application]
-    runs-on: 
+    runs-on:
       group: ansys-internal
       labels: [self-hosted, Windows, signtool]
     steps:
@@ -137,7 +137,7 @@ jobs:
 
       - name: List current structure
         run: ls -R
-      
+
       - name: Sign application
         working-directory: signtool
         run: |

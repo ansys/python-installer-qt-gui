@@ -6,17 +6,17 @@ build-backend = "flit_core.buildapi"
 name = "ansys-tools-installer"
 description = "Python QT app for installing Python on a Windows machine."
 readme = "README.rst"
-requires-python = ">=3.7"
+requires-python = ">=3.7,<4"
 license = {file = "LICENSE"}
 authors = [
-    {name = "Ansys, Inc.", email = "pyansys.maintainers@ansys.com"},
+    {name = "Ansys, Inc.", email = "pyansys.core@ansys.com"},
 ]
 maintainers = [
-    {name = "PyAnsys Developers", email = "pyansys.maintainers@ansys.com"},
+    {name = "Ansys, Inc.", email = "pyansys.core@ansys.com"},
 ]
 dependencies = [
     "packaging",
-    "PyGitHub",
+    "PyGithub",
     "appdirs",
     "requests",
     "PySide6",
@@ -38,18 +38,27 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = [
+    "packaging==23.1",
+    "PyGithub==1.58.1",
+    "appdirs==1.4.4",
+    "requests==2.28.2",
     "PySide6==6.5.0",
     "pytest==7.3.0",
-    "pytest-cov",
-    "pytest-qt",
+    "pytest-cov==4.0.0",
+    "pytest-qt==4.2.0",
 ]
 doc = [
     "Sphinx==5.3.0",
-    "ansys-sphinx-theme==0.9.6",
+    "ansys-sphinx-theme==0.9.7",
     "sphinx-copybutton==0.5.1",
 ]
 freeze = [
     "pyinstaller==5.9.0",
+    "packaging==23.1",
+    "PyGithub==1.58.1",
+    "appdirs==1.4.4",
+    "requests==2.28.2",
+    "PySide6==6.5.0",
 ]
 
 [tool.flit.module]
@@ -63,9 +72,6 @@ ansys_python_installer = "ansys.tools.installer:open_gui"
 
 [tool.pytest.ini_options]
 junit_family = "legacy"
-filterwarnings = [
-    "ignore:.*numpy.ufunc size changed.*:RuntimeWarning",
-]
 testpaths = "tests"
 qt_api = "pyside6"
 
@@ -86,6 +92,6 @@ source = ["ansys.tools"]
 show_missing = true
 
 [tool.codespell]
-skip = '*.pyc,*.txt,*.gif,*.png,*.jpg,*.js,*.html,*.doctree,*.ttf,*.woff,*.woff2,*.eot,*.mp4,*.inv,*.pickle,*.ipynb,flycheck*,./.git/*,./.hypothesis/*,*.yml,./doc/build/*,./doc/images/*,./dist/*,*~,.hypothesis*,./doc/source/examples/*,*cover,*.dat,*.mac,build,./docker/mapdl/v*,./factory/*,./ansys/mapdl/core/mapdl_functions.py,PKG-INFO,*.mypy_cache/*,./docker/mapdl/*,./_unused/*,*.spec'
+skip = '*.spec'
 ignore-words = "doc/styles/Vocab/ANSYS/accept.txt"
 quiet-level = 3
