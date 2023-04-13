@@ -1,16 +1,20 @@
 """Sphinx documentation configuration file."""
 from datetime import datetime
+import os
 import shutil
 
+from ansys_sphinx_theme import get_version_match
 from ansys_sphinx_theme import pyansys_logo_black as logo
 
 from ansys.tools.installer import __version__
 
 # Project information
-project = "python-gui-installer"
+project = "python-installer-qt-gui"
 copyright = f"(c) {datetime.now().year} ANSYS, Inc. All rights reserved"
 author = "ANSYS, Inc."
 release = version = __version__
+cname = os.getenv("DOCUMENTATION_CNAME", default="nocname.com")
+switcher_version = get_version_match(__version__)
 
 # Select desired logo, theme, and declare the html title
 html_logo = logo
@@ -18,7 +22,18 @@ html_theme = "ansys_sphinx_theme"
 html_short_title = html_title = "Python GUI Installer"
 
 # specify the location of your github repo
+html_context = {
+    "github_user": "pyansys",
+    "github_repo": "python-installer-qt-gui",
+    "github_version": "main",
+    "doc_path": "doc/source",
+}
 html_theme_options = {
+    "switcher": {
+        "json_url": f"https://{cname}/versions.json",
+        "version_match": switcher_version,
+    },
+    "check_switcher": False,
     "github_url": "https://github.com/pyansys/python-installer-qt-gui",
     "show_prev_next": False,
     "show_breadcrumbs": True,

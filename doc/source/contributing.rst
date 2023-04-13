@@ -1,4 +1,7 @@
-# Contributing
+.. _ref_contributing:
+
+Contributing
+============
 
 We absolutely welcome any code contributions and we hope that this
 guide will facilitate an understanding of the ``ansys-tools-installer`` code
@@ -9,8 +12,8 @@ support user questions and develop new features to make this software
 a useful tool for all users. As such, we welcome and encourage any
 questions or submissions to this repository.
 
-For contributing to this project, please refer to the [PyAnsys Developer's Guide].
-Further information about contributing to ``ansys-tools-installer`` can be found in [Contributing].
+For contributing to this project, please refer to the
+`PyAnsys Developer's Guide`_.
 
-[PyAnsys Developer's Guide]: https://dev.docs.pyansys.com/index.html
-[Contributing]: https://installer.tools.docs.pyansys.com/version/dev/contributing.html
+.. include:: ../../README.rst
+   :start-after: .. contribute_start
