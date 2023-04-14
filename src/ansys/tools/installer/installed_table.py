@@ -188,8 +188,6 @@ class InstalledTab(QtWidgets.QWidget):
         self.table = DataTable(installed_python=True, installed_forge=True)
         self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
         available_python_install_box_layout.addWidget(self.table)
-        self.table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.table.customContextMenuRequested.connect(self.delete_installed_python)
         layout.addWidget(self.available_python_install_box)
 
         # Hide it at first
