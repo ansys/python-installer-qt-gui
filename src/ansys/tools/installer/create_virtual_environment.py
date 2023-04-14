@@ -177,6 +177,6 @@ class CreateVenvTab(QtWidgets.QWidget):
             )
         else:  #  conda
             subprocess.call(
-                f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} -y && conda install python -y && exit"',
+                f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} python -y && exit"',
                 shell=True,
             )
