@@ -167,7 +167,7 @@ class CreateVenvTab(QtWidgets.QWidget):
             The location for the virtual environment.
         """
         py_path = self.table.active_path
-
+        LOG.debug(f"Requesting creation of {venv_dir}")
         if "Python" in self.table.active_version:
             scripts_path = os.path.join(py_path, "Scripts")
             new_path = f"{py_path};{scripts_path};%PATH%"
@@ -177,6 +177,6 @@ class CreateVenvTab(QtWidgets.QWidget):
             )
         else:  #  conda
             subprocess.call(
-                f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} -y && exit"',
+                f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} python -y && exit"',
                 shell=True,
             )

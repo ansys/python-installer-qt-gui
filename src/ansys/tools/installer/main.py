@@ -12,7 +12,7 @@ from packaging import version
 import requests
 
 from ansys.tools.installer import CACHE_DIR, __version__
-from ansys.tools.installer.auto_updater import READ_ONLY_PAT, query_gh_latest_release
+from ansys.tools.installer.auto_updater import query_gh_latest_release
 from ansys.tools.installer.common import protected, threaded
 from ansys.tools.installer.constants import (
     ABOUT_TEXT,
@@ -273,7 +273,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                     url,
                     f"Ansys-Python-Manager-Setup-v{ver}.exe",
                     when_finished=self._exe_update,
-                    auth=READ_ONLY_PAT,
                 )
         else:
             LOG.debug("Up to date.")
@@ -480,12 +479,9 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             repositories.
 
         """
-        request_headers = {}
+        request_headers = {"Accept": "application/octet-stream"}
         if auth:
-            request_headers = {
-                "Authorization": f"token {READ_ONLY_PAT}",
-                "Accept": "application/octet-stream",
-            }
+            request_headers["Authorization"] = f"token {auth}"
 
         # initiate the download
         session = requests.Session()

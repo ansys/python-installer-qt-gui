@@ -3,11 +3,6 @@
 from github import Github
 from packaging import version
 
-# Readonly on this repo
-# This repository will be released to the public, there's no issue with this token.
-# Exp Mon, Jan 1 2024, should be able to use public unauth by then
-READ_ONLY_PAT = "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"
-
 
 def query_gh_latest_release():
     """Check GitHub for updates.
@@ -26,7 +21,7 @@ def query_gh_latest_release():
         Url of the latest release installer.
 
     """
-    gh = Github(READ_ONLY_PAT)
+    gh = Github()
     repo = gh.get_repo(f"pyansys/python-installer-qt-gui")
 
     # Get the latest release and its tag name
