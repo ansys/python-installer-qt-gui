@@ -546,7 +546,7 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Python set to {py_path}"
             subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\activate.bat {py_path} && cd %userprofile% {cmd}"',
+                f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat && cd %userprofile% {cmd}"',
                 shell=True,
             )
         elif not is_vanilla_python and is_venv:
