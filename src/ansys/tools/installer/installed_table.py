@@ -117,6 +117,9 @@ class DataTable(QtWidgets.QTableWidget):
         self.resizeColumnsToContents()
         self.selectRow(0)
         self.horizontalHeader().setStretchLastSection(True)
+        self.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeMode.Fixed
+        )
 
         self.destroyed.connect(self.stop)
         self._locked = False
@@ -489,6 +492,8 @@ class InstalledTab(QtWidgets.QWidget):
                 )
             except:
                 pass
+
+        # Finally, update the venv table
         self.venv_table.update()
 
     def launch_cmd(self, extra="", minimized_window=False):
