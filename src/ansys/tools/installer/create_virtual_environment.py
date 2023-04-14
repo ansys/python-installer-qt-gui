@@ -86,15 +86,15 @@ class CreateVenvTab(QtWidgets.QWidget):
 
     def create_venv(self):
         """Create virtual environment at selected directory."""
-        venv_dir = Path(Path.home(), ANSYS_VENVS, self.venv_name.text())
+        user_home = os.path.expanduser("~")
+        venv_dir = os.path.join(user_home, ANSYS_VENVS, self.venv_name.text())
 
         if self.venv_name.text() == "":
             self.failed_to_create_dialog(case_1=True)
-        elif venv_dir.exists():
+        elif os.path.exists(venv_dir):
             self.failed_to_create_dialog(case_2=True)
         else:
-            venv_dir.mkdir(parents=True, exist_ok=True)
-
+            Path(venv_dir).mkdir(parents=True, exist_ok=True)
             try:
                 self.cmd_create_venv(venv_dir)
             except:
@@ -167,6 +167,7 @@ class CreateVenvTab(QtWidgets.QWidget):
             The location for the virtual environment.
         """
         py_path = self.table.active_path
+        user_profile = os.path.expanduser("~")
         LOG.debug(f"Requesting creation of {venv_dir}")
         if "Python" in self.table.active_version:
             scripts_path = os.path.join(py_path, "Scripts")
@@ -174,9 +175,11 @@ class CreateVenvTab(QtWidgets.QWidget):
             subprocess.call(
                 f'start /w /min cmd /K "set PATH={new_path} && python -m venv {venv_dir} && exit"',
                 shell=True,
+                cwd=user_profile,
             )
         else:  #  conda
             subprocess.call(
                 f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} python -y && exit"',
                 shell=True,
+                cwd=user_profile,
             )
