@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shutil
 import subprocess
 import time
 
@@ -116,6 +117,9 @@ class DataTable(QtWidgets.QTableWidget):
         self.resizeColumnsToContents()
         self.selectRow(0)
         self.horizontalHeader().setStretchLastSection(True)
+        self.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeMode.Fixed
+        )
 
         self.destroyed.connect(self.stop)
         self._locked = False
@@ -125,14 +129,19 @@ class DataTable(QtWidgets.QTableWidget):
         self._destroyed = True
 
     @property
-    def active_path(self):
-        """Path of the active row."""
-        return self.item(self.currentRow(), 2).text()
-
-    @property
     def active_version(self):
         """Version of the active row."""
         return self.item(self.currentRow(), 0).text()
+
+    @property
+    def active_admin(self):
+        """Version of the active row."""
+        return self.item(self.currentRow(), 1).text()
+
+    @property
+    def active_path(self):
+        """Path of the active row."""
+        return self.item(self.currentRow(), 2).text()
 
 
 class InstalledTab(QtWidgets.QWidget):
@@ -164,6 +173,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
         available_venv_box_layout.addWidget(self.venv_table)
+        self.venv_table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.venv_table.customContextMenuRequested.connect(
+            self.delete_virtual_environment
+        )
         layout.addWidget(self.available_venv_box)
 
         # EXTRA Group: Available Python installation
@@ -398,6 +411,91 @@ class InstalledTab(QtWidgets.QWidget):
                 cmd = "conda update conda --yes && exit"
             self.launch_cmd(cmd, minimized_window=True)
 
+    def find_env_type(self, table_name):
+        """Find if this is a conda or vanilla python environment.
+
+        Parameters
+        ----------
+        table_name : str
+            The name of the table to be used ("venv_table" or "table")
+
+        Returns
+        -------
+        tuple(str or bool, str or None, str or None)
+            A tuple containing information on: if it is a pip environment or conda
+            environment, the path to the Miniforge installation if any, and the path
+            to the virtual environment's activation.
+        """
+        if table_name == "venv_table":
+            sel_table = self.venv_table
+        elif table_name == "table":
+            sel_table = self.table
+        else:
+            LOG.error("No table provided. Internal tool error.")
+            return None, None, None
+
+        py_path = sel_table.active_path
+        parent_path = os.path.dirname(py_path)  # No Scripts Folder
+        # If py_path has a folder called conda-meta --> then it is a conda environment
+        is_vanilla_python = False if "conda-meta" in os.listdir(parent_path) else True
+
+        if is_vanilla_python:
+            miniforge_path = ""
+        else:
+            py_path = os.path.dirname(py_path)  # No Scripts Folder
+            # If it is a conda environment, then we need to get the path to the miniforge installation
+            with open(os.path.join(py_path, "conda-meta", "history"), "r") as f:
+                for line in f:
+                    if line.startswith("# cmd:"):
+                        line = line.lstrip("# cmd: ")
+                        path = line.strip().split("create --prefix")[0]
+                        miniforge_path = path.strip().split("Scripts")[0].rstrip("\\")
+                        break
+        # Fail-safe check
+        if not is_vanilla_python and miniforge_path == "":
+            LOG.error("Invalid type of virtual environment. Internal tool error.")
+            return None, None, None
+
+        return is_vanilla_python, miniforge_path, parent_path
+
+    def delete_virtual_environment(self, point):
+        """Delete virtual environment using right click."""
+        # Get the cell that was right-clicked
+        index = self.venv_table.indexAt(point)
+        if not index.isValid():
+            return
+
+        # Create the context menu
+        menu = QtWidgets.QMenu(self)
+        delete_action = menu.addAction("Delete virtual environment")
+
+        # Show the context menu and handle the user's choice
+        action = menu.exec(self.venv_table.mapToGlobal(point))
+
+        # Get information on the venv type
+        is_vanilla_python, miniforge_path, parent_path = self.find_env_type(
+            "venv_table"
+        )
+
+        if is_vanilla_python and action == delete_action:
+            try:
+                # Delete the python virtual environment
+                shutil.rmtree(parent_path)
+            except:
+                pass
+        elif not is_vanilla_python and action == delete_action:
+            try:
+                # Delete the conda environment
+                subprocess.call(
+                    f'start /w /min cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda env remove --prefix {parent_path} --yes && exit"',
+                    shell=True,
+                )
+            except:
+                pass
+
+        # Finally, update the venv table
+        self.venv_table.update()
+
     def launch_cmd(self, extra="", minimized_window=False):
         """Run a command in a new command prompt.
 
@@ -424,28 +522,9 @@ class InstalledTab(QtWidgets.QWidget):
             is_vanilla_python = True if miniforge_path == "" else False
         else:
             is_venv = True
-            # when virtual environment is chosen in the table
-            py_path = self.venv_table.active_path
-            parent_path = os.path.dirname(py_path)  # No Scripts Folder
-            # If py_path has a folder called conda-meta . then it is a conda environment
-            is_vanilla_python = (
-                False if "conda-meta" in os.listdir(parent_path) else True
+            is_vanilla_python, miniforge_path, py_path = self.find_env_type(
+                "venv_table"
             )
-            if is_vanilla_python:
-                miniforge_path = ""
-            else:
-                py_path = os.path.dirname(py_path)  # No Scripts Folder
-                # If it is a conda environment, then we need to get the path to the miniforge installation
-                with open(os.path.join(py_path, "conda-meta", "history"), "r") as f:
-                    for line in f:
-                        if line.startswith("# cmd:"):
-                            line = line.lstrip("# cmd: ")
-                            path = line.strip().split("create --prefix")[0]
-                            miniforge_path = (
-                                path.strip().split("Scripts")[0].rstrip("\\")
-                            )
-                            break
-            is_vanilla_python = True if miniforge_path == "" else False
 
         if is_vanilla_python and not is_venv:
             scripts_path = os.path.join(py_path, "Scripts")
