@@ -487,7 +487,7 @@ class InstalledTab(QtWidgets.QWidget):
             try:
                 # Delete the conda environment
                 subprocess.call(
-                    f'start /w /min cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda env remove --prefix {parent_path} --all --yes && exit"',
+                    f'start /w /min cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda env remove --prefix {parent_path} --yes && exit"',
                     shell=True,
                 )
                 if os.path.exists(parent_path):
