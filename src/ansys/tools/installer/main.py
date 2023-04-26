@@ -175,8 +175,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self.python_version_select.addItem("Python 3.7", "3.7.9")
         self.python_version_select.addItem("Python 3.8", "3.8.10")
         self.python_version_select.addItem("Python 3.9", "3.9.13")
-        self.python_version_select.addItem("Python 3.10", "3.10.10")
-        self.python_version_select.addItem("Python 3.11", "3.11.2")
+        self.python_version_select.addItem("Python 3.10", "3.10.11")
+        self.python_version_select.addItem("Python 3.11", "3.11.3")
 
         # Set the default selection to "Python 3.10"
         default_index = self.python_version_select.findText("Python 3.10")
