@@ -57,7 +57,30 @@ def protected(fn):
 
 
 def get_pkg_versions(pkg_name):
-    """Get the available versions pf a package."""
+    """
+    Get the available versions of a package.
+
+    Parameters
+    ----------
+    pkg_name : str
+        Name of the package for which to fetch the available versions.
+
+    Returns
+    -------
+    list
+        A sorted list of available package versions, in descending order.
+
+    Notes
+    -----
+    This function fetches the package information from the PyPI API
+    and filters the package versions based on specific criteria
+    for the 'pyansys' package.
+
+    Examples
+    --------
+    >>> get_pkg_versions("numpy")
+    ['1.22.1', '1.22.0', '1.21.2', ...]
+    """
     url = f"https://pypi.python.org/pypi/{pkg_name}/json"
     releases = json.loads(request.urlopen(url).read())["releases"]
     all_versions = sorted(releases, key=parse_version, reverse=True)

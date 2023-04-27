@@ -2,22 +2,17 @@
 
 import logging
 import os
+from pathlib import Path
+import subprocess
 
 from ansys.tools.installer.constants import ANSYS_VENVS
 
+# only used on windows
 try:
     import winreg
-except ModuleNotFoundError as err:
-    import platform
+except ModuleNotFoundError:
+    pass
 
-    if platform.system() == "Windows":
-        raise err
-    else:
-        # This means that we are trying to build the docs,
-        # or develop on Linux... but definitely do not "use" it on
-        # an OS different than Windows since it would crash. So,
-        # just ignore it.
-        pass
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
@@ -33,12 +28,15 @@ def find_miniforge():
         containing ``(version_str, is_admin)``.
 
     """
-    paths = _find_miniforge(True)
-    paths.update(_find_miniforge(False))
+    if os.name == "nt":
+        paths = _find_miniforge_win(True)
+        paths.update(_find_miniforge_win(False))
+    else:
+        paths = {}
     return paths
 
 
-def _find_miniforge(admin=False):
+def _find_miniforge_win(admin=False):
     """Search for any miniforge installations in the registry."""
     if admin:
         root_key = winreg.HKEY_LOCAL_MACHINE
@@ -74,17 +72,16 @@ def _find_miniforge(admin=False):
     return paths
 
 
-def _find_installed_python(admin=False):
-    """Check the registry for any installed instances of Python."""
+def _find_installed_python_win(admin=False):
+    """Check the windows registry for any installed instances of Python."""
     if admin:
         root_key = winreg.HKEY_LOCAL_MACHINE
     else:
         root_key = winreg.HKEY_CURRENT_USER
 
-    install_path = None
     paths = {}
     try:
-        base_key = f"SOFTWARE\\Python\\PythonCore"
+        base_key = "SOFTWARE\\Python\\PythonCore"
         with winreg.OpenKey(
             root_key,
             base_key,
@@ -93,7 +90,7 @@ def _find_installed_python(admin=False):
             info = winreg.QueryInfoKey(reg_key)
             for i in range(info[0]):
                 name = winreg.EnumKey(reg_key, i)
-                ver, path = get_python_info(f"{base_key}\\{name}", root_key)
+                ver, path = get_python_info_win(f"{base_key}\\{name}", root_key)
                 if ver is not None and path is not None:
                     paths[path] = (ver, admin)
 
@@ -103,8 +100,80 @@ def _find_installed_python(admin=False):
     return paths
 
 
-def get_python_info(key, root_key):
-    """For a given key, read the install path and python version."""
+def _find_installed_python_win(admin=False):
+    """Check the windows registry for any installed instances of Python."""
+    if admin:
+        root_key = winreg.HKEY_LOCAL_MACHINE
+    else:
+        root_key = winreg.HKEY_CURRENT_USER
+
+    paths = {}
+    try:
+        base_key = "SOFTWARE\\Python\\PythonCore"
+        with winreg.OpenKey(
+            root_key,
+            base_key,
+            access=winreg.KEY_READ,
+        ) as reg_key:
+            info = winreg.QueryInfoKey(reg_key)
+            for i in range(info[0]):
+                name = winreg.EnumKey(reg_key, i)
+                ver, path = get_python_info_win(f"{base_key}\\{name}", root_key)
+                if ver is not None and path is not None:
+                    paths[path] = (ver, admin)
+
+    except FileNotFoundError:
+        pass
+
+    return paths
+
+
+def _find_installed_python_linux():
+    """
+    Find all installed Python versions on Linux.
+
+    Returns
+    -------
+    dict
+        Dictionary containing a key for each path and a tuple
+        containing ``(version: str, admin: bool)``.
+
+    Examples
+    --------
+    >>> installed_pythons = find_installed_python_linux()
+    >>> installed_pythons
+    {'/home/user/python/py311/bin/python': ('3.11.3', False),
+     '/home/user/python/py311/bin/python3': ('3.11.3', False),
+     '/usr/bin/python3.7': ('3.7.16', True),
+     '/usr/bin/python3.8': ('3.8.16', True),
+     '/usr/bin/python3.9': ('3.9.16', True)}
+
+    """
+    LOG.debug("Identifying all installed versions of python on Linux")
+
+    pythons = {}
+    version_names = ["python", "python3"] + [f"python3.{i}" for i in range(7, 13)]
+
+    for version_name in version_names:
+        try:
+            path = subprocess.check_output(["which", version_name], text=True).strip()
+            version_output = subprocess.check_output(
+                [path, "--version"], text=True
+            ).strip()
+            version = version_output.split()[1]
+            admin = path.startswith("/usr")
+            pythons[path] = (version, admin)
+            LOG.debug("Identified %s at %s", version, path)
+
+        except subprocess.CalledProcessError:
+            # Ignore if the command fails (e.g., if the Python version is not installed)
+            pass
+
+    return pythons
+
+
+def get_python_info_win(key, root_key):
+    """For a given windows key, read the install path and python version."""
     with winreg.OpenKey(root_key, key, access=winreg.KEY_READ) as reg_key:
         try:
             ver = winreg.QueryValueEx(reg_key, "Version")[0]
@@ -132,8 +201,12 @@ def find_all_python():
         containing ``(version_str, is_admin)``.
 
     """
-    paths = _find_installed_python(True)
-    paths.update(_find_installed_python(False))
+    if os.name == "nt":
+        paths = _find_installed_python_win(True)
+        paths.update(_find_installed_python_win(False))
+    else:
+        paths = _find_installed_python_linux()
+
     return paths
 
 
@@ -147,8 +220,6 @@ def get_all_python_venv():
         containing ``(version_str, is_admin)``.
     """
     paths = {}
-    import os
-    from pathlib import Path
 
     user_directory = os.path.expanduser("~")
     Path(f"{user_directory}/{ANSYS_VENVS}").mkdir(parents=True, exist_ok=True)

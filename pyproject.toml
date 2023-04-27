@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "ansys-tools-installer"
-description = "Python QT app for installing Python on a Windows machine."
+description = "Python QT app or CLI for installing Python and PyAnsys."
 readme = "README.rst"
 requires-python = ">=3.7,<4"
 license = {file = "LICENSE"}

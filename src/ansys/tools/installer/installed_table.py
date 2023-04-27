@@ -64,7 +64,6 @@ class DataTable(QtWidgets.QTableWidget):
     def populate(self):
         """Populate the table."""
         self._locked = True
-        LOG.debug("Populating the table")
         self.clear()
 
         if self._destroyed:
@@ -72,6 +71,7 @@ class DataTable(QtWidgets.QTableWidget):
 
         # Check for python & conda forge versions
         if self.installed_python or self.installed_forge:
+            LOG.debug("Populating the table with python and conda forge versions.")
             python_lst = find_all_python()
             conda_lst = find_miniforge()
 
@@ -94,7 +94,9 @@ class DataTable(QtWidgets.QTableWidget):
                 self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
                 self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
                 row += 1
+
         elif self.created_venv:
+            LOG.debug("Populating the table with virtual environments.")
             # Check for virtual environments
             venv_lst = get_all_python_venv()
             tot = len(venv_lst)
@@ -151,6 +153,7 @@ class InstalledTab(QtWidgets.QWidget):
         """Initialize this tab."""
         super().__init__()
         self._parent = parent
+        self._cached_versions = {}
 
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
@@ -208,7 +211,7 @@ class InstalledTab(QtWidgets.QWidget):
         ####### Launching and package management options #######
 
         # Group 2: Launching Options
-        launching_options_box = QtWidgets.QGroupBox("Launching options")
+        launching_options_box = QtWidgets.QGroupBox("Launch options")
         launching_options_box_layout = QtWidgets.QVBoxLayout()
         launching_options_box_layout.setContentsMargins(10, 20, 10, 20)
         launching_options_box.setLayout(launching_options_box_layout)
@@ -268,12 +271,12 @@ class InstalledTab(QtWidgets.QWidget):
         self.packages_combo.setModel(self.model)
 
         self.versions_combo = QComboBox()
-        self.versions_combo.setModel(self.model)
+        # self.versions_combo.setModel(self.model)
 
         self.button_launch_cmd = QtWidgets.QPushButton("Install")
         self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
 
-        self.package_pip_dict = {
+        self.available_libraries = {
             "PyAnsys-Metapackage": "pyansys",
             "PyAnsys-Math": "ansys-math-core",
             "PyAEDT": "pyaedt",
@@ -295,19 +298,8 @@ class InstalledTab(QtWidgets.QWidget):
             "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
             "Shared Components": "ansys-openapi-common",
         }
-
-        # add data
-        data = {}
-
-        for key, value in self.package_pip_dict.items():
-            data[key] = get_pkg_versions(value)
-
-        for k, v in data.items():
-            package = QStandardItem(k)
-            self.model.appendRow(package)
-            for value in v:
-                version = QStandardItem(value)
-                package.appendRow(version)
+        for library in self.available_libraries:
+            self.model.appendRow(QStandardItem(library))
 
         self.packages_combo.currentIndexChanged.connect(self.update_package_combo)
         self.update_package_combo(0)
@@ -383,14 +375,23 @@ class InstalledTab(QtWidgets.QWidget):
         """Install PyAnsys - chosen packages."""
         chosen_pkg = self.packages_combo.currentText()
         chosen_ver = self.versions_combo.currentText()
-        cmd = f"pip install {self.package_pip_dict[chosen_pkg]}=={chosen_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {self.package_pip_dict[chosen_pkg]}=={chosen_ver} --force-reinstall"
+        cmd = f"pip install {self.available_libraries[chosen_pkg]}=={chosen_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {self.available_libraries[chosen_pkg]}=={chosen_ver} --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd)
 
     def update_package_combo(self, index):
         """Update the dropdown of available versions based on the package chosen."""
-        indx = self.model.index(index, 0, self.packages_combo.rootModelIndex())
-        self.versions_combo.setRootModelIndex(indx)
+        package_name = self.available_libraries[self.packages_combo.currentText()]
+        if package_name not in self._cached_versions:
+            self._cached_versions[package_name] = get_pkg_versions(package_name)
+
+        # Populate the model with the fetched package versions and
+        # set the model as the active model for the version dropdown
+        versions_model = QStandardItemModel()
+        for version in self._cached_versions[package_name]:
+            versions_model.appendRow(QStandardItem(version))
+
+        self.versions_combo.setModel(versions_model)
         self.versions_combo.setCurrentIndex(0)
 
     def list_packages(self):
