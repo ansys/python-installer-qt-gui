@@ -4,6 +4,7 @@
    here.
 
 .. include:: ../../README.rst
+   :start-after: .. contribute_start
 
 .. toctree::
    :hidden:
