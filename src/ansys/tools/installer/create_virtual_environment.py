@@ -8,8 +8,8 @@ import subprocess
 from PySide6 import QtCore, QtGui, QtWidgets
 
 from ansys.tools.installer.constants import (
+    ANSYS_FAVICON,
     ANSYS_VENVS,
-    ASSETS_PATH,
     NAME_FOR_VENV,
     PYTHON_VERSION_SELECTION_FOR_VENV,
 )
@@ -33,7 +33,7 @@ class CreateVenvTab(QtWidgets.QWidget):
         self.setLayout(layout)
 
         # QIcon object from an image file
-        self.app_icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
+        self.app_icon = QtGui.QIcon(ANSYS_FAVICON)
 
         # Group 1: Select Python version for virtual environment
         python_version_box = QtWidgets.QGroupBox("Select Python version")
