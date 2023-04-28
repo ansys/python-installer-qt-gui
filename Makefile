@@ -3,7 +3,7 @@
 install:
 	@echo "Installing..."
 	pip install -e .[freeze]
-	pytest -v --doctest-modules pyvista
+	pytest -v tests
 	@echo "Installation complete."
 
 build:
