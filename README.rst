@@ -23,6 +23,8 @@ Ansys Python Manager (QT)
    :target: https://results.pre-commit.ci/latest/github/pyansys/python-installer-qt-gui/main
    :alt: pre-commit.ci status
 
+.. readme_start
+
 This is a simple cross-platform `QT <https://www.qt.io/>`_ application
 you can use to install Python and (optional) PyAnsys packages.
 
