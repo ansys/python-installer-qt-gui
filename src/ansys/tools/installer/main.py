@@ -261,7 +261,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
 
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setWindowIcon(ANSYS_FAVICON)
+            msgBox.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
             msgBox.setIconPixmap(pixmap)
 
             reply = msgBox.question(
@@ -286,7 +286,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 f"Ansys Python Installer is up-to-date.\n\nVersion is {__version__}",
                 QtWidgets.QMessageBox.Ok,
             )
-            msgBox.setWindowIcon(ANSYS_FAVICON)
+            msgBox.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
             pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
             msgBox.setIconPixmap(pixmap)
             msgBox.exec_()
