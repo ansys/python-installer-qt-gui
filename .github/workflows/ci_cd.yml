@@ -36,6 +36,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11']
       fail-fast: false
     env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DISPLAY: ':99'
     steps:
       - name: Install Linux os dependencies
