@@ -11,7 +11,7 @@ from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
 from ansys.tools.installer.common import get_pkg_versions
-from ansys.tools.installer.constants import SELECT_VENV_MANAGE_TAB
+from ansys.tools.installer.constants import PYANSYS_LIBS, SELECT_VENV_MANAGE_TAB
 from ansys.tools.installer.find_python import (
     find_all_python,
     find_miniforge,
@@ -271,34 +271,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.packages_combo.setModel(self.model)
 
         self.versions_combo = QComboBox()
-        # self.versions_combo.setModel(self.model)
-
         self.button_launch_cmd = QtWidgets.QPushButton("Install")
         self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
 
-        self.available_libraries = {
-            "PyAnsys-Metapackage": "pyansys",
-            "PyAnsys-Math": "ansys-math-core",
-            "PyAEDT": "pyaedt",
-            "PyDPF-Core": "ansys-dpf-core",
-            "PyDPF-Post": "ansys-dpf-post",
-            "PyDPF Composites": "ansys-dpf-composites",
-            "PyFluent": "ansys-fluent-core",
-            "PyFluent-Parametric": "ansys-fluent-parametric",
-            "PyFluent-Visualization": "ansys-fluent-visualization",
-            "PyMAPDL": "ansys-mapdl-core",
-            "PyMAPDL Reader": "ansys-mapdl-reader",
-            "PyMechanical": "ansys-mechanical-core",
-            "PyMotorCAD": "ansys-motorcad-core",
-            "PyPIM": "ansys-platform-instancemanagement",
-            "PyPrimeMesh": "ansys-meshing-prime",
-            "PySeascape": "ansys-seascape",
-            "PySystem Coupling": "ansys-systemcoupling-core",
-            "PyTwin": "pytwin",
-            "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
-            "Shared Components": "ansys-openapi-common",
-        }
-        for library in self.available_libraries:
+        for library in PYANSYS_LIBS:
             self.model.appendRow(QStandardItem(library))
 
         self.packages_combo.currentIndexChanged.connect(self.update_package_combo)
@@ -375,13 +351,13 @@ class InstalledTab(QtWidgets.QWidget):
         """Install PyAnsys - chosen packages."""
         chosen_pkg = self.packages_combo.currentText()
         chosen_ver = self.versions_combo.currentText()
-        cmd = f"pip install {self.available_libraries[chosen_pkg]}=={chosen_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {self.available_libraries[chosen_pkg]}=={chosen_ver} --force-reinstall"
+        cmd = f"pip install {PYANSYS_LIBS[chosen_pkg]}=={chosen_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {PYANSYS_LIBS[chosen_pkg]}=={chosen_ver} --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd)
 
     def update_package_combo(self, index):
         """Update the dropdown of available versions based on the package chosen."""
-        package_name = self.available_libraries[self.packages_combo.currentText()]
+        package_name = PYANSYS_LIBS[self.packages_combo.currentText()]
         if package_name not in self._cached_versions:
             self._cached_versions[package_name] = get_pkg_versions(package_name)
 

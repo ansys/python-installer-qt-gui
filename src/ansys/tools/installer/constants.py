@@ -81,3 +81,26 @@ PYANSYS_DOCS_SITES = {
     "PyTwin": "https://twin.docs.pyansys.com/",
     "Granta MI BoM Analytics": "https://bomanalytics.grantami.docs.pyansys.com/",
 }
+
+PYANSYS_LIBS = {
+    "PyAnsys-Metapackage": "pyansys",
+    "PyAnsys-Math": "ansys-math-core",
+    "PyAEDT": "pyaedt",
+    "PyDPF-Core": "ansys-dpf-core",
+    "PyDPF-Post": "ansys-dpf-post",
+    "PyDPF Composites": "ansys-dpf-composites",
+    "PyFluent": "ansys-fluent-core",
+    "PyFluent-Parametric": "ansys-fluent-parametric",
+    "PyFluent-Visualization": "ansys-fluent-visualization",
+    "PyMAPDL": "ansys-mapdl-core",
+    "PyMAPDL Reader": "ansys-mapdl-reader",
+    "PyMechanical": "ansys-mechanical-core",
+    "PyMotorCAD": "ansys-motorcad-core",
+    "PyPIM": "ansys-platform-instancemanagement",
+    "PyPrimeMesh": "ansys-meshing-prime",
+    "PySeascape": "ansys-seascape",
+    "PySystem Coupling": "ansys-systemcoupling-core",
+    "PyTwin": "pytwin",
+    "Granta MI BoM Analytics": "ansys-grantami-bomanalytics",
+    "Shared Components": "ansys-openapi-common",
+}
