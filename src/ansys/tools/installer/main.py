@@ -16,6 +16,7 @@ from ansys.tools.installer.auto_updater import query_gh_latest_release
 from ansys.tools.installer.common import protected, threaded
 from ansys.tools.installer.constants import (
     ABOUT_TEXT,
+    ANSYS_FAVICON,
     ASSETS_PATH,
     INSTALL_TEXT,
     LOG,
@@ -24,7 +25,7 @@ from ansys.tools.installer.constants import (
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python, run_ps
-from ansys.tools.installer.misc import ImageWidget, enable_logging
+from ansys.tools.installer.misc import ImageWidget, PyAnsysDocsBox, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
 
 
@@ -53,7 +54,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         QtWidgets.QApplication.setFont(font)
 
         # Create a QIcon object from an image file
-        icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
+        icon = QtGui.QIcon(ANSYS_FAVICON)
         # Set the application icon
         self.setWindowIcon(icon)
 
@@ -85,6 +86,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         issue_action = QtGui.QAction("&Report issue", self)
         issue_action.triggered.connect(self.report_issue)
         help_menu.addAction(issue_action)
+
+        # Create a "PyAnsys Documentation" action
+        pyansys_docs_action = QtGui.QAction("&PyAnsys documentation", self)
+        pyansys_docs_action.triggered.connect(self.pyansys_dialog)
+        help_menu.addAction(pyansys_docs_action)
 
         help_menu.addSeparator()  # -------------------------------------------
 
@@ -252,12 +258,10 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         if ver > cur_ver:
             LOG.debug("Update available.")
-            pixmap = QPixmap("assets/ansys-favicon.png").scaledToHeight(
-                32, Qt.SmoothTransformation
-            )
+            pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
 
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setWindowIcon(QtGui.QIcon("assets/ansys-favicon.png"))
+            msgBox.setWindowIcon(ANSYS_FAVICON)
             msgBox.setIconPixmap(pixmap)
 
             reply = msgBox.question(
@@ -282,10 +286,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 f"Ansys Python Installer is up-to-date.\n\nVersion is {__version__}",
                 QtWidgets.QMessageBox.Ok,
             )
-            msgBox.setWindowIcon(QtGui.QIcon("assets/ansys-favicon.png"))
-            pixmap = QPixmap("assets/ansys-favicon.png").scaledToHeight(
-                32, Qt.SmoothTransformation
-            )
+            msgBox.setWindowIcon(ANSYS_FAVICON)
+            pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
             msgBox.setIconPixmap(pixmap)
             msgBox.exec_()
 
@@ -304,6 +306,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     def show_about_dialog(self):
         """Display the Ansys Python Manager 'About' information."""
         mbox = QtWidgets.QMessageBox.about(self, "About", ABOUT_TEXT)
+
+    def pyansys_dialog(self):
+        """Display links to the PyAnsys documentation."""
+        mbox = PyAnsysDocsBox(self)
+        mbox.exec_()
 
     def _install_type_changed(self, *args):
         if self.installation_type_select.currentText() == "Standard":
