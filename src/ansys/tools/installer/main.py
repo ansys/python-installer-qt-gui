@@ -434,7 +434,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         """Download and install.
 
         Called when ``self.submit_button.clicked`` is emitted.
-
         """
         self.setEnabled(False)
         QtWidgets.QApplication.processEvents()
@@ -452,7 +451,18 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 filename = "Miniforge3-22.11.1-4-Windows-x86_64.exe"
                 LOG.info("Installing miniconda from %s", url)
 
-            self._download(url, filename, when_finished=self._run_install_python)
+            try:
+                self._download(url, filename, when_finished=self._run_install_python)
+            except Exception as err:
+                if os.name == "nt":
+                    LOG.warning(
+                        "Download using requests library failed... Going to fallback method for Windows."
+                    )
+                    self._windows_fallback_download(
+                        url, filename, when_finished=self._run_install_python
+                    )
+                else:
+                    raise err
         except Exception as e:
             self.show_error(str(e))
             self.setEnabled(True)
@@ -536,6 +546,50 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 tsize = None
 
         self.pbar_close()
+
+        if when_finished is not None:
+            when_finished(output_path)
+
+    def _windows_fallback_download(self, url, filename, when_finished=None):
+        """Download a file. Fallback method for Windows.
+
+        Deletes any pre-existing output file with the same name. Then, performs
+        the download using PowerShell and the Invoke-RestMethod command.
+
+        ``when_finished`` must accept one parameter, the path of the file downloaded.
+
+        Parameters
+        ----------
+        url : str
+            File to download.
+        filename : str
+            The basename of the file to download.
+        when_finished : callable, optional
+            Function to call when complete. Function should accept one
+            parameter: the full path of the file downloaded.
+        """
+        # Delete pre-existing cache. This is fail-safe mode
+        output_path = os.path.join(CACHE_DIR, filename)
+        if os.path.isfile(output_path):
+            os.remove(output_path)
+
+        # Perform download using Invoke-RestMethod
+        out, error_code = run_ps(
+            f"Invoke-RestMethod '{url}' -Method 'GET' -OutFile '{output_path}'"
+        )
+
+        if error_code:
+            LOG.error(
+                f"Error while downloading Python on Windows fail-safe mode: {out.decode('utf-8')}"
+            )
+            msg = QtWidgets.QMessageBox()
+            msg.warning(
+                self,
+                "Error while downloading Python on Windows fail-safe mode!",
+                f"Error message:\n\n {out.decode('utf-8')}",
+            )
+            self.setEnabled(True)
+            return
 
         if when_finished is not None:
             when_finished(output_path)
