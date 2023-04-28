@@ -45,7 +45,7 @@ goto end
 cd "%BUILDDIR%\latex"
 for %%f in (*.tex) do (
 pdflatex "%%f" --interaction=nonstopmode)
-if NOT EXIST python-gui-installer.pdf (
+if NOT EXIST python-installer-qt-gui.pdf (
 	Echo "no pdf generated!"
 	exit /b 1)
 Echo "pdf generated!"

@@ -4,13 +4,19 @@ from github import Github
 from packaging import version
 
 
-def query_gh_latest_release():
+def query_gh_latest_release(token=None):
     """Check GitHub for updates.
 
     Compares the current version with the version on GitHub.
 
     Returns the version of the latest release and the download url of
     the executable installer.
+
+    Parameters
+    ----------
+    token : str, optional
+        Token to perform the request. Not necessary, only used on testing
+        to avoid reaching API request limit.
 
     Returns
     -------
@@ -21,7 +27,7 @@ def query_gh_latest_release():
         Url of the latest release installer.
 
     """
-    gh = Github()
+    gh = Github(login_or_token=token)
     repo = gh.get_repo(f"pyansys/python-installer-qt-gui")
 
     # Get the latest release and its tag name
