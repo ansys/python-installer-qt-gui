@@ -18,6 +18,12 @@ ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
 """
 
+PYANSYS_DOCS_TEXT = f"""<h2>PyAnsys Documentation</h2>
+<p>Access the documentation for the different PyAnsys projects by selecting your desired project and clicking on the 'Open Website' button.</p>
+<p>Users are then redirected to the documentation websites for each of the projects.</p>
+<p>Feel free to explore the different PyAnsys initiatives.</p>
+"""
+
 ANSYS_VENVS = ".ansys_python_venvs"
 
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
@@ -51,3 +57,27 @@ else:
 
 
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
+ANSYS_FAVICON = os.path.join(ASSETS_PATH, "ansys-favicon.png")
+
+PYANSYS_DOCS_SITES = {
+    "PyAnsys": "https://docs.pyansys.com",
+    "PyAnsys Developer docs": "https://dev.docs.pyansys.com",
+    "PyAnsys-Math": "https://math.docs.pyansys.com",
+    "PyAEDT": "https://aedt.docs.pyansys.com",
+    "PyDPF-Core": "https://dpf.docs.pyansys.com",
+    "PyDPF-Post": "https://post.docs.pyansys.com",
+    "PyDPF Composites": "https://composites.dpf.docs.pyansys.com",
+    "PyFluent": "https://fluent.docs.pyansys.com",
+    "PyFluent-Parametric": "https://parametric.fluent.docs.pyansys.com",
+    "PyFluent-Visualization": "https://visualization.fluent.docs.pyansys.com",
+    "PyMAPDL": "https://mapdl.docs.pyansys.com",
+    "PyMAPDL Reader": "https://reader.docs.pyansys.com/",
+    "PyMechanical": "https://mechanical.docs.pyansys.com/",
+    "PyMotorCAD": "https://motorcad.docs.pyansys.com/",
+    "PyPIM": "https://pypim.docs.pyansys.com/",
+    "PyPrimeMesh": "https://prime.docs.pyansys.com/",
+    "PySeascape": "https://seascape.docs.pyansys.com/",
+    "PySystem Coupling": "https://systemcoupling.docs.pyansys.com/",
+    "PyTwin": "https://twin.docs.pyansys.com/",
+    "Granta MI BoM Analytics": "https://bomanalytics.grantami.docs.pyansys.com/",
+}

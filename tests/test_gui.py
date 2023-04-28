@@ -37,7 +37,6 @@ def test_downloader(gui):
     def when_finished(out_path):
         files.append(out_path)
 
-    thread = gui._download(url, "sample.png", when_finished=when_finished)
-    thread.join()
+    gui._download(url, "sample.png", when_finished=when_finished)
     assert len(files) == 1
     assert files[0].endswith("sample.png")

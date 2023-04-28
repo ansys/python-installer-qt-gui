@@ -13,9 +13,10 @@ import requests
 
 from ansys.tools.installer import CACHE_DIR, __version__
 from ansys.tools.installer.auto_updater import query_gh_latest_release
-from ansys.tools.installer.common import protected, threaded
+from ansys.tools.installer.common import protected
 from ansys.tools.installer.constants import (
     ABOUT_TEXT,
+    ANSYS_FAVICON,
     ASSETS_PATH,
     INSTALL_TEXT,
     LOG,
@@ -24,7 +25,7 @@ from ansys.tools.installer.constants import (
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
 from ansys.tools.installer.installer import install_python, run_ps
-from ansys.tools.installer.misc import ImageWidget, enable_logging
+from ansys.tools.installer.misc import ImageWidget, PyAnsysDocsBox, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
 
 
@@ -53,7 +54,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         QtWidgets.QApplication.setFont(font)
 
         # Create a QIcon object from an image file
-        icon = QtGui.QIcon(os.path.join(ASSETS_PATH, "ansys-favicon.png"))
+        icon = QtGui.QIcon(ANSYS_FAVICON)
         # Set the application icon
         self.setWindowIcon(icon)
 
@@ -85,6 +86,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         issue_action = QtGui.QAction("&Report issue", self)
         issue_action.triggered.connect(self.report_issue)
         help_menu.addAction(issue_action)
+
+        # Create a "PyAnsys Documentation" action
+        pyansys_docs_action = QtGui.QAction("&PyAnsys documentation", self)
+        pyansys_docs_action.triggered.connect(self.pyansys_dialog)
+        help_menu.addAction(pyansys_docs_action)
 
         help_menu.addSeparator()  # -------------------------------------------
 
@@ -252,12 +258,10 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         if ver > cur_ver:
             LOG.debug("Update available.")
-            pixmap = QPixmap("assets/ansys-favicon.png").scaledToHeight(
-                32, Qt.SmoothTransformation
-            )
+            pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
 
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setWindowIcon(QtGui.QIcon("assets/ansys-favicon.png"))
+            msgBox.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
             msgBox.setIconPixmap(pixmap)
 
             reply = msgBox.question(
@@ -282,10 +286,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 f"Ansys Python Installer is up-to-date.\n\nVersion is {__version__}",
                 QtWidgets.QMessageBox.Ok,
             )
-            msgBox.setWindowIcon(QtGui.QIcon("assets/ansys-favicon.png"))
-            pixmap = QPixmap("assets/ansys-favicon.png").scaledToHeight(
-                32, Qt.SmoothTransformation
-            )
+            msgBox.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
+            pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
             msgBox.setIconPixmap(pixmap)
             msgBox.exec_()
 
@@ -304,6 +306,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     def show_about_dialog(self):
         """Display the Ansys Python Manager 'About' information."""
         mbox = QtWidgets.QMessageBox.about(self, "About", ABOUT_TEXT)
+
+    def pyansys_dialog(self):
+        """Display links to the PyAnsys documentation."""
+        mbox = PyAnsysDocsBox(self)
+        mbox.exec_()
 
     def _install_type_changed(self, *args):
         if self.installation_type_select.currentText() == "Standard":
@@ -425,6 +432,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         LOG.error(text)
         self.signal_error.emit(text)
 
+    @protected
     def download_and_install(self):
         """Download and install.
 
@@ -447,12 +455,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 filename = "Miniforge3-22.11.1-4-Windows-x86_64.exe"
                 LOG.info("Installing miniconda from %s", url)
 
-            self._download(url, filename, when_finished=self._run_exe)
+            self._download(url, filename, when_finished=self._run_install_python)
         except Exception as e:
             self.show_error(str(e))
             self.setEnabled(True)
 
-    @threaded
     def _download(self, url, filename, when_finished=None, auth=None):
         """Download a file with a progress bar.
 
@@ -536,10 +543,19 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         if when_finished is not None:
             when_finished(output_path)
 
-    def _run_exe(self, filename):
-        """Execute a file."""
-        LOG.debug("Executing run_exe")
-        out, error = install_python(filename)
+    def _run_install_python(self, filename):
+        """Execute the installation process."""
+        LOG.debug("Executing run_install_python")
+        out, error_code = install_python(filename)
+
+        if error_code:
+            LOG.error(f"Error while installing Python: {out.decode('utf-8')}")
+            msg = QtWidgets.QMessageBox()
+            msg.warning(
+                self,
+                "Error while installing Python!",
+                f"Error message:\n\n {out.decode('utf-8')}",
+            )
 
         LOG.debug("Triggering table widget update")
         self.installed_table_tab.update_table()
