@@ -67,6 +67,7 @@ class PyAnsysDocsBox(QtWidgets.QMessageBox):
         self.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
         self.setIconPixmap(pixmap)
         self.setText(PYANSYS_DOCS_TEXT)
+        self.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Close)
 
         # create a combo box and add items
         self.comboBox = QtWidgets.QComboBox(self)
