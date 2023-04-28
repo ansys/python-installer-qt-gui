@@ -90,7 +90,7 @@ def _find_installed_python_win(admin=False):
             info = winreg.QueryInfoKey(reg_key)
             for i in range(info[0]):
                 name = winreg.EnumKey(reg_key, i)
-                ver, path = get_python_info_win(f"{base_key}\\{name}", root_key)
+                ver, path = _get_python_info_win(f"{base_key}\\{name}", root_key)
                 if ver is not None and path is not None:
                     paths[path] = (ver, admin)
 
@@ -118,7 +118,7 @@ def _find_installed_python_win(admin=False):
             info = winreg.QueryInfoKey(reg_key)
             for i in range(info[0]):
                 name = winreg.EnumKey(reg_key, i)
-                ver, path = get_python_info_win(f"{base_key}\\{name}", root_key)
+                ver, path = _get_python_info_win(f"{base_key}\\{name}", root_key)
                 if ver is not None and path is not None:
                     paths[path] = (ver, admin)
 
@@ -172,7 +172,7 @@ def _find_installed_python_linux():
     return pythons
 
 
-def get_python_info_win(key, root_key):
+def _get_python_info_win(key, root_key):
     """For a given windows key, read the install path and python version."""
     with winreg.OpenKey(root_key, key, access=winreg.KEY_READ) as reg_key:
         try:
