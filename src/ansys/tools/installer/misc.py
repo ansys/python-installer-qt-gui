@@ -67,7 +67,7 @@ class PyAnsysDocsBox(QtWidgets.QMessageBox):
         self.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
         self.setIconPixmap(pixmap)
         self.setText(PYANSYS_DOCS_TEXT)
-        self.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Close)
+        self.setStandardButtons(QtWidgets.QMessageBox.StandardButton.NoButton)
 
         # create a combo box and add items
         self.comboBox = QtWidgets.QComboBox(self)
@@ -86,6 +86,20 @@ class PyAnsysDocsBox(QtWidgets.QMessageBox):
         layout = self.layout()
         layout.addWidget(self.comboBox, layout.rowCount(), 0, 1, layout.columnCount())
         layout.addWidget(self.pushButton, layout.rowCount(), 0, 1, layout.columnCount())
+
+        # add an empty widget to the layout to hold the Close button
+        spacer = QtWidgets.QWidget(self)
+        spacer.setSizePolicy(sizePolicy)
+        layout.addWidget(spacer, layout.rowCount(), 0, 1, layout.columnCount())
+
+        # create the Close button and add it to the spacer widget
+        self.closeButton = self.addButton(QtWidgets.QMessageBox.StandardButton.Close)
+        layout.addWidget(
+            self.closeButton, layout.rowCount(), 0, 1, layout.columnCount()
+        )
+
+        # Hide the close button (for now)
+        self.closeButton.hide()
 
         # connect the button to a slot that opens the selected website
         self.pushButton.clicked.connect(self.open_website)
