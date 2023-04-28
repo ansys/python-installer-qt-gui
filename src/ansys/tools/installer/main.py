@@ -247,10 +247,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     def check_for_updates(self):
         """Check for Ansys Python Manager application updates."""
         LOG.debug("Checking for updates")
-        (
-            ver,
-            url,
-        ) = query_gh_latest_release()
+        (ver, url) = query_gh_latest_release()
         cur_ver = version.parse(__version__)
 
         LOG.debug(f"Currently installed version: {cur_ver}")
@@ -568,9 +565,11 @@ def open_gui():
     """Start the installer as a QT Application."""
     import argparse
     import ctypes
-    import msvcrt
 
-    kernel32 = ctypes.windll.kernel32
+    if os.name == "nt":
+        import msvcrt
+
+        kernel32 = ctypes.windll.kernel32
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
@@ -603,5 +602,7 @@ def open_gui():
 
     app = QtWidgets.QApplication(sys.argv)
     window = AnsysPythonInstaller()
+
+    LOG.debug("Showing window...")
     window.show()
     sys.exit(app.exec())
