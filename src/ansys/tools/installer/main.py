@@ -247,14 +247,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     def check_for_updates(self):
         """Check for Ansys Python Manager application updates."""
         LOG.debug("Checking for updates")
-        (
-            ver,
-            url,
-        ) = query_gh_latest_release()
+        (ver, url) = query_gh_latest_release()
         cur_ver = version.parse(__version__)
 
-        LOG.debug(f"Currently installed version: %s", str(cur_ver))
-        LOG.debug(f"Latest version: %s", str(ver))
+        LOG.debug(f"Currently installed version: {cur_ver}")
+        LOG.debug(f"Latest version: {ver}")
 
         if ver > cur_ver:
             LOG.debug("Update available.")
