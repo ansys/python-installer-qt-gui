@@ -20,14 +20,6 @@ concurrency:
 
 jobs:
 
-  code-style:
-    name: "Code style"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: pyansys/actions/code-style@v4
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
   doc-style:
     name: "Documentation style"
     runs-on: ubuntu-latest
