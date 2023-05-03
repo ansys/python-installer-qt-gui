@@ -8,9 +8,6 @@ from ansys.tools.installer import __version__
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
-ANSYS_ENV_VAR_START = "awp_root"
-ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7", "3_10"]
-
 
 ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Created by the PyAnsys Team.</p>
@@ -28,12 +25,15 @@ PYANSYS_DOCS_TEXT = f"""<h2>PyAnsys Documentation</h2>
 
 ANSYS_VENVS = ".ansys_python_venvs"
 
+ANSYS_ENV_VAR_START = "awp_root"
+
+ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7", "3_10"]
+
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
 
 PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
-
 
 PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for your virtual environment.
 
@@ -59,6 +59,7 @@ else:
 
 
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
+
 ANSYS_FAVICON = os.path.join(ASSETS_PATH, "ansys-favicon.png")
 
 PYANSYS_DOCS_SITES = {
