@@ -105,8 +105,8 @@ def _find_installed_python_win(admin=False):
 
 
 def _find_installed_ansys_win():
-    """Check the environment variables for ansys installation."""
-    env_keys = list()
+    """Check the environment variables for Ansys installations."""
+    env_keys = []
     for key in os.environ.keys():
         if key.lower().startswith(ANSYS_ENV_VAR_START):
             env_keys.append(key)
@@ -114,30 +114,25 @@ def _find_installed_ansys_win():
 
 
 def _find_installed_ansys_python_win():
-    """Check the ansys installation folder for installed Python."""
+    """Check the Ansys installation folder for installed Python."""
     installed_ansys = _find_installed_ansys_win()
     paths = {}
-    ansys_python_path_items = [
-        "commonfiles",
-        "CPython",
-        "<platform>",
-        "winx64",
-        "Release",
-        "python",
-        "python.exe",
-    ]
     for ansys_ver_env_key in installed_ansys:
         ansys_path = os.environ[ansys_ver_env_key]
-        for supp_py_ver in ANSYS_SUPPORTED_PYTHON_VERSIONS:
-            ansys_python_path_items[2] = supp_py_ver
-            path = os.path.join(ansys_path, *ansys_python_path_items)
+        for ansys_py_ver in ANSYS_SUPPORTED_PYTHON_VERSIONS:
+            path = os.path.join(
+                ansys_path,
+                f"commonfiles\\CPython\\{ansys_py_ver}\\winx64\\Release\\python",
+            )
             if os.path.exists(path):
                 version_output = subprocess.check_output(
-                    [path, "--version"], text=True
+                    [f"{path}\\python.exe", "--version"], text=True
                 ).strip()
-                version = version_output.split()[1]
-                if version is not None and path is not None:
+                try:
+                    version = version_output.split()[1]
                     paths[path] = (version, False)
+                except Exception:
+                    pass
 
     return paths
 
