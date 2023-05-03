@@ -5,7 +5,8 @@ import os
 from pathlib import Path
 import subprocess
 
-from ansys.tools.installer.constants import ANSYS_VENVS
+from ansys.tools.installer.constants import (ANSYS_VENVS, ANSYS_ENV_VAR_START,
+                                             ANSYS_SUPPORTED_PYTHON_VERSIONS,)
 
 # only used on windows
 try:
@@ -16,7 +17,6 @@ except ModuleNotFoundError:
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
-
 
 def find_miniforge():
     """Find all installations of miniforge within the Windows registry.
@@ -100,30 +100,32 @@ def _find_installed_python_win(admin=False):
     return paths
 
 
-def _find_installed_python_win(admin=False):
-    """Check the windows registry for any installed instances of Python."""
-    if admin:
-        root_key = winreg.HKEY_LOCAL_MACHINE
-    else:
-        root_key = winreg.HKEY_CURRENT_USER
+def _find_installed_ansys_win():
+    """Check the environment variables for ansys installation."""
+    env_keys = list()
+    for key in os.environ.keys():
+        if key.lower().startswith(ANSYS_ENV_VAR_START):
+            env_keys.append(key)
+    return env_keys
 
+def _find_installed_ansys_python_win():
+    """Check the ansys installation folder for installed Python."""
+    installed_ansys = _find_installed_ansys_win()
     paths = {}
-    try:
-        base_key = "SOFTWARE\\Python\\PythonCore"
-        with winreg.OpenKey(
-            root_key,
-            base_key,
-            access=winreg.KEY_READ,
-        ) as reg_key:
-            info = winreg.QueryInfoKey(reg_key)
-            for i in range(info[0]):
-                name = winreg.EnumKey(reg_key, i)
-                ver, path = _get_python_info_win(f"{base_key}\\{name}", root_key)
-                if ver is not None and path is not None:
-                    paths[path] = (ver, admin)
+    ansys_python_path_items = ['commonfiles', 'CPython', '<platform>', 'winx64', 'Release', 'python','python.exe']
+    for ansys_ver_env_key in installed_ansys:
+        ansys_path = os.environ[ansys_ver_env_key]
+        for supp_py_ver in ANSYS_SUPPORTED_PYTHON_VERSIONS:
+            ansys_python_path_items[2] = supp_py_ver
+            path = os.path.join(ansys_path,*ansys_python_path_items)
+            if os.path.exists(path):
+                version_output = subprocess.check_output(
+                    [path, "--version"], text=True
+                ).strip()
+                version = version_output.split()[1]
+                if version is not None and path is not None:
+                    paths[path] = (version, False)
 
-    except FileNotFoundError:
-        pass
 
     return paths
 
@@ -204,6 +206,7 @@ def find_all_python():
     if os.name == "nt":
         paths = _find_installed_python_win(True)
         paths.update(_find_installed_python_win(False))
+        paths.update(_find_installed_ansys_python_win())
     else:
         paths = _find_installed_python_linux()
 
