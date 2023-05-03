@@ -9,7 +9,7 @@ from ansys.tools.installer import __version__
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 ANSYS_ENV_VAR_START = "awp_root"
-ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7","3_10"]
+ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7", "3_10"]
 
 
 ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>

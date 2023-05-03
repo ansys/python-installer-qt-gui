@@ -5,8 +5,11 @@ import os
 from pathlib import Path
 import subprocess
 
-from ansys.tools.installer.constants import (ANSYS_VENVS, ANSYS_ENV_VAR_START,
-                                             ANSYS_SUPPORTED_PYTHON_VERSIONS,)
+from ansys.tools.installer.constants import (
+    ANSYS_ENV_VAR_START,
+    ANSYS_SUPPORTED_PYTHON_VERSIONS,
+    ANSYS_VENVS,
+)
 
 # only used on windows
 try:
@@ -17,6 +20,7 @@ except ModuleNotFoundError:
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
+
 
 def find_miniforge():
     """Find all installations of miniforge within the Windows registry.
@@ -108,16 +112,25 @@ def _find_installed_ansys_win():
             env_keys.append(key)
     return env_keys
 
+
 def _find_installed_ansys_python_win():
     """Check the ansys installation folder for installed Python."""
     installed_ansys = _find_installed_ansys_win()
     paths = {}
-    ansys_python_path_items = ['commonfiles', 'CPython', '<platform>', 'winx64', 'Release', 'python','python.exe']
+    ansys_python_path_items = [
+        "commonfiles",
+        "CPython",
+        "<platform>",
+        "winx64",
+        "Release",
+        "python",
+        "python.exe",
+    ]
     for ansys_ver_env_key in installed_ansys:
         ansys_path = os.environ[ansys_ver_env_key]
         for supp_py_ver in ANSYS_SUPPORTED_PYTHON_VERSIONS:
             ansys_python_path_items[2] = supp_py_ver
-            path = os.path.join(ansys_path,*ansys_python_path_items)
+            path = os.path.join(ansys_path, *ansys_python_path_items)
             if os.path.exists(path):
                 version_output = subprocess.check_output(
                     [path, "--version"], text=True
@@ -125,7 +138,6 @@ def _find_installed_ansys_python_win():
                 version = version_output.split()[1]
                 if version is not None and path is not None:
                     paths[path] = (version, False)
-
 
     return paths
 
