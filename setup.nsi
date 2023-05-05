@@ -11,13 +11,27 @@ Name "${PRODUCT_NAME}"
 VIProductVersion "${PRODUCT_VERSION}"
 OutFile "dist\${OUTFILE_NAME}"
 
+!define MULTIUSER_EXECUTIONLEVEL Highest
+!define MULTIUSER_MUI
+!define MULTIUSER_INSTALLMODE_COMMANDLINE
+!include MultiUser.nsh
+!include MUI2.nsh
+!include InstallOptions.nsh
 
-!include "MUI2.nsh"
-!include "InstallOptions.nsh"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE oneclickpre
+!insertmacro MULTIUSER_PAGE_INSTALLMODE
 !insertmacro MUI_PAGE_LICENSE "${LICENSE_FILE}"
 !insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_LANGUAGE English
 !include "uninstall.nsi"
+
+Function .onInit
+  !insertmacro MULTIUSER_INIT
+FunctionEnd
+
+Function un.onInit
+  !insertmacro MULTIUSER_UNINIT
+FunctionEnd
 
 ; Define the installer sections
 Section "Ansys Python Manager" SEC01
