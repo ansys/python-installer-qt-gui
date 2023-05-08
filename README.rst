@@ -177,6 +177,12 @@ This project is vectored to be an open-source project. For the time being, feel
 free to distribute it internally, but direct users to visit the `Releases
 <https://github.com/pyansys/python-installer-qt-gui/releases>`__ page
 
+Security
+--------
+The versions that are still supported for security updates can be found at
+the `Security guidelines <https://github.com/pyansys/python-installer-qt-gui/blob/main/SECURITY.md>`_
+site. Information on how to report vulenrabilities is also found.
+
 
 .. LINKS AND REFERENCES
 .. _black: https://github.com/psf/black
