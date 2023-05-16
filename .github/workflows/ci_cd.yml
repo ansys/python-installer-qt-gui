@@ -24,7 +24,7 @@ jobs:
     name: "Documentation style"
     runs-on: ubuntu-latest
     steps:
-      - uses: pyansys/actions/doc-style@v4
+      - uses: ansys/actions/doc-style@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,7 +46,7 @@ jobs:
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v2
 
-      - uses: pyansys/actions/tests-pytest@v4
+      - uses: ansys/actions/tests-pytest@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -56,7 +56,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Build project documentation
-        uses: pyansys/actions/doc-build@v4
+        uses: ansys/actions/doc-build@v4
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
@@ -67,7 +67,7 @@ jobs:
     needs: [doc-build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: pyansys/actions/doc-deploy-dev@v4
+      - uses: ansys/actions/doc-deploy-dev@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -120,7 +120,7 @@ jobs:
       - name: Checkout the SignTool
         uses: actions/checkout@v3
         with:
-          repository: pyansys/signtool-ansys-apps
+          repository: ansys/signtool-ansys-apps
           token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
 
       - uses: actions/download-artifact@v3
@@ -175,7 +175,7 @@ jobs:
     needs: [release, doc-build]
     steps:
       - name: Deploy the stable documentation
-        uses: pyansys/actions/doc-deploy-stable@v4
+        uses: ansys/actions/doc-deploy-stable@v4
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
