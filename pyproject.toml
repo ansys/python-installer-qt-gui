@@ -49,7 +49,7 @@ tests = [
 ]
 doc = [
     "Sphinx==7.0.1",
-    "ansys-sphinx-theme==0.9.8",
+    "ansys-sphinx-theme==0.9.9",
     "sphinx-copybutton==0.5.2",
 ]
 freeze = [
