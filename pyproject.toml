@@ -39,7 +39,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 tests = [
     "packaging==23.1",
-    "PyGithub==1.58.1",
+    "PyGithub==1.58.2",
     "appdirs==1.4.4",
     "requests==2.30.0",
     "PySide6==6.5.0",
@@ -55,7 +55,7 @@ doc = [
 freeze = [
     "pyinstaller==5.11.0",
     "packaging==23.1",
-    "PyGithub==1.58.1",
+    "PyGithub==1.58.2",
     "appdirs==1.4.4",
     "requests==2.30.0",
     "PySide6==6.5.0",
