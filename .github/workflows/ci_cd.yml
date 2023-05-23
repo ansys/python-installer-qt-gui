@@ -120,7 +120,7 @@ jobs:
       - name: Checkout the SignTool
         uses: actions/checkout@v3
         with:
-          repository: ansys/signtool-ansys-apps
+          repository: ansys-internal/signtool-ansys-apps
           token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
 
       - uses: actions/download-artifact@v3
