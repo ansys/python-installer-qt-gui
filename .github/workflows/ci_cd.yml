@@ -114,7 +114,7 @@ jobs:
     name: Sign application
     needs: [build-application]
     runs-on:
-      group: ansys-internal
+      group: ansys-network
       labels: [self-hosted, Windows, signtool]
     steps:
       - name: Checkout the SignTool
