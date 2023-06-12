@@ -5,8 +5,8 @@ import os
 from pathlib import Path
 import subprocess
 
+from ansys.tools.path import get_available_ansys_installations
 from ansys.tools.installer.constants import (
-    ANSYS_ENV_VAR_START,
     ANSYS_SUPPORTED_PYTHON_VERSIONS,
     ANSYS_VENVS,
 )
@@ -104,21 +104,13 @@ def _find_installed_python_win(admin=False):
     return paths
 
 
-def _find_installed_ansys_win():
-    """Check the environment variables for Ansys installations."""
-    env_keys = []
-    for key in os.environ.keys():
-        if key.lower().startswith(ANSYS_ENV_VAR_START):
-            env_keys.append(key)
-    return env_keys
-
 
 def _find_installed_ansys_python_win():
     """Check the Ansys installation folder for installed Python."""
-    installed_ansys = _find_installed_ansys_win()
+    installed_ansys = get_available_ansys_installations()
     paths = {}
-    for ansys_ver_env_key in installed_ansys:
-        ansys_path = os.environ[ansys_ver_env_key]
+    for ver in installed_ansys:
+        ansys_path = installed_ansys[ver]
         for ansys_py_ver in ANSYS_SUPPORTED_PYTHON_VERSIONS:
             path = os.path.join(
                 ansys_path,

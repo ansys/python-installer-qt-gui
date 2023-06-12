@@ -20,6 +20,7 @@ dependencies = [
     "appdirs",
     "requests",
     "PySide6",
+    "ansys-tools-path"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

@@ -25,8 +25,6 @@ PYANSYS_DOCS_TEXT = f"""<h2>PyAnsys Documentation</h2>
 
 ANSYS_VENVS = ".ansys_python_venvs"
 
-ANSYS_ENV_VAR_START = "awp_root"
-
 ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7", "3_10"]
 
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
