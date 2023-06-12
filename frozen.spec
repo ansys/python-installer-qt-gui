@@ -3,7 +3,7 @@ import glob
 import os
 import sys
 
-from PyInstaller.utils.hooks import collect_all, collect_submodules
+from PyInstaller.utils.hooks import collect_all, collect_submodules, copy_metadata
 
 block_cipher = None
 
@@ -31,6 +31,9 @@ added_files = [
     (os.path.join(ASSETS_PATH, 'pyansys_icon.ico'), 'assets'),
     (os.path.join(INSTALLER_PATH, 'VERSION'), '.'),
 ]
+
+# Missing metadata
+added_files += copy_metadata('ansys-tools-path')
 
 a = Analysis([main_py],
              pathex=[],
