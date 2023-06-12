@@ -6,10 +6,8 @@ from pathlib import Path
 import subprocess
 
 from ansys.tools.path import get_available_ansys_installations
-from ansys.tools.installer.constants import (
-    ANSYS_SUPPORTED_PYTHON_VERSIONS,
-    ANSYS_VENVS,
-)
+
+from ansys.tools.installer.constants import ANSYS_SUPPORTED_PYTHON_VERSIONS, ANSYS_VENVS
 
 # only used on windows
 try:
@@ -102,7 +100,6 @@ def _find_installed_python_win(admin=False):
         pass
 
     return paths
-
 
 
 def _find_installed_ansys_python_win():
