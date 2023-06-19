@@ -114,13 +114,14 @@ def _find_installed_ansys_python_win():
                 f"commonfiles\\CPython\\{ansys_py_ver}\\winx64\\Release\\python",
             )
             if os.path.exists(path):
-                version_output = subprocess.check_output(
-                    [f"{path}\\python.exe", "--version"], text=True
-                ).strip()
                 try:
+                    version_output = subprocess.check_output(
+                        [f"{path}\\python.exe", "--version"], text=True
+                    ).strip()
                     version = version_output.split()[1]
                     paths[path] = (version, False)
-                except Exception:
+                except Exception as err:
+                    LOG.error(f"Failed to retrieve Python version: {str(err)}")
                     pass
 
     return paths
