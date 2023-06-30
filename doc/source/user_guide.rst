@@ -71,6 +71,7 @@ version and its corresponding installation path in the next tab labeled
 
 Create virtual environments tab
 ===============================
+
 The “Create Virtual Environments” tab in the Ansys Python Manager
 provides the interface for creating and managing virtual environments.
 You can easily create a virtual environment by selecting the desired
