@@ -54,8 +54,6 @@ Python and conda-forge python. The standard Python option is the
 official Python distribution, while the conda-forge Python option uses the
 community-driven distribution used with products like Anaconda.
 
-
-
 After selecting the desired Python version and clicking the Install
 button in the Ansys Python Manager, then the app proceeds to
 download and install the chosen Python distribution. The installation
