@@ -14,8 +14,8 @@ results, among other applications. However, configuring Python
 environments and handling dependencies can occasionally prove to be
 daunting. This is where Ansys Python Manager comes to play.
 
-What is ANSYS python manager?
-=============================
+What is the Ansys Python Manager?
+=================================
 
 The Ansys Python Manager is a collaborative open source Python QT
 app developed by various groups within Ansys. This efficient
