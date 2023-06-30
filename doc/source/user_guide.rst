@@ -1,5 +1,5 @@
-Supercharge Your PyAnsys Development with the Ansys Python Manager
-==================================================================
+User Guide
+##########
 
 Introduction
 ============
@@ -45,16 +45,17 @@ instructions to install the Ansys Python Manager on your machine. Once
 the installation is complete, you can easily launch the Ansys Python
 Manager from the Start Menu.
 
-Install Python with Ansys Python Manager
-----------------------------------------
+Install Python Tab
+==================
 
 The Ansys Python Manager offers a user-friendly interface for Python
 installation. You can easily select the desired Python version from the
 provided drop-down menu. The manager provides two options: Standard
-Python and Condaforge Python. The Standard Python option represents the
-official Python distribution, while the Condaforge Python option is a
-community-driven distribution. However, it's up to Individual users to
-choose the Python distribution that best suits their needs.
+Python and Condaforge Python. The Standard Python option is the
+official Python distribution, while the Condaforge Python option uses the
+community-driven distribution used with products like Anaconda.
+
+
 
 After selecting the desired Python version and clicking the Install
 button in the Ansys Python Manager, the application will proceed to
@@ -64,11 +65,15 @@ finished, the Ansys Python Manager will display the installed Python
 version and its corresponding installation path in the next tab labeled
 “Create Virtual Environments.”
 
-` <image.png>`__
+.. image:: _static/ansys_python_manager.PNG
+   :align: center
+   :height: 650
+   :width: 560
+   :alt: Screenshot of Ansys Python Manager
 
-Create Virtual Environments
----------------------------
 
+Create Virtual Environments Tab
+===============================
 The “Create Virtual Environments” tab in the Ansys Python Manager
 provides the interface for creating and managing virtual environments.
 You can easily create a virtual environment by selecting the desired
@@ -78,10 +83,14 @@ The Ansys Python Manager will create the virtual environment and display
 its corresponding path in the subsequent tab labeled “Manage Virtual
 Environments.”
 
-` <image.png>`__
+.. image:: _static/create_venv_tab.PNG
+   :align: center
+   :height: 650
+   :width: 560
+   :alt: Screenshot of Create Virtual Environments Tab
 
-Manage Virtual Environments
----------------------------
+Manage Virtual Environments Tab
+===============================
 
 The “Manage Virtual Environments” tab in the Ansys Python Manager allows
 you to effectively manage the virtual environments you have created. You
@@ -92,7 +101,11 @@ environment by selecting it from the available list under “Available
 virtual environments” and clicking on the “Delete virtual environment”
 option available with context menu.
 
-` <image.png>`__
+.. image:: _static/manage_venv_tab.PNG
+   :align: center
+   :height: 650
+   :width: 560
+   :alt: Screenshot of Manage Virtual Environments Tab
 
 ``Launch options`` provides the option to launch the selected virtual
 environment with the available IDEs and development environments. For
@@ -101,16 +114,18 @@ environment from the available list and clicking on the
 ``Launch Spyder`` option. Likewise, you can launch the Jupyter Notebook,
 Jupyter Lab and console.
 
-` <image.png>`__
+.. image:: _static/launch_options.PNG
+   :align: center
+   :alt: Screenshot of Launch Options
 
-   **Tip:** By using ``Launch console`` option, you can launch the
-   virtual environment in the command prompt and subsequently navigate
-   to the development folder and launch the VS Code IDEs using command
-   line option “``code .``” And set the interpreter to the virtual
-   environment.
+**Tip:** By using ``Launch console`` option, you can launch the
+virtual environment in the command prompt and subsequently navigate
+to the development folder and launch the VS Code IDEs using command
+line option “``code .``” And set the interpreter to the virtual
+environment.
 
 General Package Management
---------------------------
+==========================
 
 In the “General Package Management” section, users are presented with
 the choice to “install default packages.” By opting for this selection,
@@ -122,7 +137,12 @@ installed packages by clicking the ``List Installed Packages`` button.
 The Ansys Python Manager will then display the installed packages in the
 console, providing an overview of the installed dependencies.
 
-` <image.png>`__
+.. image:: _static/general_pkg_management.PNG
+   :align: center
+   :alt: Screenshot of General Package Management
+
+PyAnsys Package Management
+==========================
 
 In the “PyAnsys Package Management” section, there is flexibility to
 choose the PyAnsys metapackage and its version to install it within the
@@ -135,7 +155,9 @@ available for download. It is important to note that the installation
 process may take a few minutes to complete, depending on the size of the
 package and the internet bandwidth.
 
-` <image.png>`__
+.. image:: _static/pyansys_pkg_management.PNG
+   :align: center
+   :alt: Screenshot of PyAnsys Package Management
 
 To ensure that you have the latest version of the Ansys Python Manager,
 you can easily check for updates by clicking on the “Check for Updates”
@@ -151,10 +173,14 @@ specifically to the selected project. This enables you to access
 comprehensive documentation and resources for your chosen PyAnsys
 project.
 
-` <image.png>`__
+.. image:: _static/pyansys_documentation.PNG
+   :align: center
+   :height: 367
+   :width: 532
+   :alt: Screenshot of PyAnsys Documentation Option
 
 Conclusion
-----------
+==========
 
 In this comprehensive article, we have explored the wide range of
 features offered by the impressive Ansys Python Manager. This robust
@@ -168,7 +194,7 @@ So, what are you waiting for? Download the Ansys Python Manager and
 supercharge your PyAnsys development today!
 
 References
-----------
+==========
 
 -  `Ansys Python Manager
    Releases <https://github.com/ansys/python-installer-qt-gui/releases>`__
@@ -176,6 +202,3 @@ References
    Repository <https://github.com/ansys/python-installer-qt-gui>`__
 -  `Ansys Python Manager
    Documentation <https://installer.docs.pyansys.com/version/stable/>`__
-
-.. include:: ../../README.rst
-   :start-after: .. contribute_start

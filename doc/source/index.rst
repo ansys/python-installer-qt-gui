@@ -12,3 +12,4 @@
 
    installer
    contributing
+   user_guide
