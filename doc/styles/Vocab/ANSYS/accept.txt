@@ -1,5 +1,6 @@
 ANSYS
 Ansys
+Ansys Python Manager
 ansys
 metapackage
 miniforge
