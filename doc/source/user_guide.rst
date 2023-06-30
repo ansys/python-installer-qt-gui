@@ -26,7 +26,7 @@ environment management, and facilitate PyAnsys packages administration.
 In this user guide, various features offered by the Ansys Python Manager are explored,
 such as Python installation, creation and management of virtual environments,
 and the available ways to initiate Integrated Development Environments (IDEs)
-& Development environments. We will also explore the package management capabilities
+& Development environments. This user guide further explore the package management capabilities
 of the Ansys Python Manager, including the installation of PyAnsys packages and the
 management of dependencies. Finally, this user guide offers information on accessing
 PyAnsys documentation through the Ansys Python Manager, as well as the options available
@@ -60,7 +60,7 @@ After selecting the desired Python version and clicking the Install
 button in the Ansys Python Manager, then the app proceeds to
 download and install the chosen Python distribution. The installation
 process may take a few minutes to complete. Once the installation is
-finished, the Ansys Python Manager susbsquently displays the installed Python
+finished, the Ansys Python Manager subsequently displays the installed Python
 version and its corresponding installation path in the next tab labeled
 “Create Virtual Environments.”
 
@@ -126,14 +126,14 @@ environment.
 General package management
 ==========================
 
-In the “General Package Management” section, users are presented with
-the choice to “install default packages.” By opting for this selection,
-the chosen Python installation or virtual environment will receive the
-most up-to-date compatible versions of essential packages such as
-``numpy``, ``scipy``, ``pandas``, ``matplotlib``, and ``scikit-learn``.
+In the "General Package Management" section, users are presented with the choice
+to "install default packages." By opting for this selection, the chosen
+Python installation or virtual environment receives the most up-to-date
+compatible versions of essential packages such as such as ``numpy``, ``scipy``,
+``pandas``, ``matplotlib``, and ``scikit-learn``.
 After the installation process concludes, users can view the list of
 installed packages by clicking the ``List Installed Packages`` button.
-The Ansys Python Manager subsquetly display the installed packages in the
+The Ansys Python Manager subsequently display the installed packages in the
 console, providing an overview of the installed dependencies.
 
 .. image:: _static/general_pkg_management.PNG
@@ -182,7 +182,7 @@ Conclusion
 ==========
 
 In this comprehensive user guide, the wide range of features offered by
-the impressive Ansys Python Manager has been explored.This robust
+the impressive Ansys Python Manager has been explored. This robust
 tool provides a user-friendly interface for effortless Python
 installation, efficient creation and management of virtual environments,
 and seamless installation of PyAnsys packages. Moreover, it offers
