@@ -171,6 +171,7 @@ jobs:
         run: |
           cd installer
           for filename in *.exe; do mv "$filename" "Unsigned_${filename}"; done;
+          cd -
 
       - name: Release to GitHub
         uses: softprops/action-gh-release@v1
