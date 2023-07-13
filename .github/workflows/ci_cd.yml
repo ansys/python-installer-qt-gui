@@ -156,7 +156,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: Python-Installer
+          name: Python-Installer-Signed
           path: installer-signed
 
       - uses: actions/download-artifact@v3
