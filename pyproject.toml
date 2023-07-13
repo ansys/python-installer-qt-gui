@@ -40,12 +40,12 @@ dynamic = ["version"]
 [project.optional-dependencies]
 tests = [
     "packaging==23.1",
-    "PyGithub==1.58.2",
+    "PyGithub==1.59.0",
     "appdirs==1.4.4",
     "requests==2.31.0",
     "PySide6==6.5.1.1",
-    "ansys-tools-path==0.2.4",
-    "pytest==7.3.2",
+    "ansys-tools-path==0.2.6",
+    "pytest==7.4.0",
     "pytest-cov==4.1.0",
     "pytest-qt==4.2.0",
 ]
@@ -55,13 +55,13 @@ doc = [
     "sphinx-copybutton==0.5.2",
 ]
 freeze = [
-    "pyinstaller==5.12.0",
+    "pyinstaller==5.13.0",
     "packaging==23.1",
-    "PyGithub==1.58.2",
+    "PyGithub==1.59.0",
     "appdirs==1.4.4",
     "requests==2.31.0",
     "PySide6==6.5.1.1",
-    "ansys-tools-path==0.2.4",
+    "ansys-tools-path==0.2.6",
 ]
 
 [tool.flit.module]

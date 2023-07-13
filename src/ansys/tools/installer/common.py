@@ -6,9 +6,9 @@ import logging
 import sys
 from threading import Thread
 import traceback
-from urllib import request
 
 from pkg_resources import parse_version
+import requests
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
@@ -81,9 +81,15 @@ def get_pkg_versions(pkg_name):
     >>> get_pkg_versions("numpy")
     ['1.22.1', '1.22.0', '1.21.2', ...]
     """
+    session = requests.Session()
+    session.verify = False
+
     url = f"https://pypi.python.org/pypi/{pkg_name}/json"
-    releases = json.loads(request.urlopen(url).read())["releases"]
+    releases = json.loads(requests.get(url).content)["releases"]
     all_versions = sorted(releases, key=parse_version, reverse=True)
     if pkg_name == "pyansys":
         all_versions = [x for x in all_versions if int(x.split(".")[0]) > 0]
+
+    session.verify = True
+
     return all_versions
