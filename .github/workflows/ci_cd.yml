@@ -166,7 +166,7 @@ jobs:
 
       - name: Display structure of downloaded files
         run: ls -R
-      
+
       - name: Rename unsigned exe
         run: |
           cd installer
