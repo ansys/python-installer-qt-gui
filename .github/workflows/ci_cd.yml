@@ -145,7 +145,7 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Python-Installer
+          name: Python-Installer-Signed
           path: signtool/installer/*Setup*.exe
 
   release:
@@ -157,15 +157,27 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: Python-Installer
+          path: installer-signed
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: Python-Installer
           path: installer
 
       - name: Display structure of downloaded files
         run: ls -R
+      
+      - name: Rename unsigned exe
+        run: |
+          cd installer
+          for filename in *.exe; do mv "$filename" "Unsigned_${filename}"; done;
 
-      - name: "Release to GitHub"
+      - name: Release to GitHub
         uses: softprops/action-gh-release@v1
         with:
-          files: installer/*.exe
+          files: |
+            installer-signed/*.exe
+            installer/*.exe
           generate_release_notes: true
 
   doc-deploy-release:
