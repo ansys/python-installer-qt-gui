@@ -44,7 +44,7 @@ tests = [
     "appdirs==1.4.4",
     "requests==2.31.0",
     "PySide6==6.5.1.1",
-    "ansys-tools-path==0.2.6",
+    "ansys-tools-path==0.3.1",
     "pytest==7.4.0",
     "pytest-cov==4.1.0",
     "pytest-qt==4.2.0",
@@ -61,7 +61,7 @@ freeze = [
     "appdirs==1.4.4",
     "requests==2.31.0",
     "PySide6==6.5.1.1",
-    "ansys-tools-path==0.2.6",
+    "ansys-tools-path==0.3.1",
 ]
 
 [tool.flit.module]
