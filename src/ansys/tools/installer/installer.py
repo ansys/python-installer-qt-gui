@@ -38,5 +38,5 @@ def run_ps(command, full_path_to_ps=False):
 def install_python(filename, wait=True):
     """Install "vanilla" python for a single user."""
     wait_str = " -Wait" if wait else ""
-    command = f'(Start-Process {filename} -ArgumentList "/passive InstallAllUsers=0" {wait_str})'
+    command = f"(Start-Process '{filename}' -ArgumentList '/passive InstallAllUsers=0' {wait_str})"
     return run_ps(command)
