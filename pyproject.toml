@@ -50,7 +50,7 @@ tests = [
     "pytest-qt==4.2.0",
 ]
 doc = [
-    "Sphinx==7.0.1",
+    "Sphinx==7.1.1",
     "ansys-sphinx-theme==0.9.9",
     "sphinx-copybutton==0.5.2",
 ]
