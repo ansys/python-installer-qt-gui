@@ -230,7 +230,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     @protected
     def _exe_update(self, filename):
         """After downloading the update for this application, run the file and shutdown this application."""
-        run_ps(f"(Start-Process {filename})")
+        run_ps(f"(Start-Process '{filename}')")
 
         # exiting
         LOG.debug("Closing...")
