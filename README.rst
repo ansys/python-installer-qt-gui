@@ -7,8 +7,8 @@ Ansys Python Manager (QT)
    :target: https://docs.pyansys.com/
    :alt: PyAnsys
 
-.. |GH-CI| image:: https://github.com/pyansys/python-installer-qt-gui/actions/workflows/ci_cd.yml/badge.svg
-   :target: https://github.com/pyansys/python-installer-qt-gui/actions/workflows/ci_cd.yml
+.. |GH-CI| image:: https://github.com/ansys/python-installer-qt-gui/actions/workflows/ci_cd.yml/badge.svg
+   :target: https://github.com/ansys/python-installer-qt-gui/actions/workflows/ci_cd.yml
    :alt: GH-CI
 
 .. |MIT| image:: https://img.shields.io/badge/License-MIT-yellow.svg
@@ -19,8 +19,8 @@ Ansys Python Manager (QT)
    :target: https://github.com/psf/black
    :alt: Black
 
-.. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/pyansys/python-installer-qt-gui/main.svg
-   :target: https://results.pre-commit.ci/latest/github/pyansys/python-installer-qt-gui/main
+.. |pre-commit-ci| image:: https://results.pre-commit.ci/badge/github/ansys/python-installer-qt-gui/main.svg
+   :target: https://results.pre-commit.ci/latest/github/ansys/python-installer-qt-gui/main
    :alt: pre-commit.ci status
 
 .. readme_start
@@ -37,7 +37,7 @@ you can use to install Python and (optional) PyAnsys packages.
 Installation
 ~~~~~~~~~~~~
 Visit the `Releases
-<https://github.com/pyansys/python-installer-qt-gui/releases>`__ page and pull
+<https://github.com/ansys/python-installer-qt-gui/releases>`__ page and pull
 down the latest installer. This is a simple application you can use to install
 Python and manage your Python environment.
 
@@ -48,7 +48,7 @@ You can be up and running with four lines of code:
 
 .. code:: bash
 
-   git clone https://github.com/pyansys/python-installer-qt-gui
+   git clone https://github.com/ansys/python-installer-qt-gui
    cd python-installer-qt-gui
    pip install pip -U
    pip install -e .
@@ -71,7 +71,7 @@ guide`_. You will need to follow these steps:
 
    .. code:: bash
 
-      git clone https://github.com/pyansys/python-installer-qt-gui
+      git clone https://github.com/ansys/python-installer-qt-gui
 
 #. Create a fresh-clean Python environment and activate it. Refer to the
    official `venv`_ documentation if you require further information:
@@ -175,12 +175,12 @@ Distributing
 ------------
 This project is vectored to be an open-source project. For the time being, feel
 free to distribute it internally, but direct users to visit the `Releases
-<https://github.com/pyansys/python-installer-qt-gui/releases>`__ page
+<https://github.com/ansys/python-installer-qt-gui/releases>`__ page
 
 Security
 --------
 The versions that are still supported for security updates can be found at
-the `Security guidelines <https://github.com/pyansys/python-installer-qt-gui/blob/main/SECURITY.md>`_
+the `Security guidelines <https://github.com/ansys/python-installer-qt-gui/blob/main/SECURITY.md>`_
 site. Information on how to report vulenrabilities is also found.
 
 

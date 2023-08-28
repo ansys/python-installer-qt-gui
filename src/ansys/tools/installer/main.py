@@ -21,6 +21,7 @@ from ansys.tools.installer.constants import (
     INSTALL_TEXT,
     LOG,
     PYTHON_VERSION_TEXT,
+    UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT,
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
@@ -230,7 +231,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     @protected
     def _exe_update(self, filename):
         """After downloading the update for this application, run the file and shutdown this application."""
-        run_ps(f"(Start-Process {filename})")
+        run_ps(f"(Start-Process '{filename}')")
 
         # exiting
         LOG.debug("Closing...")
@@ -247,13 +248,34 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     def check_for_updates(self):
         """Check for Ansys Python Manager application updates."""
         LOG.debug("Checking for updates")
-        (ver, url) = query_gh_latest_release()
+        try:
+            (ver, url) = query_gh_latest_release()
+        except:
+            LOG.info("Problem requesting version... ")
+            ver = None
+
         cur_ver = version.parse(__version__)
 
         LOG.debug(f"Currently installed version: {cur_ver}")
         LOG.debug(f"Latest version: {ver}")
 
-        if ver > cur_ver:
+        if not ver:
+            # Error occurred while requesting version... update check
+            # cannot be automated. Referring to source.
+            LOG.debug(
+                "Update check cannot be automatically performed. Showing info message."
+            )
+            msgBox = QtWidgets.QMessageBox(
+                QtWidgets.QMessageBox.Information,
+                "Information",
+                UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT,
+                QtWidgets.QMessageBox.Ok,
+            )
+            msgBox.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
+            pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
+            msgBox.setIconPixmap(pixmap)
+            msgBox.exec_()
+        elif ver > cur_ver:
             LOG.debug("Update available.")
             pixmap = QPixmap(ANSYS_FAVICON).scaledToHeight(32, Qt.SmoothTransformation)
 
@@ -297,7 +319,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
     def report_issue(self):
         """Access the Ansys Python Manager issues tracker."""
-        url = QtCore.QUrl("https://github.com/pyansys/python-installer-qt-gui/issues")
+        url = QtCore.QUrl("https://github.com/ansys/python-installer-qt-gui/issues")
         QtGui.QDesktopServices.openUrl(url)
 
     def show_about_dialog(self):
