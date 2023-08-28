@@ -68,7 +68,11 @@ freeze = [
 name = "ansys.tools.installer"
 
 [project.urls]
-Source = "https://github.com/pyansys/python-installer-qt-gui"
+Source = "https://github.com/ansys/python-installer-qt-gui"
+Issues = "https://github.com/ansys/python-installer-qt-gui/issues"
+Discussions = "https://github.com/ansys/python-installer-qt-gui/discussions"
+Documentation = "https://installer.docs.pyansys.com/"
+Releases = "https://github.com/ansys/python-installer-qt-gui/releases"
 
 [project.scripts]
 ansys_python_installer = "ansys.tools.installer:open_gui"

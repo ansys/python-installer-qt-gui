@@ -14,5 +14,5 @@ currently being supported with security updates.
 ## Reporting a Vulnerability
 
 If you detect a vulnerability, please refer to the
-[Issues](https://github.com/pyansys/python-installer-qt-gui/issues)
+[Issues](https://github.com/ansys/python-installer-qt-gui/issues)
 section of this repository and open an issue.
