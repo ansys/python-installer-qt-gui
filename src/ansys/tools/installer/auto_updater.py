@@ -28,7 +28,7 @@ def query_gh_latest_release(token=None):
 
     """
     gh = Github(login_or_token=token)
-    repo = gh.get_repo(f"pyansys/python-installer-qt-gui")
+    repo = gh.get_repo(f"ansys/python-installer-qt-gui")
 
     # Get the latest release and its tag name
     latest_release = repo.get_latest_release()
