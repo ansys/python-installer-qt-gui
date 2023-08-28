@@ -250,7 +250,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         LOG.debug("Checking for updates")
         try:
             (ver, url) = query_gh_latest_release()
-        except:
+        except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
             LOG.info("Problem requesting version... ")
             ver = None
 

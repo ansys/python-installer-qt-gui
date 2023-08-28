@@ -90,7 +90,7 @@ def get_pkg_versions(pkg_name):
         all_versions = sorted(releases, key=parse_version, reverse=True)
         if pkg_name == "pyansys":
             all_versions = [x for x in all_versions if int(x.split(".")[0]) > 0]
-    except requests.exceptions.SSLError:
+    except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
         LOG.warning(f"Cannot connect to {url}... No version listed.")
         all_versions = [""]
 
