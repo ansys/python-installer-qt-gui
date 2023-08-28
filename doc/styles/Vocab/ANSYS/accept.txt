@@ -4,6 +4,7 @@ Ansys Python Manager
 ansys
 metapackage
 miniforge
+PyAnsys
 Python
 python
 Spyder
