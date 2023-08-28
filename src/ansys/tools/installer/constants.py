@@ -17,6 +17,12 @@ ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
 """
 
+UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT = f"""
+<p>Ansys Python Installer cannot verify whether it is up-to-date or not. This might be due to a permissions issue.</p>
+<p>Currently installed version is {__version__}.</p>
+<p>To check for the latest released version, visit the <a href='https://github.com/ansys/python-installer-qt-gui/releases/latest'> latest release</a> site.</p>
+"""
+
 PYANSYS_DOCS_TEXT = f"""<h2>PyAnsys Documentation</h2>
 <p>Access the documentation for the different PyAnsys projects by selecting your desired project and clicking on the 'Open Website' button.</p>
 <p>Users are then redirected to the documentation websites for each of the projects.</p>
