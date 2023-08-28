@@ -351,7 +351,12 @@ class InstalledTab(QtWidgets.QWidget):
         """Install PyAnsys - chosen packages."""
         chosen_pkg = self.packages_combo.currentText()
         chosen_ver = self.versions_combo.currentText()
-        cmd = f"pip install {PYANSYS_LIBS[chosen_pkg]}=={chosen_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {PYANSYS_LIBS[chosen_pkg]}=={chosen_ver} --force-reinstall"
+        pck_ver = (
+            f"{PYANSYS_LIBS[chosen_pkg]}=={chosen_ver}"
+            if chosen_ver
+            else f"{PYANSYS_LIBS[chosen_pkg]}"
+        )
+        cmd = f"pip install {pck_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {pck_ver} --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd)
 

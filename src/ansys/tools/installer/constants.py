@@ -11,10 +11,16 @@ LOG.setLevel("DEBUG")
 
 ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Created by the PyAnsys Team.</p>
-<p>If you have any questions or issues, please open an issue in <a href='https://github.com/pyansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
+<p>If you have any questions or issues, please open an issue in <a href='https://github.com/ansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
 <p>Alternatively, you can contact us at <a href='mailto:pyansys.core@ansys.com'>pyansys.core@ansys.com</a>.</p>
 <p>Your use of this software is governed by the MIT License. In addition, this installer allows you to access and install software that is licensed under separate terms ("Separately Licensed Software"). If you chose to install such Separately Licensed Software, you acknowledge that you are responsible for complying with any associated terms and conditions.</p>
 <p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
+"""
+
+UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT = f"""
+<p>Ansys Python Installer cannot verify whether it is up-to-date or not. This might be due to a permissions issue.</p>
+<p>Currently installed version is {__version__}.</p>
+<p>To check for the latest released version, visit the <a href='https://github.com/ansys/python-installer-qt-gui/releases/latest'> latest release</a> site.</p>
 """
 
 PYANSYS_DOCS_TEXT = f"""<h2>PyAnsys Documentation</h2>
