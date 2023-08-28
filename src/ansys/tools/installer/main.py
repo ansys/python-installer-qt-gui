@@ -251,7 +251,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         try:
             (ver, url) = query_gh_latest_release()
         except:
-            LOG.info(f"Problem requesting version... ")
+            LOG.info("Problem requesting version... ")
             ver = None
 
         cur_ver = version.parse(__version__)
@@ -263,7 +263,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             # Error occurred while requesting version... update check
             # cannot be automated. Referring to source.
             LOG.debug(
-                "Update check cannot be automatically performed. Showing info message"
+                "Update check cannot be automatically performed. Showing info message."
             )
             msgBox = QtWidgets.QMessageBox(
                 QtWidgets.QMessageBox.Information,
