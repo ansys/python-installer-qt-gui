@@ -76,7 +76,7 @@ jobs:
     name: "Build Application"
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v4
         with:
@@ -118,7 +118,7 @@ jobs:
       labels: [self-hosted, Windows, signtool]
     steps:
       - name: Checkout the SignTool
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ansys-internal/signtool-ansys-apps
           token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
