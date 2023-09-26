@@ -45,17 +45,17 @@ tests = [
     "requests==2.31.0",
     "PySide6==6.5.2",
     "ansys-tools-path==0.3.1",
-    "pytest==7.4.0",
+    "pytest==7.4.2",
     "pytest-cov==4.1.0",
     "pytest-qt==4.2.0",
 ]
 doc = [
-    "Sphinx==7.2.4",
-    "ansys-sphinx-theme==0.10.4",
+    "Sphinx==7.2.6",
+    "ansys-sphinx-theme==0.11.2",
     "sphinx-copybutton==0.5.2",
 ]
 freeze = [
-    "pyinstaller==5.13.1",
+    "pyinstaller==6.0.0",
     "packaging==23.1",
     "PyGithub==1.59.1",
     "appdirs==1.4.4",

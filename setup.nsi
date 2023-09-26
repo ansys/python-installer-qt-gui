@@ -76,7 +76,7 @@ Section "Uninstall" SEC02
   RMDir "$SMPROGRAMS\Ansys Python Manager"
 SectionEnd
 
-Icon "dist\ansys_python_manager\assets\pyansys_icon.ico"
+Icon "dist\ansys_python_manager\_internal\assets\pyansys_icon.ico"
 InstallDir "$PROGRAMFILES64\ANSYS Inc\Ansys Python Manager"
 
 ; Define the custom functions for the MUI2 OneClick plugin

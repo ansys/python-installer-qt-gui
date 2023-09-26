@@ -183,7 +183,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self.python_version_select.addItem("Python 3.8", "3.8.10")
         self.python_version_select.addItem("Python 3.9", "3.9.13")
         self.python_version_select.addItem("Python 3.10", "3.10.11")
-        self.python_version_select.addItem("Python 3.11", "3.11.3")
+        self.python_version_select.addItem("Python 3.11", "3.11.5")
 
         # Set the default selection to "Python 3.10"
         default_index = self.python_version_select.findText("Python 3.10")
@@ -469,8 +469,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 filename = f"python-{selected_version}-amd64.exe"
                 LOG.info("Installing vanilla Python %s", selected_version)
             else:
-                url = "https://github.com/conda-forge/miniforge/releases/download/22.11.1-4/Miniforge3-22.11.1-4-Windows-x86_64.exe"
-                filename = "Miniforge3-22.11.1-4-Windows-x86_64.exe"
+                url = "https://github.com/conda-forge/miniforge/releases/download/23.1.0-4/Miniforge3-23.1.0-4-Windows-x86_64.exe"
+                filename = "Miniforge3-23.1.0-4-Windows-x86_64.exe"
                 LOG.info("Installing miniconda from %s", url)
 
             try:
