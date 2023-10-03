@@ -493,7 +493,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         """Download a file with a progress bar.
 
         Checks cache first. If cached file exists and is the same size
-        as the file to be downloade, uses cached file.
+        as the file to be downloaded, uses cached file.
 
         ``when_finished`` must accept one parameter, the path of the file downloaded.
 
