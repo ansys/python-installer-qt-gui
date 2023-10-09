@@ -43,7 +43,7 @@ tests = [
     "PyGithub==2.1.1",
     "appdirs==1.4.4",
     "requests==2.31.0",
-    "PySide6==6.5.2",
+    "PySide6==6.5.3",
     "ansys-tools-path==0.3.1",
     "pytest==7.4.2",
     "pytest-cov==4.1.0",
@@ -60,7 +60,7 @@ freeze = [
     "PyGithub==2.1.1",
     "appdirs==1.4.4",
     "requests==2.31.0",
-    "PySide6==6.5.2",
+    "PySide6==6.5.3",
     "ansys-tools-path==0.3.1",
 ]
 
