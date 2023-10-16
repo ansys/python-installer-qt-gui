@@ -55,7 +55,7 @@ doc = [
     "sphinx-copybutton==0.5.2",
 ]
 freeze = [
-    "pyinstaller==6.0.0",
+    "pyinstaller==6.1.0",
     "packaging==23.2",
     "PyGithub==2.1.1",
     "appdirs==1.4.4",
