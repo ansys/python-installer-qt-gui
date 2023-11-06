@@ -20,7 +20,7 @@ repos:
       - --line-length=88
 
 - repo: https://github.com/keewis/blackdoc
-  rev: v0.3.8
+  rev: v0.3.9
   hooks:
   - id: blackdoc
     files: '\.py$'
@@ -54,6 +54,6 @@ repos:
 
 # this validates our github workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.27.0
+  rev: 0.27.1
   hooks:
     - id: check-github-workflows
