@@ -41,11 +41,11 @@ Two Python options for installation are available:
 
 Regarding the available Python versions, users can select among the following ones:
 
-* Python 3.7
 * Python 3.8
 * Python 3.9
 * Python 3.10
 * Python 3.11
+* Python 3.12
 
 .. warning::
 
