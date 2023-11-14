@@ -69,6 +69,7 @@ ANSYS_FAVICON = os.path.join(ASSETS_PATH, "ansys-favicon.png")
 PYANSYS_DOCS_SITES = {
     "PyAnsys": "https://docs.pyansys.com",
     "PyAnsys Developer docs": "https://dev.docs.pyansys.com",
+    "PyAdditive": "https://additive.docs.pyansys.com",
     "PyAEDT": "https://aedt.docs.pyansys.com",
     "PyAnsys Geometry": "https://geometry.docs.pyansys.com",
     "PyAnsys Math": "https://math.docs.pyansys.com",
@@ -105,6 +106,7 @@ PYANSYS_DOCS_SITES = {
 
 PYANSYS_LIBS = {
     "PyAnsys-Metapackage": "pyansys",
+    "PyAdditive": "ansys-additive-core",
     "PyAEDT": "pyaedt",
     "PyAnsys Geometry": "ansys-geometry-core",
     "PyAnsys Math": "ansys-math-core",
