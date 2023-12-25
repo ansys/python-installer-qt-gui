@@ -47,7 +47,7 @@ tests = [
     "ansys-tools-path==0.4.0",
     "pytest==7.4.3",
     "pytest-cov==4.1.0",
-    "pytest-qt==4.2.0",
+    "pytest-qt==4.3.1",
 ]
 doc = [
     "Sphinx==7.2.6",
