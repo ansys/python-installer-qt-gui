@@ -45,7 +45,7 @@ tests = [
     "requests==2.31.0",
     "PySide6==6.6.1",
     "ansys-tools-path==0.4.0",
-    "pytest==7.4.3",
+    "pytest==7.4.4",
     "pytest-cov==4.1.0",
     "pytest-qt==4.2.0",
 ]
