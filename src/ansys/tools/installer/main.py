@@ -336,7 +336,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                         url,
                         file,
                         when_finished=self._exe_update,
-                        auth="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",
                     )
                 else:
                     self._download(
