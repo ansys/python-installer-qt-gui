@@ -24,7 +24,7 @@ jobs:
     name: "Documentation style"
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v4
+      - uses: ansys/actions/doc-style@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,7 +46,7 @@ jobs:
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v2
 
-      - uses: ansys/actions/tests-pytest@v4
+      - uses: ansys/actions/tests-pytest@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -56,7 +56,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Build project documentation
-        uses: ansys/actions/doc-build@v4
+        uses: ansys/actions/doc-build@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
@@ -67,7 +67,7 @@ jobs:
     needs: [doc-build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: ansys/actions/doc-deploy-dev@v4
+      - uses: ansys/actions/doc-deploy-dev@v5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -78,7 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
@@ -105,7 +105,7 @@ jobs:
       - name: List output
         run: ls -R dist
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Python-Installer
           path: dist/*Setup*.exe
@@ -123,7 +123,7 @@ jobs:
           repository: ansys-internal/signtool-ansys-apps
           token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Python-Installer
           path: signtool/installer
@@ -143,7 +143,7 @@ jobs:
             -n $jobname `
             -i installer/$filename
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Python-Installer-Signed
           path: signtool/installer/*Setup*.exe
@@ -154,12 +154,12 @@ jobs:
     needs: [sign-application]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Python-Installer-Signed
           path: installer-signed
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: Python-Installer
           path: installer
@@ -188,7 +188,7 @@ jobs:
     needs: [release, doc-build]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v4
+        uses: ansys/actions/doc-deploy-stable@v5
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
