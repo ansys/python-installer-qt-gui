@@ -207,7 +207,6 @@ def create_venv_linux(venv_dir, py_path):
 
     """
     execute_linux_command(f"{py_path} -m venv {venv_dir}")
-    pass
 
 
 def create_venv_conda(venv_dir, py_path):
@@ -231,7 +230,6 @@ def create_venv_conda(venv_dir, py_path):
         f"{py_path}/bin/mamba -V || {py_path}/bin/conda install mamba -y"
     )
     execute_linux_command(f"{py_path}/bin/mamba create --prefix {venv_dir} python -y")
-    pass
 
 
 def delete_venv_conda(miniforge_path, parent_path):
@@ -251,7 +249,6 @@ def delete_venv_conda(miniforge_path, parent_path):
 
     """
     execute_linux_command(f"{miniforge_path} env remove --prefix {parent_path} --yes")
-    pass
 
 
 def run_linux_command(pypath, extra, venv=False):
@@ -284,7 +281,6 @@ def run_linux_command(pypath, extra, venv=False):
         prefix = "/".join(prefix.split("/")[:-1]) + "/"
         extra = extra.replace("pip", f"pip{major_version}")
     execute_linux_command(f"cd ~ ; {prefix}{extra}", wait=False)
-    pass
 
 
 def run_linux_command_conda(pypath, extra, venv=False):
@@ -329,7 +325,6 @@ def run_linux_command_conda(pypath, extra, venv=False):
     else:
         extra = extra.replace(" pip", f" {pypath}/bin/pip")
     execute_linux_command(f"cd ~ {venvParam} ; {conda_path}{extra} ", wait=False)
-    pass
 
 
 def find_installed_python_linux():
@@ -448,7 +443,6 @@ def execute_linux_command(command, wait=True):
         wait_command = "--wait"
     LOG.debug(f"gnome-terminal {wait_command} -- sh -c '{command}'")
     os.system(f"gnome-terminal {wait_command} -- sh -c '{command}'")
-    pass
 
 
 def get_os_version():
