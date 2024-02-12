@@ -39,6 +39,12 @@ from ansys.tools.installer.find_python import (
     find_miniforge,
     get_all_python_venv,
 )
+from ansys.tools.installer.linux_functions import (
+    delete_venv_conda,
+    is_linux_os,
+    run_linux_command,
+    run_linux_command_conda,
+)
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
 LOG = logging.getLogger(__name__)
@@ -380,7 +386,7 @@ class InstalledTab(QtWidgets.QWidget):
         )
         cmd = f"pip install {pck_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {pck_ver} --force-reinstall"
         self._update_pck_mnger()
-        self.launch_cmd(cmd)
+        self.launch_cmd(cmd, use_pip=True)
 
     def update_package_combo(self, index):
         """Update the dropdown of available versions based on the package chosen."""
@@ -490,10 +496,13 @@ class InstalledTab(QtWidgets.QWidget):
         elif not is_vanilla_python and action == delete_action:
             try:
                 # Delete the conda environment
-                subprocess.call(
-                    f'start /w /min cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda env remove --prefix {parent_path} --yes && exit"',
-                    shell=True,
-                )
+                if is_linux_os():
+                    delete_venv_conda(miniforge_path, parent_path)
+                else:
+                    subprocess.call(
+                        f'start /w /min cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda env remove --prefix {parent_path} --yes && exit"',
+                        shell=True,
+                    )
                 if os.path.exists(parent_path):
                     shutil.rmtree(parent_path)
             except:
@@ -502,7 +511,7 @@ class InstalledTab(QtWidgets.QWidget):
         # Finally, update the venv table
         self.venv_table.update()
 
-    def launch_cmd(self, extra="", minimized_window=False):
+    def launch_cmd(self, extra="", minimized_window=False, use_pip=False):
         """Run a command in a new command prompt.
 
         Parameters
@@ -541,43 +550,57 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Python set to {py_path}"
 
-            subprocess.call(
-                f'start {min_win} cmd /K "set PATH={new_path} && cd %userprofile% {cmd}"',
-                shell=True,
-            )
+            if is_linux_os():
+                run_linux_command(py_path, extra)
+            else:
+                subprocess.call(
+                    f'start {min_win} cmd /K "set PATH={new_path} && cd %userprofile% {cmd}"',
+                    shell=True,
+                )
         elif is_vanilla_python and is_venv:
             # Launch with active python virtual environment
             if extra:
                 cmd = f"&& {extra}"
             else:
                 cmd = f"&& echo Python set to {py_path}"
-            subprocess.call(
-                f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat && cd %userprofile% {cmd}"',
-                shell=True,
-            )
+            if is_linux_os():
+                run_linux_command(py_path, extra, True)
+            else:
+                subprocess.call(
+                    f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat && cd %userprofile% {cmd}"',
+                    shell=True,
+                )
         elif not is_vanilla_python and is_venv:
             # Launch with active conda virtual environment
             if extra:
                 # Replace the pip install command for conda
-                extra = extra.replace("pip", "conda")
-                extra = extra.replace("conda install", "conda install --yes")
+                if not use_pip:
+                    extra = extra.replace("pip", "conda")
+                    extra = extra.replace("conda install", "conda install --yes")
                 cmd = f"&& {extra}"
             else:
                 cmd = f"&& echo Activating conda forge at path {py_path}"
-            subprocess.call(
-                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
-                shell=True,
-            )
+            if is_linux_os():
+                run_linux_command_conda(py_path, extra, True)
+            else:
+                subprocess.call(
+                    f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
+                    shell=True,
+                )
         else:
             # not is_vanilla_python and not is_venv
             if extra:
                 # Replace the pip install command for conda
-                extra = extra.replace("pip", "conda")
-                extra = extra.replace("conda install", "conda install --yes")
+                if not use_pip:
+                    extra = extra.replace("pip", "conda")
+                    extra = extra.replace("conda install", "conda install --yes")
                 cmd = f"&& {extra}"
             else:
                 cmd = f"&& echo Activating conda forge at path {py_path}"
-            subprocess.call(
-                f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
-                shell=True,
-            )
+            if is_linux_os():
+                run_linux_command_conda(py_path, extra, False)
+            else:
+                subprocess.call(
+                    f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
+                    shell=True,
+                )

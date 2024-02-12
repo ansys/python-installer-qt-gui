@@ -30,6 +30,12 @@ import subprocess
 from ansys.tools.path import get_available_ansys_installations
 
 from ansys.tools.installer.constants import ANSYS_SUPPORTED_PYTHON_VERSIONS, ANSYS_VENVS
+from ansys.tools.installer.linux_functions import (
+    ansys_linux_path,
+    find_installed_python_linux,
+    find_miniforge_linux,
+    is_linux_os,
+)
 
 # only used on windows
 try:
@@ -56,7 +62,7 @@ def find_miniforge():
         paths = _find_miniforge_win(True)
         paths.update(_find_miniforge_win(False))
     else:
-        paths = {}
+        paths = find_miniforge_linux()
     return paths
 
 
@@ -174,6 +180,7 @@ def _find_installed_python_linux():
 
     pythons = {}
     version_names = ["python", "python3"] + [f"python3.{i}" for i in range(7, 13)]
+    previous_found_version = ""
 
     for version_name in version_names:
         try:
@@ -183,9 +190,10 @@ def _find_installed_python_linux():
             ).strip()
             version = version_output.split()[1]
             admin = path.startswith("/usr")
-            pythons[path] = (version, admin)
-            LOG.debug("Identified %s at %s", version, path)
-
+            if version != previous_found_version:
+                pythons[path] = (version, admin)
+                LOG.debug("Identified %s at %s", version, path)
+                previous_found_version = version
         except subprocess.CalledProcessError:
             # Ignore if the command fails (e.g., if the Python version is not installed)
             pass
@@ -228,6 +236,7 @@ def find_all_python():
         paths.update(_find_installed_ansys_python_win())
     else:
         paths = _find_installed_python_linux()
+        paths.update(find_installed_python_linux())
 
     return paths
 
@@ -244,13 +253,18 @@ def get_all_python_venv():
     paths = {}
 
     user_directory = os.path.expanduser("~")
+    if is_linux_os():
+        user_directory = ansys_linux_path
     Path(f"{user_directory}/{ANSYS_VENVS}").mkdir(parents=True, exist_ok=True)
 
     venv_dir = os.path.join(user_directory, ANSYS_VENVS)
 
     for venv_dir_name in os.listdir(venv_dir):
         if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
-            path = os.path.join(venv_dir, venv_dir_name, "Scripts")
+            script_path = "Scripts"
+            if is_linux_os():
+                script_path = "bin"
+            path = os.path.join(venv_dir, venv_dir_name, script_path)
             paths[path] = (
                 venv_dir_name,
                 False,

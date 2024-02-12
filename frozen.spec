@@ -4,6 +4,7 @@ import os
 import sys
 
 from PyInstaller.utils.hooks import collect_all, collect_submodules, copy_metadata
+from ansys.tools.path.misc import is_linux
 
 block_cipher = None
 
@@ -15,6 +16,8 @@ except NameError:
 
 OUT_PATH = 'ansys_python_manager'
 APP_NAME = 'Ansys Python Manager'
+if is_linux():
+    APP_NAME = 'ansys_python_manager'
 INSTALLER_PATH = os.path.join(THIS_PATH, 'src/ansys/tools/installer')
 ASSETS_PATH = os.path.join(INSTALLER_PATH, 'assets')
 ICON_FILE = os.path.join(ASSETS_PATH, 'pyansys_icon.ico')
@@ -28,12 +31,15 @@ if not os.path.isfile(main_py):
 added_files = [
     (os.path.join(ASSETS_PATH, 'pyansys-light.png'), 'assets'),
     (os.path.join(ASSETS_PATH, 'ansys-favicon.png'), 'assets'),
-    (os.path.join(ASSETS_PATH, 'pyansys_icon.ico'), 'assets'),
+    (os.path.join(ASSETS_PATH, 'pyansys_icon.ico'), 'assets'),    
     (os.path.join(INSTALLER_PATH, 'VERSION'), '.'),
 ]
 
 # Missing metadata
 added_files += copy_metadata('ansys-tools-path')
+
+if is_linux():
+    added_files +=[(os.path.join(ASSETS_PATH, 'python-asset'), 'assets')]
 
 a = Analysis([main_py],
              pathex=[],

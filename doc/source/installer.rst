@@ -4,19 +4,160 @@ Usage instructions
 Installing the ``Ansys Python Manager``
 =======================================
 
-First step is installing the ``Ansys Python Manager``. In order to do so, follow the next steps.
+.. tab-set::
 
-#. Download the necessary installer from the `latest available release <https://github.com/ansys/python-installer-qt-gui/releases/latest>`_.
-   The file should be named ``Ansys-Python-Manager-Setup-v*.exe``.
+  .. tab-item:: Windows
 
-#. Execute the installer.
+    First step is installing the ``Ansys Python Manager``. In order to do so, follow the next steps.
 
-#. Search for the ``Ansys Python Manager`` and run it.
+    #. Download the necessary installer from the `latest available release <https://github.com/ansys/python-installer-qt-gui/releases/latest>`_. The file should be named ``Ansys-Python-Manager-Setup-v*.exe``.
 
-The ``Ansys Python Manager`` window should appear at this stage.
+    #. Execute the installer.
 
-Installing Python on Windows
-============================
+    #. Search for the ``Ansys Python Manager`` and run it.
+
+    The ``Ansys Python Manager`` window should appear at this stage.
+
+  .. tab-item:: Linux
+
+    .. tab-set::
+
+      .. tab-item:: Ubuntu
+
+        Prerequisites:
+
+        #. **OS** Supported for **Ubuntu(20.04 and 22.04)**.
+
+        #. Update apt repository & Install **libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** previlages
+
+            .. code:: shell
+
+              sudo apt-get update -y
+              sudo apt-get install libffi-dev -y
+              sudo apt-get install libssl-dev -y
+              sudo apt-get install libsqlite3-dev -y
+              sudo apt-get install libxcb-xinerama0 -y
+              sudo apt-get install build-essential -y
+
+        #. Install **zlib** package
+
+            .. code:: shell
+
+              wget https://zlib.net/current/zlib.tar.gz;
+              tar xvzf zlib.tar.gz;
+              cd zlib-*
+              make clean;
+              ./configure;
+              make;
+              sudo make install;
+
+        To install the ``Ansys Python Manager``, follow below steps.
+
+        #. Download the necessary installer from the `latest available release <https://github.com/ansys/python-installer-qt-gui/releases/latest>`_. The file should be named ``Ansys-Python-Manager_*.zip``.
+
+        #. Execute the below bommand on the terminal
+
+            .. code:: shell
+
+              unzip Ansys-Python-Manager_*.zip
+              cd Ansys-Python-Manager_*
+              ./installer.sh
+
+        #. Search for the ``Ansys Python Manager`` and run it.
+
+        The ``Ansys Python Manager`` window should appear at this stage.
+
+      .. tab-item:: CentOS9, RHEL9
+
+        Prerequisites:
+
+        #. **OS** Supported for **CentOS9** and **RHEL9**.
+
+        #. Install **zlib** package using **wget**
+
+            .. code:: shell
+
+              sudo yum install wget -y
+              wget https://zlib.net/current/zlib.tar.gz;
+              tar xvzf zlib.tar.gz;
+              cd zlib-*
+              make clean;
+              ./configure;
+              make;
+              sudo make install;
+
+        #. Update yum repository & Install **Development Tools, libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel** packages with **sudo** previlages
+
+            .. code:: shell
+
+              sudo yum update -y;
+              sudo yum groupinstall 'Development Tools' -y;
+              sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+
+
+        To install the ``Ansys Python Manager``, follow below steps.
+
+        #. Download the necessary installer from the `latest available release <https://github.com/ansys/python-installer-qt-gui/releases/latest>`_. The file should be named ``Ansys-Python-Manager_centos*.zip``.
+
+        #. Execute the below bommand on the terminal
+
+            .. code:: shell
+
+              unzip Ansys-Python-Manager_*.zip
+              cd Ansys-Python-Manager_*
+              ./installer_CentOS.sh
+
+        #. Search for the ``Ansys Python Manager`` and run it.
+
+        The ``Ansys Python Manager`` window should appear at this stage.
+
+      .. tab-item:: Fedora39
+
+        Prerequisites:
+
+        #. **OS** Supported for **Fedora39**.
+
+        #. Install **zlib** package using **wget**
+
+            .. code:: shell
+
+              sudo yum install wget -y
+              wget https://zlib.net/current/zlib.tar.gz;
+              tar xvzf zlib.tar.gz;
+              cd zlib-*
+              make clean;
+              ./configure;
+              make;
+              sudo make install;
+
+        #. Update yum repository & Install **Development Tools, libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel** packages with **sudo** previlages
+
+            .. code:: shell
+
+              sudo yum update -y;
+              sudo yum groupinstall 'Development Tools' -y;
+              sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+
+
+        To install the ``Ansys Python Manager``, follow below steps.
+
+        #. Download the necessary installer from the `latest available release <https://github.com/ansys/python-installer-qt-gui/releases/latest>`_. The file should be named ``Ansys-Python-Manager_fedora*.zip``.
+
+        #. Execute the below bommand on the terminal
+
+            .. code:: shell
+
+              unzip Ansys-Python-Manager_*.zip
+              cd Ansys-Python-Manager_*
+              ./installer_Fedora.sh
+
+        #. Search for the ``Ansys Python Manager`` and run it.
+
+        The ``Ansys Python Manager`` window should appear at this stage.
+
+
+Installing Python
+=================
 
 Now, instructions on how to install Python from the ``Ansys Python Manager`` are provided.
 
@@ -46,6 +187,37 @@ Regarding the available Python versions, users can select among the following on
 * Python 3.10
 * Python 3.11
 * Python 3.12
+
+.. collapse:: Linux : Python installation
+
+    1. Conda python installation:
+
+      #. Bash scripts will be downloaded and executed on a machine directly from the official website.(https://github.com/conda-forge/miniforge?tab=readme-ov-file#unix-like-platforms-mac-os--linux).
+
+    2. Standard python installation happens in two ways:
+
+      #. If the Debian version is 22.04 and Python 3.11 (recommended by Ansys) is specified, the installer will automatically install the pre-compiled version of Python available within the installer.
+
+      #. Otherwise, Python will be installed following these steps:
+
+        #. Download Python Tarball and Untar:
+
+          i. The Python tar file will be downloaded from the Python FTP server (https://www.python.org/ftp/python/) based on the version selected from the dropdown menu. Example: For Python version 3.8.11, the download link would be here(https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz).
+
+          ii.  Decompress the downloaded file in the user’s cache directory.
+
+        * Configure the Source:
+
+          i. Following will be executed configure the installation:
+
+            .. code:: shell
+
+              ./configure --prefix=~/.local/ansys/{python_folder_name}
+
+        * Build and install Python:
+
+          i. Build and install Python using the make and make install commands.
+
 
 .. warning::
 

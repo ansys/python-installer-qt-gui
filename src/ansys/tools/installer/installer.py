@@ -25,6 +25,8 @@
 import logging
 import subprocess
 
+from ansys.tools.installer.linux_functions import install_python_linux, is_linux_os
+
 LOG = logging.getLogger(__name__)
 
 
@@ -59,6 +61,10 @@ def run_ps(command, full_path_to_ps=False):
 
 def install_python(filename, wait=True):
     """Install "vanilla" python for a single user."""
-    wait_str = " -Wait" if wait else ""
-    command = f"(Start-Process '{filename}' -ArgumentList '/passive InstallAllUsers=0' {wait_str})"
-    return run_ps(command)
+    if is_linux_os():
+        install_python_linux(filename)
+        return "Success", None
+    else:
+        wait_str = " -Wait" if wait else ""
+        command = f"(Start-Process '{filename}' -ArgumentList '/passive InstallAllUsers=0' {wait_str})"
+        return run_ps(command)
