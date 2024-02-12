@@ -467,13 +467,13 @@ def get_os_version():
                 .replace('"', "")
             )
         elif "Fedora" in os_name:
-            os_version = "Fedora"
+            os_version = "fedora"
         elif (
             "Red Hat" in os_name
             or "CentOS" in os_name
             or any("REDHAT" in x for x in os_details)
         ):
-            os_version = "CentOS"
+            os_version = "centos"
 
         return os_version
     except:
@@ -491,7 +491,17 @@ def update_app(filename):
     """
     updater_path = f"{CACHE_DIR}/ansys-updater"
     Path(f"{updater_path}").mkdir(parents=True, exist_ok=True)
-    execute_linux_command(f"cd {updater_path};unzip -o {filename}; ./installer.sh")
+    os_version = get_os_version()
+    if os_version == "centos":
+        execute_linux_command(
+            f"cd {updater_path};unzip -o {filename}; ./installer_CentOS.sh"
+        )
+    elif os_version == "fedora":
+        execute_linux_command(
+            f"cd {updater_path};unzip -o {filename}; ./installer_Fedora.sh"
+        )
+    else:
+        execute_linux_command(f"cd {updater_path};unzip -o {filename}; ./installer.sh")
 
 
 def check_python_asset_linux(version):
