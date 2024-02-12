@@ -1,0 +1,1 @@
+rpm -iv ansys_python_manager_*.rpm

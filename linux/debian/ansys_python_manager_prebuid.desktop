@@ -1,0 +1,20 @@
+[Desktop Entry]
+
+# The type of the thing this desktop file refers to (e.g. can be Link)
+Type=Application
+
+# The application name.
+Name=Ansys Python Manager
+
+# Tooltip comment to show in menus.
+Comment=Ansys Python Manager.
+
+# The path (folder) in which the executable is run
+Path=${HOME}/.local/opt/ansys_python_manager
+
+# The executable (can include arguments)
+Exec=${HOME}/.local/opt/ansys_python_manager/ansys_python_manager
+
+# The icon for the entry, using the name from `hicolor/scalable` without the extension.
+# You can also use a full path to a file in /opt.
+Icon=${HOME}/.local/share/icons/pyansys_icon.svg

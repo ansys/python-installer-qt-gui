@@ -1,0 +1,2 @@
+envsubst < ${HOME}/.local/usr/share/applications/ansys_python_manager_prebuid.desktop > ${HOME}/.local/usr/share/applications/ansys_python_manager.desktop
+rm -rf ${HOME}/.local/usr/share/applications/ansys_python_manager_prebuid.desktop
