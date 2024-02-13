@@ -31,7 +31,7 @@ if not os.path.isfile(main_py):
 added_files = [
     (os.path.join(ASSETS_PATH, 'pyansys-light.png'), 'assets'),
     (os.path.join(ASSETS_PATH, 'ansys-favicon.png'), 'assets'),
-    (os.path.join(ASSETS_PATH, 'pyansys_icon.ico'), 'assets'),    
+    (os.path.join(ASSETS_PATH, 'pyansys_icon.ico'), 'assets'),
     (os.path.join(INSTALLER_PATH, 'VERSION'), '.'),
 ]
 
