@@ -187,7 +187,7 @@ Regarding the available Python versions, users can select among the following on
 
     1. Conda python installation:
 
-      #. Bash scripts will be downloaded and executed on a machine directly from the official website.(https://github.com/conda-forge/miniforge?tab=readme-ov-file#unix-like-platforms-mac-os--linux).
+      #. Bash scripts will be downloaded and executed on a machine directly from the official website.(https://github.com/conda-forge/miniforge?tab=readme-ov-file).
 
     2. Standard python installation happens in two ways:
 
@@ -206,7 +206,9 @@ Regarding the available Python versions, users can select among the following on
           i. Following will be executed configure the installation:
 
             .. code:: shell
+
               ./configure --prefix=~/.local/ansys/{python_folder_name}
+
         * Build and install Python:
 
           i. Build and install Python using the make and make install commands.
