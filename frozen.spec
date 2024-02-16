@@ -15,9 +15,8 @@ except NameError:
     THIS_PATH = os.getcwd()
 
 OUT_PATH = 'ansys_python_manager'
-APP_NAME = 'Ansys Python Manager'
-if is_linux():
-    APP_NAME = 'ansys_python_manager'
+APP_NAME = 'ansys_python_manager' if is_linux() else 'Ansys Python Manager'
+
 INSTALLER_PATH = os.path.join(THIS_PATH, 'src/ansys/tools/installer')
 ASSETS_PATH = os.path.join(INSTALLER_PATH, 'assets')
 ICON_FILE = os.path.join(ASSETS_PATH, 'pyansys_icon.ico')

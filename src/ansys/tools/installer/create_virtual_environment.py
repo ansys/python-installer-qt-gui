@@ -114,11 +114,8 @@ class CreateVenvTab(QtWidgets.QWidget):
 
     def create_venv(self):
         """Create virtual environment at selected directory."""
-        user_home = os.path.expanduser("~")
-        if is_linux_os():
-            user_home = ansys_linux_path
+        user_home = ansys_linux_path if is_linux_os() else os.path.expanduser("~")
         venv_dir = os.path.join(user_home, ANSYS_VENVS, self.venv_name.text())
-
         if self.venv_name.text() == "":
             self.failed_to_create_dialog(case_1=True)
         elif os.path.exists(venv_dir):

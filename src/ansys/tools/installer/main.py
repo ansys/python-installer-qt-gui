@@ -329,8 +329,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             )
 
             if reply == QtWidgets.QMessageBox.Yes:
-                file = f"Ansys-Python-Manager-Setup-v{ver}.exe"
-                if is_linux_os:
+                if is_linux_os():
                     file = f"Ansys-Python-Manager-Setup-v{ver}.zip"
                     self._download(
                         url,
@@ -338,6 +337,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                         when_finished=self._exe_update,
                     )
                 else:
+                    file = f"Ansys-Python-Manager-Setup-v{ver}.exe"
                     self._download(
                         url,
                         file,

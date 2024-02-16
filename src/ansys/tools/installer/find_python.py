@@ -252,18 +252,17 @@ def get_all_python_venv():
     """
     paths = {}
 
-    user_directory = os.path.expanduser("~")
-    if is_linux_os():
-        user_directory = ansys_linux_path
+    user_directory = ansys_linux_path if is_linux_os() else os.path.expanduser("~")
+
     Path(f"{user_directory}/{ANSYS_VENVS}").mkdir(parents=True, exist_ok=True)
 
     venv_dir = os.path.join(user_directory, ANSYS_VENVS)
 
     for venv_dir_name in os.listdir(venv_dir):
         if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
-            script_path = "Scripts"
-            if is_linux_os():
-                script_path = "bin"
+
+            script_path = "bin" if is_linux_os() else "Scripts"
+
             path = os.path.join(venv_dir, venv_dir_name, script_path)
             paths[path] = (
                 venv_dir_name,

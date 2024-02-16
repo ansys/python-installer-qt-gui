@@ -118,10 +118,6 @@ def install_python_linux(filename):
     """
     Install python on linux.
 
-    Returns
-    -------
-    No return value
-
     Examples
     --------
     >>> install_python_linux("Miniforge3-23.1.0-4-Linux-x86_64.sh")
@@ -194,10 +190,6 @@ def create_venv_linux(venv_dir, py_path):
     """
     Create virtual environment.
 
-    Returns
-    -------
-    No return value
-
     Examples
     --------
     >>> create_venv_linux(
@@ -212,10 +204,6 @@ def create_venv_linux(venv_dir, py_path):
 def create_venv_conda(venv_dir, py_path):
     """
     Create virtual environment for Miniforge.
-
-    Returns
-    -------
-    No return value
 
     Examples
     --------
@@ -236,10 +224,6 @@ def delete_venv_conda(miniforge_path, parent_path):
     """
     Delete virtual environment for Miniforge.
 
-    Returns
-    -------
-    No return value
-
     Examples
     --------
     >>> delete_venv_conda(
@@ -254,10 +238,6 @@ def delete_venv_conda(miniforge_path, parent_path):
 def run_linux_command(pypath, extra, venv=False):
     """
     Run pip command on Linux terminal.
-
-    Returns
-    -------
-    No return value
 
     Examples
     --------
@@ -286,10 +266,6 @@ def run_linux_command(pypath, extra, venv=False):
 def run_linux_command_conda(pypath, extra, venv=False):
     """
     Run conda command on Linux terminal.
-
-    Returns
-    -------
-    No return value
 
     Examples
     --------
@@ -429,10 +405,6 @@ def execute_linux_command(command, wait=True):
     """
     Run linux command on gnome terminal.
 
-    Returns
-    -------
-    No return value
-
     Examples
     --------
     >>> execute_linux_command("ls")
@@ -538,10 +510,6 @@ def check_python_asset_linux(version):
 def install_python_linux_from_assets(file):
     """
     Install python on linux.
-
-    Returns
-    -------
-    No return value
 
     Examples
     --------
