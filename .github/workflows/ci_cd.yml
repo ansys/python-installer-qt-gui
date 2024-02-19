@@ -109,97 +109,15 @@ jobs:
           name: Python-Installer
           path: dist/*Setup*.exe
 
-  build-application-linux-20-04:
-    name: "Build Application Linux - 20.04"
-    runs-on: ubuntu-20.04
+
+  build-application-linux:
+    strategy:
+      matrix:
+        os: ["22.04", "20.04"]
+    name: "Build Application Linux - ${{ matrix.os }}"
+    runs-on: ubuntu-${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Install Linux Dependencies
-        run: |
-          sudo apt update
-          sudo apt install aptitude;
-          sudo aptitude install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-cursor-dev libxcb-util-dev libxcb-xkb-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev -y
-          sudo apt install ruby
-          sudo gem install fpm
-          sudo add-apt-repository ppa:okirby/qt6-backports -y
-          sudo apt update
-          sudo apt install qt6-base-dev -y
-
-          wget http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi8_3.4.2-4_amd64.deb
-          sudo apt install ./libffi8_3.4.2-4_amd64.deb
-
-          wget http://archive.ubuntu.com/ubuntu/pool/main/w/wayland/libwayland-client0_1.20.0-1_amd64.deb
-          sudo apt install ./libwayland-client0_1.20.0-1_amd64.deb
-
-      - name: Download python-3.11 artifact and configure
-        run: |
-          mkdir -p cd ${HOME}/.cache
-          cd ${HOME}/.cache
-          wget https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz
-          tar -xf Python-3.11.6.tar.xz
-          cd Python-3.11.6
-          ./configure --prefix=${HOME}/python-3.11.6
-          cd ${HOME}/.cache/Python-3.11.6
-          make;
-          make install;
-          cd ${HOME}/python-3.11.6
-          cd ..
-          tar -czf python-3.11.6.tar.gz python-3.11.6/
-          mkdir -p ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/20.04
-          mv python-3.11.6.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/20.04
-          ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/20.04
-
-      - name: Install Dependencies
-        run: pip install -e .[freeze]
-
-      - name: Freeze application
-        run: pyinstaller frozen.spec
-
-      - name: Setup and Copy Linux files for packaging
-        run: |
-          mkdir -p package/opt
-          mkdir -p package/share/applications
-          mkdir -p package/share/icons
-          cp -r dist/ansys_python_manager package/opt/ansys_python_manager
-          cp src/ansys/tools/installer/assets/pyansys_icon.svg package/share/icons/pyansys_icon.svg
-          cp linux/debian/ansys_python_manager_prebuid.desktop package/share/applications
-          find package/opt/ansys_python_manager -type f -exec chmod 644 -- {} +
-          find package/opt/ansys_python_manager -type d -exec chmod 755 -- {} +
-          find package/share -type f -exec chmod 644 -- {} +
-          chmod +x package/opt/ansys_python_manager/ansys_python_manager
-          version=v`cat ./src/ansys/tools/installer/VERSION`
-          echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
-          fpm -v $version --fpm-options-file linux/debian/fpm-options-debian
-
-      - name: Create zip file
-        run: |
-            cp linux/debian/installer.sh installer.sh
-            cp linux/debian/postInstallScript.sh postInstallScript.sh
-            chmod +x installer.sh postInstallScript.sh ansys_python_manager.deb
-            ls -l
-            zip -r Ansys-Python-Manager_linux_20_04_${{ env.APPLICATION_VERSION }}.zip ansys_python_manager.deb installer.sh postInstallScript.sh
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Python-Installer-20.04
-          path: |
-            Ansys-Python-Manager_linux_20_04_${{ env.APPLICATION_VERSION }}.zip
-            linux/manual_build/*.zip
-
-  build-application-linux-22-04:
-    name: "Build Application Linux - 22.04"
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
 
       - uses: actions/setup-python@v5
         with:
@@ -213,7 +131,21 @@ jobs:
           sudo apt install ruby -y
           sudo gem install fpm
 
-      - name: Download python-3.11 artifact and configure
+      - name: Ubuntu-20.04 dependencies
+        if: matrix.os == '20.04'
+        run: |
+          sudo add-apt-repository ppa:okirby/qt6-backports -y
+          sudo apt update
+          sudo apt install qt6-base-dev -y
+
+          wget http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi8_3.4.2-4_amd64.deb
+          sudo apt install ./libffi8_3.4.2-4_amd64.deb
+
+          wget http://archive.ubuntu.com/ubuntu/pool/main/w/wayland/libwayland-client0_1.20.0-1_amd64.deb
+          sudo apt install ./libwayland-client0_1.20.0-1_amd64.deb
+
+
+      - name: Create python-3.11 artifact
         run: |
           mkdir -p cd ${HOME}/.cache
           cd ${HOME}/.cache
@@ -227,9 +159,9 @@ jobs:
           cd ${HOME}/python-3.11.6
           cd ..
           tar -czf python-3.11.6.tar.gz python-3.11.6/
-          mkdir -p ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/22.04
-          mv python-3.11.6.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/22.04
-          ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/22.04
+          mkdir -p ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
+          mv python-3.11.6.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
+          ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
 
       - name: Install Dependencies
         run: pip install -e .[freeze]
@@ -259,12 +191,15 @@ jobs:
           cp linux/debian/postInstallScript.sh postInstallScript.sh
           chmod +x installer.sh postInstallScript.sh ansys_python_manager.deb
           ls -l
-          zip -r Ansys-Python-Manager_linux_22_04_${{ env.APPLICATION_VERSION }}.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
+          os_version_processed=`echo ${{ matrix.os }} | sed 's/\./_/g'`
+          echo "OS_VERSION_PROCESSED=$os_version_processed" >> $GITHUB_ENV
+          zip -r Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${{ env.APPLICATION_VERSION }}.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Python-Installer-22.04
-          path: Ansys-Python-Manager_linux_22_04_${{ env.APPLICATION_VERSION }}.zip
+          name: Python-Installer-${{ matrix.os }}
+          path: |
+            Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${{ env.APPLICATION_VERSION }}.zip
 
   sign-application:
     name: Sign application
@@ -307,7 +242,7 @@ jobs:
   release:
     name: Release application
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    needs: [sign-application,build-application-linux-20-04, build-application-linux-22-04]
+    needs: [sign-application,build-application-linux]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -317,17 +252,12 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: Python-Installer
+          name: Python-Installer-20.04
           path: installer
 
       - uses: actions/download-artifact@v4
         with:
           name: Python-Installer-22.04
-          path: installer
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: Python-Installer-20.04
           path: installer
 
       - name: Display structure of downloaded files
