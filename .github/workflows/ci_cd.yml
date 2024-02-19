@@ -193,7 +193,7 @@ jobs:
           ls -l
           os_version_processed=`echo ${{ matrix.os }} | sed 's/\./_/g'`
           echo "OS_VERSION_PROCESSED=$os_version_processed" >> $GITHUB_ENV
-          zip -r Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${{ env.APPLICATION_VERSION }}.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
+          zip -r Ansys-Python-Manager_linux_${os_version_processed}_${{ env.APPLICATION_VERSION }}.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
 
       - uses: actions/upload-artifact@v4
         with:
