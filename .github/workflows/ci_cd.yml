@@ -17,7 +17,6 @@ env:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-permissions: write-all
 jobs:
 
   doc-style:
@@ -122,10 +121,6 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - name: Cleanup Repo
-        run: |
-          rm -rf src/ansys/tools/installer/assets/python-asset/22.04
-
       - name: Install Linux Dependencies
         run: |
           sudo apt update
@@ -142,6 +137,24 @@ jobs:
 
           wget http://archive.ubuntu.com/ubuntu/pool/main/w/wayland/libwayland-client0_1.20.0-1_amd64.deb
           sudo apt install ./libwayland-client0_1.20.0-1_amd64.deb
+
+      - name: Download python-3.11 artifact and configure
+        run: |
+          mkdir -p cd ${HOME}/.cache
+          cd ${HOME}/.cache
+          wget https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz
+          tar -xf Python-3.11.6.tar.xz
+          cd Python-3.11.6
+          ./configure --prefix=${HOME}/python-3.11.6
+          cd ${HOME}/.cache/Python-3.11.6
+          make;
+          make install;
+          cd ${HOME}/python-3.11.6
+          cd ..
+          tar -czf python-3.11.6.tar.gz python-3.11.6/
+          mkdir -p ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/20.04
+          mv python-3.11.6.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/20.04
+          ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/20.04
 
       - name: Install Dependencies
         run: pip install -e .[freeze]
@@ -192,10 +205,6 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
-      - name: Cleanup Repo
-        run: |
-          rm -rf src/ansys/tools/installer/assets/python-asset/20.02
-
       - name: Install Linux Dependencies
         run: |
           sudo apt update
@@ -203,6 +212,24 @@ jobs:
           sudo aptitude install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-cursor-dev libxcb-util-dev libxcb-xkb-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev -y
           sudo apt install ruby -y
           sudo gem install fpm
+
+      - name: Download python-3.11 artifact and configure
+        run: |
+          mkdir -p cd ${HOME}/.cache
+          cd ${HOME}/.cache
+          wget https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz
+          tar -xf Python-3.11.6.tar.xz
+          cd Python-3.11.6
+          ./configure --prefix=${HOME}/python-3.11.6
+          cd ${HOME}/.cache/Python-3.11.6
+          make;
+          make install;
+          cd ${HOME}/python-3.11.6
+          cd ..
+          tar -czf python-3.11.6.tar.gz python-3.11.6/
+          mkdir -p ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/22.04
+          mv python-3.11.6.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/22.04
+          ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/22.04
 
       - name: Install Dependencies
         run: pip install -e .[freeze]
