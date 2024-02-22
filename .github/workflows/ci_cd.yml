@@ -208,7 +208,7 @@ jobs:
         os: ["quay.io/centos/centos:stream9", "fedora:latest"]
     name: "Build Application Linux - ${{ matrix.os }}"
     runs-on: ubuntu-latest
-    container: 
+    container:
       image: ${{ matrix.os }}
       env:
         DEBIAN_FRONTEND: 'noninteractive'
@@ -262,7 +262,7 @@ jobs:
           cp ./linux/non-debian/installer_CentOS.sh installer_CentOS.sh
           cp ./linux/non-debian/updater_CentOS.sh updater_CentOS.sh
           chmod +x installer_CentOS.sh updater_CentOS.sh ansys_python_manager_CentOS.rpm
-          zip -r ${{ env.GITHUB_WORKSPACE }}/Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${version}.zip ansys_python_manager_CentOS.rpm installer_CentOS.sh updater_CentOS.sh 
+          zip -r ${{ env.GITHUB_WORKSPACE }}/Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${version}.zip ansys_python_manager_CentOS.rpm installer_CentOS.sh updater_CentOS.sh
           ls -l ${{ env.GITHUB_WORKSPACE }}
 
       - name: Setup and Copy Fedora files for packaging
@@ -284,7 +284,7 @@ jobs:
           cp ./linux/non-debian/installer_CentOS.sh installer_Fedora.sh
           cp ./linux/non-debian/updater_CentOS.sh updater_Fedora.sh
           chmod +x installer_Fedora.sh updater_Fedora.sh ansys_python_manager_Fedora.rpm
-          zip -r ${{ env.GITHUB_WORKSPACE }}/Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${version}.zip ansys_python_manager_Fedora.rpm installer_Fedora.sh updater_Fedora.sh 
+          zip -r ${{ env.GITHUB_WORKSPACE }}/Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${version}.zip ansys_python_manager_Fedora.rpm installer_Fedora.sh updater_Fedora.sh
           ls -l ${{ env.GITHUB_WORKSPACE }}
 
       - uses: actions/upload-artifact@v4
@@ -351,12 +351,12 @@ jobs:
         with:
           name: Python-Installer-ubuntu_22.04
           path: installer
-      
+
       - uses: actions/download-artifact@v4
         with:
           name: Python-Installer-centos_stream9
           path: installer
-      
+
       - uses: actions/download-artifact@v4
         with:
           name: Python-Installer-fedora_latest

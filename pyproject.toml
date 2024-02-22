@@ -43,15 +43,15 @@ tests = [
     "PyGithub==2.2.0",
     "appdirs==1.4.4",
     "requests==2.31.0",
-    "PySide6==6.6.1",
+    "PySide6==6.6.2",
     "ansys-tools-path==0.4.1",
-    "pytest==8.0.0",
+    "pytest==8.0.1",
     "pytest-cov==4.1.0",
     "pytest-qt==4.4.0",
 ]
 doc = [
     "Sphinx==7.2.6",
-    "ansys-sphinx-theme==0.13.3",
+    "ansys-sphinx-theme==0.13.4",
     "sphinx-copybutton==0.5.2",
     "sphinx_design==0.5.0",
     "sphinx_toolbox==3.5.0",
@@ -62,7 +62,7 @@ freeze = [
     "PyGithub==2.2.0",
     "appdirs==1.4.4",
     "requests==2.31.0",
-    "PySide6==6.6.1",
+    "PySide6==6.6.2",
     "ansys-tools-path==0.4.1",
 ]
 
