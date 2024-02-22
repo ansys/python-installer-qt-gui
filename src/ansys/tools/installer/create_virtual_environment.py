@@ -29,15 +29,14 @@ import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import (
     ANSYS_FAVICON,
-    ANSYS_VENVS,
     NAME_FOR_VENV,
     PYTHON_VERSION_SELECTION_FOR_VENV,
 )
 from ansys.tools.installer.installed_table import DataTable
 from ansys.tools.installer.linux_functions import (
-    ansys_linux_path,
     create_venv_conda,
     create_venv_linux,
     is_linux_os,
@@ -114,8 +113,9 @@ class CreateVenvTab(QtWidgets.QWidget):
 
     def create_venv(self):
         """Create virtual environment at selected directory."""
-        user_home = ansys_linux_path if is_linux_os() else os.path.expanduser("~")
-        venv_dir = os.path.join(user_home, ANSYS_VENVS, self.venv_name.text())
+        configure_json = ConfigureJson()
+        create_venv_path = configure_json.default_path
+        venv_dir = os.path.join(create_venv_path, self.venv_name.text())
         if self.venv_name.text() == "":
             self.failed_to_create_dialog(case_1=True)
         elif os.path.exists(venv_dir):
@@ -216,3 +216,4 @@ class CreateVenvTab(QtWidgets.QWidget):
                     shell=True,
                     cwd=user_profile,
                 )
+                os.path.jio

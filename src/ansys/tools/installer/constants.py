@@ -163,3 +163,7 @@ PYANSYS_LIBS = {
     "PyAnsys Tools Versioning": "pyansys-tools-versioning",
     "PyAnsys Units": "ansys-units",
 }
+
+VENV_CREATE_PATH = "venv_create_path"
+VENV_SEARCH_PATH = "venv_search_path"
+ADDITIONAL_VENV_PATH = "additional_venv_path"

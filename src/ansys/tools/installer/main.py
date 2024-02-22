@@ -37,6 +37,7 @@ import requests
 from ansys.tools.installer import CACHE_DIR, __version__
 from ansys.tools.installer.auto_updater import query_gh_latest_release
 from ansys.tools.installer.common import protected
+from ansys.tools.installer.configure import Configure
 from ansys.tools.installer.constants import (
     ABOUT_TEXT,
     ANSYS_FAVICON,
@@ -98,6 +99,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         updates_action = QtGui.QAction("Check for updates", self)
         updates_action.triggered.connect(self.check_for_updates)
         file_menu.addAction(updates_action)
+
+        configurations = QtGui.QAction("Configure", self)
+        configurations.setShortcut(QtGui.QKeySequence("Ctrl+D"))
+        configurations.triggered.connect(self.configure_application)
+        file_menu.addAction(configurations)
 
         file_menu.addSeparator()  # -------------------------------------------
 
@@ -356,6 +362,15 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             msgBox.setIconPixmap(pixmap)
             msgBox.exec_()
 
+    @protected
+    def configure_application(self):
+        """Check for Ansys Python Manager application updates."""
+        LOG.debug("Opening configuration..")
+        self.setEnabled(True)
+        Configure(self)
+        self.setEnabled(True)
+        LOG.debug("enable")
+
     def visit_website(self):
         """Access the Ansys Python Manager documentation."""
         url = QtCore.QUrl(
@@ -476,10 +491,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         if not isinstance(text, str):
             text = str(text)
         self._err_message_box = QtWidgets.QMessageBox(
-            QtWidgets.QMessageBox.Critical,
-            "Error",
-            text,
-            QtWidgets.QMessageBox.Ok,
+            QtWidgets.QMessageBox.Critical, "Error", text, QtWidgets.QMessageBox.Ok
         )
         self._err_message_box.show()
 
