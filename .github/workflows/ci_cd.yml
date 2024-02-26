@@ -183,7 +183,9 @@ jobs:
           find package/opt/ansys_python_manager -type d -exec chmod 755 -- {} +
           find package/share -type f -exec chmod 644 -- {} +
           chmod +x package/opt/ansys_python_manager/ansys_python_manager
-          fpm -v 0.1.1 --fpm-options-file linux/debian/fpm-options-debian
+          version=v`cat ./src/ansys/tools/installer/VERSION`
+          echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
+          fpm -v $version --fpm-options-file linux/debian/fpm-options-debian
 
       - name: Create zip file
         run: |
@@ -193,7 +195,7 @@ jobs:
           ls -l
           os_version_processed=`echo ${{ matrix.os }} | sed 's/\./_/g'`
           echo "OS_VERSION_PROCESSED=$os_version_processed" >> $GITHUB_ENV
-          zip -r Ansys-Python-Manager_linux.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
+          zip -r Ansys-Python-Manager_linux_${os_version_processed}_${{ env.APPLICATION_VERSION }}.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
 
       - uses: actions/upload-artifact@v4
         with:
