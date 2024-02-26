@@ -174,16 +174,18 @@ jobs:
           mkdir -p package/opt
           mkdir -p package/share/applications
           mkdir -p package/share/icons
+          mkdir -p package/opt/ansys_python_manager/scripts
           cp -r dist/ansys_python_manager package/opt/ansys_python_manager
           cp src/ansys/tools/installer/assets/pyansys_icon.svg package/share/icons/pyansys_icon.svg
           cp linux/debian/ansys_python_manager_prebuid.desktop package/share/applications
+          cp linux/debian/uninstall_prebuid.sh package/opt/ansys_python_manager/scripts/uninstall_prebuid.sh
           find package/opt/ansys_python_manager -type f -exec chmod 644 -- {} +
           find package/opt/ansys_python_manager -type d -exec chmod 755 -- {} +
           find package/share -type f -exec chmod 644 -- {} +
           chmod +x package/opt/ansys_python_manager/ansys_python_manager
           version=v`cat ./src/ansys/tools/installer/VERSION`
           echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
-          fpm -v $version --fpm-options-file linux/debian/fpm-options-debian
+          fpm -v 0.1.1 --fpm-options-file linux/debian/fpm-options-debian
 
       - name: Create zip file
         run: |

@@ -253,19 +253,25 @@ def get_all_python_venv():
     script_path = "bin" if is_linux_os() else "Scripts"
     configure = ConfigureJson()
     for venv_dir in configure.venv_search_path:
-        for venv_dir_name in os.listdir(venv_dir):
-            if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
+        try:
+            for venv_dir_name in os.listdir(venv_dir):
+                if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
 
-                path = os.path.join(venv_dir, venv_dir_name, script_path)
-                paths[path] = (
-                    venv_dir_name,
-                    False,
-                )  # venvs will always be user-like, hence False
-
-    for venv_path in configure.additional_venv_path:
-        path = os.path.join(venv_path, script_path)
-        paths[path] = (
-            venv_dir_name,
-            False,
-        )
+                    path = os.path.join(venv_dir, venv_dir_name, script_path)
+                    paths[path] = (
+                        venv_dir_name,
+                        False,
+                    )  # venvs will always be user-like, hence False
+        except:
+            pass
+    try:
+        for venv_path in configure.additional_venv_path:
+            path = os.path.join(venv_path, script_path)
+            venv_dir_name = os.path.split(venv_path)[-1]
+            paths[path] = (
+                venv_dir_name,
+                False,
+            )
+    except Exception as e:
+        LOG.debug(f"Error in get_all_python_venv: {e}")
     return paths

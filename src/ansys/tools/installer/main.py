@@ -366,10 +366,9 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     def configure_application(self):
         """Check for Ansys Python Manager application updates."""
         LOG.debug("Opening configuration..")
-        self.setEnabled(True)
+        self.setEnabled(False)
         Configure(self)
         self.setEnabled(True)
-        LOG.debug("enable")
 
     def visit_website(self):
         """Access the Ansys Python Manager documentation."""
