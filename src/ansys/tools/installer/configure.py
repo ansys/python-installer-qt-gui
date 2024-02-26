@@ -28,12 +28,10 @@ from PySide6.QtGui import QStandardItem, QStandardItemModel
 
 from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import (
-    ADDITIONAL_VENV_PATH,
     ANSYS_FAVICON,
     VENV_CREATE_PATH,
     VENV_SEARCH_PATH,
 )
-from ansys.tools.installer.linux_functions import is_linux_os
 
 
 class Configure(QtWidgets.QWidget):
@@ -227,60 +225,6 @@ class Configure(QtWidgets.QWidget):
                 self.configure_window_search_venv_model
             )
 
-    def _add_elments_to_env_path_configure(self):
-        for x in self.configure_json.additional_venv_path:
-            self.configure_window_add_venv_model.appendRow(QStandardItem(x))
-        self.configure_window_add_venv_combo.setModel(
-            self.configure_window_add_venv_model
-        )
-
-    def _remove_env_path(self):
-        i = 0
-        removed = False
-        while self.configure_window_add_venv_model.item(i):
-            if (
-                self.configure_window_add_venv_model.item(i).text()
-                == self.configure_window_add_venv_edit.text()
-            ):
-                self.configure_window_add_venv_model.removeRow(i)
-                self.configure_window_add_venv_combo.setModel(
-                    self.configure_window_add_venv_model
-                )
-                removed = True
-            i += 1
-        if not removed:
-            self._parent.show_error("Path is not available in the list.")
-
-    def _add_env_path(self):
-        activate_path = "bin" if is_linux_os() else "Scripts"
-        if not os.path.exists(self.configure_window_add_venv_edit.text()):
-            self._parent.show_error("Path not found. Create path before configure.")
-        elif not os.path.exists(
-            os.path.join(self.configure_window_add_venv_edit.text(), activate_path)
-        ):
-            self._parent.show_error("Path is not a valid virtual environment.")
-        else:
-            i = 0
-            while self.configure_window_add_venv_model.item(i):
-                if (
-                    self.configure_window_add_venv_model.item(i).text()
-                    == self.configure_window_add_venv_edit.text()
-                ):
-                    self._parent.show_error("Path is already available in the list.")
-                    return
-                i += 1
-            self.configure_window_add_venv_model.appendRow(
-                QStandardItem(self.configure_window_add_venv_edit.text())
-            )
-            self.configure_window_add_venv_combo.setModel(
-                self.configure_window_add_venv_model
-            )
-
-    def _change_text_add_venv(self):
-        self.configure_window_add_venv_edit.setText(
-            self.configure_window_add_venv_combo.currentText()
-        )
-
     def _change_text_search_venv(self):
         self.configure_window_search_venv_edit.setText(
             self.configure_window_search_venv_combo.currentText()
@@ -306,15 +250,6 @@ class Configure(QtWidgets.QWidget):
             )
         self.configure_json.rewrite_config_file(VENV_SEARCH_PATH, venv_search_paths)
         i = 0
-        additional_venv_path = []
-        while self.configure_window_add_venv_model.item(i):
-            additional_venv_path.append(
-                self.configure_window_add_venv_model.item(i).text().strip("\\")
-            )
-            i += 1
-        self.configure_json.rewrite_config_file(
-            ADDITIONAL_VENV_PATH, additional_venv_path
-        )
 
         self.configure_json._write_config_file()
         self._parent.venv_table_tab.update_table()

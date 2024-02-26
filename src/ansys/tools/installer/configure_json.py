@@ -26,7 +26,6 @@ import json
 import os
 
 from ansys.tools.installer.constants import (
-    ADDITIONAL_VENV_PATH,
     ANSYS_VENVS,
     VENV_CREATE_PATH,
     VENV_SEARCH_PATH,
@@ -46,7 +45,6 @@ class ConfigureJson:
             ansys_linux_path if is_linux_os() else os.path.expanduser("~"), ANSYS_VENVS
         )
         self.venv_search_path = [self.default_path]
-        self.additional_venv_path = []
         self._create_config_file_if_not_exist()
         self._read_config_file()
 
@@ -100,6 +98,4 @@ class ConfigureJson:
             Path of the venv
 
         """
-        if path in self.configs["path"][ADDITIONAL_VENV_PATH]:
-            self.configs["path"][ADDITIONAL_VENV_PATH].remove(path)
         self._write_config_file()

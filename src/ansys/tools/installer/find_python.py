@@ -264,14 +264,4 @@ def get_all_python_venv():
                     )  # venvs will always be user-like, hence False
         except:
             pass
-    try:
-        for venv_path in configure.additional_venv_path:
-            path = os.path.join(venv_path, script_path)
-            venv_dir_name = os.path.split(venv_path)[-1]
-            paths[path] = (
-                venv_dir_name,
-                False,
-            )
-    except Exception as e:
-        LOG.debug(f"Error in get_all_python_venv: {e}")
     return paths
