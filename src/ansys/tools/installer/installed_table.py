@@ -496,7 +496,6 @@ class InstalledTab(QtWidgets.QWidget):
             try:
                 # Delete the python virtual environment
                 shutil.rmtree(parent_path)
-                configure_json.delete_venv_path(parent_path)
             except:
                 pass
         elif not is_vanilla_python and action == delete_action:
@@ -511,7 +510,6 @@ class InstalledTab(QtWidgets.QWidget):
                     )
                 if os.path.exists(parent_path):
                     shutil.rmtree(parent_path)
-                configure_json.delete_venv_path(parent_path)
             except:
                 pass
 

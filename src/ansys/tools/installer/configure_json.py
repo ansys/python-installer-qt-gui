@@ -88,14 +88,3 @@ class ConfigureJson:
         with open(self.config_file_path, "w+") as f:
             f.write(json.dumps(self.configs))
         self._read_config_file()
-
-    def delete_venv_path(self, path):
-        """Delete venv from Configuration file.
-
-        Parameters
-        ----------
-        path : str
-            Path of the venv
-
-        """
-        self._write_config_file()
