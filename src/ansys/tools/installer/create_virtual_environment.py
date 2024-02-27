@@ -25,7 +25,6 @@
 import logging
 import os
 from pathlib import Path
-import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
@@ -38,9 +37,13 @@ from ansys.tools.installer.constants import (
 from ansys.tools.installer.installed_table import DataTable
 from ansys.tools.installer.linux_functions import (
     ansys_linux_path,
-    create_venv_conda,
     create_venv_linux,
+    create_venv_linux_conda,
     is_linux_os,
+)
+from ansys.tools.installer.windows_functions import (
+    create_venv_windows,
+    create_venv_windows_conda,
 )
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
@@ -193,26 +196,17 @@ class CreateVenvTab(QtWidgets.QWidget):
         venv_dir : str
             The location for the virtual environment.
         """
+        # Get the selected Python environment
         py_path = self.table.active_path
-        user_profile = os.path.expanduser("~")
+
         LOG.debug(f"Requesting creation of {venv_dir}")
         if "Python" in self.table.active_version:
             if is_linux_os():
                 create_venv_linux(venv_dir, py_path)
             else:
-                scripts_path = os.path.join(py_path, "Scripts")
-                new_path = f"{py_path};{scripts_path};%PATH%"
-                subprocess.call(
-                    f'start /w /min cmd /K "set PATH={new_path} && python -m venv {venv_dir} && exit"',
-                    shell=True,
-                    cwd=user_profile,
-                )
+                create_venv_windows(venv_dir, py_path)
         else:
             if is_linux_os():
-                create_venv_conda(venv_dir, py_path)
+                create_venv_linux_conda(venv_dir, py_path)
             else:
-                subprocess.call(
-                    f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} python -y && exit"',
-                    shell=True,
-                    cwd=user_profile,
-                )
+                create_venv_windows_conda(venv_dir, py_path)
