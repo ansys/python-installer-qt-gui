@@ -1,0 +1,14 @@
+-d "libffi-dev"
+-d "libssl-dev"
+-d "build-essential"
+-d "libsqlite3-dev"
+-d "libxcb-xinerama0"
+-C package
+-s dir
+-t deb
+-n "ansys_python_manager"
+-p ansys_python_manager.deb
+-n "ansys_python_manager"
+--description "Ansys application to manage Python on the workstation."
+--url "https://installer.docs.pyansys.com/version/dev/installer.html"
+--maintainer "ANSYS, Inc. <pyansys.core@ansys.com>"

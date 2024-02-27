@@ -29,6 +29,7 @@ import sys
 from threading import Thread
 import traceback
 
+import certifi
 from pkg_resources import parse_version
 import requests
 
@@ -108,7 +109,9 @@ def get_pkg_versions(pkg_name):
     url = f"https://pypi.python.org/pypi/{pkg_name}/json"
 
     try:
-        releases = json.loads(requests.get(url).content)["releases"]
+        releases = json.loads(requests.get(url, verify=certifi.where()).content)[
+            "releases"
+        ]
         all_versions = sorted(releases, key=parse_version, reverse=True)
         if pkg_name == "pyansys":
             all_versions = [x for x in all_versions if int(x.split(".")[0]) > 0]

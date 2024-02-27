@@ -49,6 +49,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx_copybutton",
+    "sphinx_design",
+    "sphinx_toolbox.collapse",
 ]
 
 # Intersphinx mapping

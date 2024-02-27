@@ -20,16 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Installer module for Ansys Python Manager."""
+from ansys.tools.installer.linux_functions import (
+    get_conda_url_and_filename,
+    get_vanilla_url_and_filename,
+)
 
-from ansys.tools.installer.linux_functions import install_python_linux, is_linux_os
-from ansys.tools.installer.windows_functions import install_python_windows
+
+def test_get_vanilla_url_and_filename():
+    url, filename = get_vanilla_url_and_filename("3.8.11")
+    assert url == "https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz"
+    assert filename == "Python-3.8.11.tar.xz"
 
 
-def install_python(filename, wait=True):
-    """Install "vanilla" python for a single user."""
-    if is_linux_os():
-        install_python_linux(filename)
-        return "Success", None
-    else:
-        return install_python_windows(filename, wait)
+def test_get_conda_url_and_filename():
+    url, filename = get_conda_url_and_filename("23.1.0-4")
+    assert (
+        url
+        == "https://github.com/conda-forge/miniforge/releases/download/23.1.0-4/Miniforge3-23.1.0-4-Linux-x86_64.sh"
+    )
+    assert filename == "Miniforge3-23.1.0-4-Linux-x86_64.sh"

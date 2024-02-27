@@ -25,7 +25,6 @@
 import logging
 import os
 from pathlib import Path
-import subprocess
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
@@ -36,6 +35,16 @@ from ansys.tools.installer.constants import (
     PYTHON_VERSION_SELECTION_FOR_VENV,
 )
 from ansys.tools.installer.installed_table import DataTable
+from ansys.tools.installer.linux_functions import (
+    ansys_linux_path,
+    create_venv_linux,
+    create_venv_linux_conda,
+    is_linux_os,
+)
+from ansys.tools.installer.windows_functions import (
+    create_venv_windows,
+    create_venv_windows_conda,
+)
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
 
@@ -108,9 +117,8 @@ class CreateVenvTab(QtWidgets.QWidget):
 
     def create_venv(self):
         """Create virtual environment at selected directory."""
-        user_home = os.path.expanduser("~")
+        user_home = ansys_linux_path if is_linux_os() else os.path.expanduser("~")
         venv_dir = os.path.join(user_home, ANSYS_VENVS, self.venv_name.text())
-
         if self.venv_name.text() == "":
             self.failed_to_create_dialog(case_1=True)
         elif os.path.exists(venv_dir):
@@ -188,20 +196,17 @@ class CreateVenvTab(QtWidgets.QWidget):
         venv_dir : str
             The location for the virtual environment.
         """
+        # Get the selected Python environment
         py_path = self.table.active_path
-        user_profile = os.path.expanduser("~")
+
         LOG.debug(f"Requesting creation of {venv_dir}")
         if "Python" in self.table.active_version:
-            scripts_path = os.path.join(py_path, "Scripts")
-            new_path = f"{py_path};{scripts_path};%PATH%"
-            subprocess.call(
-                f'start /w /min cmd /K "set PATH={new_path} && python -m venv {venv_dir} && exit"',
-                shell=True,
-                cwd=user_profile,
-            )
-        else:  #  conda
-            subprocess.call(
-                f'start /w /min cmd /K "{py_path}\\Scripts\\activate.bat && conda create --prefix {venv_dir} python -y && exit"',
-                shell=True,
-                cwd=user_profile,
-            )
+            if is_linux_os():
+                create_venv_linux(venv_dir, py_path)
+            else:
+                create_venv_windows(venv_dir, py_path)
+        else:
+            if is_linux_os():
+                create_venv_linux_conda(venv_dir, py_path)
+            else:
+                create_venv_windows_conda(venv_dir, py_path)

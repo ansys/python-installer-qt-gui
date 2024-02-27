@@ -30,6 +30,7 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
+import certifi
 from packaging import version
 import requests
 
@@ -47,9 +48,18 @@ from ansys.tools.installer.constants import (
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
-from ansys.tools.installer.installer import install_python, run_ps
+from ansys.tools.installer.installer import install_python
+from ansys.tools.installer.linux_functions import (
+    check_python_asset_linux,
+    get_conda_url_and_filename,
+    get_vanilla_url_and_filename,
+    is_linux_os,
+    query_gh_latest_release_linux,
+    update_app,
+)
 from ansys.tools.installer.misc import ImageWidget, PyAnsysDocsBox, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
+from ansys.tools.installer.windows_functions import run_ps
 
 
 class AnsysPythonInstaller(QtWidgets.QMainWindow):
@@ -253,7 +263,10 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     @protected
     def _exe_update(self, filename):
         """After downloading the update for this application, run the file and shutdown this application."""
-        run_ps(f"(Start-Process '{filename}')")
+        if is_linux_os():
+            update_app(filename)
+        else:
+            run_ps(f"(Start-Process '{filename}')")
 
         # exiting
         LOG.debug("Closing...")
@@ -271,7 +284,10 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         """Check for Ansys Python Manager application updates."""
         LOG.debug("Checking for updates")
         try:
-            (ver, url) = query_gh_latest_release()
+            if is_linux_os():
+                (ver, url) = query_gh_latest_release_linux()
+            else:
+                (ver, url) = query_gh_latest_release()
         except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
             LOG.info("Problem requesting version... ")
             ver = None
@@ -314,11 +330,20 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             )
 
             if reply == QtWidgets.QMessageBox.Yes:
-                self._download(
-                    url,
-                    f"Ansys-Python-Manager-Setup-v{ver}.exe",
-                    when_finished=self._exe_update,
-                )
+                if is_linux_os():
+                    file = f"Ansys-Python-Manager-Setup-v{ver}.zip"
+                    self._download(
+                        url,
+                        file,
+                        when_finished=self._exe_update,
+                    )
+                else:
+                    file = f"Ansys-Python-Manager-Setup-v{ver}.exe"
+                    self._download(
+                        url,
+                        file,
+                        when_finished=self._exe_update,
+                    )
         else:
             LOG.debug("Up to date.")
             msgBox = QtWidgets.QMessageBox(
@@ -487,14 +512,33 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                 selected_version = (
                     self.python_version_select.currentData()
                 )  # should be major, minor, patch
-                url = f"https://www.python.org/ftp/python/{selected_version}/python-{selected_version}-amd64.exe"
-                filename = f"python-{selected_version}-amd64.exe"
+                # OS based file download
+                if is_linux_os():
+                    try:
+                        return_text = check_python_asset_linux(selected_version)
+                        if return_text:
+                            LOG.debug("Triggering table widget update")
+                            self.installed_table_tab.update_table()
+                            self.venv_table_tab.update_table()
+                            self.setEnabled(True)
+                            return 0
+                    except Exception as e:
+                        LOG.debug(f"download_and_install {e}")
+                    url, filename = get_vanilla_url_and_filename(selected_version)
+                else:
+                    url = f"https://www.python.org/ftp/python/{selected_version}/python-{selected_version}-amd64.exe"
+                    filename = f"python-{selected_version}-amd64.exe"
                 LOG.info("Installing vanilla Python %s", selected_version)
             else:
-                url = "https://github.com/conda-forge/miniforge/releases/download/23.1.0-4/Miniforge3-23.1.0-4-Windows-x86_64.exe"
-                filename = "Miniforge3-23.1.0-4-Windows-x86_64.exe"
+                conda_version = "23.1.0-4"
+                # OS based file download
+                if is_linux_os():
+                    LOG.info("Linux")
+                    url, filename = get_conda_url_and_filename(conda_version)
+                else:
+                    url = f"https://github.com/conda-forge/miniforge/releases/download/{conda_version}/Miniforge3-{conda_version}-Windows-x86_64.exe"
+                    filename = f"Miniforge3-{conda_version}-Windows-x86_64.exe"
                 LOG.info("Installing miniconda from %s", url)
-
             try:
                 self._download(url, filename, when_finished=self._run_install_python)
             except Exception as err:
@@ -544,7 +588,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         # initiate the download
         session = requests.Session()
         response = session.get(
-            url, allow_redirects=True, stream=True, headers=request_headers
+            url,
+            allow_redirects=True,
+            stream=True,
+            headers=request_headers,
+            verify=certifi.where(),
         )
         tsize = int(response.headers.get("Content-Length", 0))
 
@@ -644,12 +692,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         out, error_code = install_python(filename)
 
         if error_code:
-            LOG.error(f"Error while installing Python: {out.decode('utf-8')}")
+            LOG.error(f"Error while installing Python: {out}")
             msg = QtWidgets.QMessageBox()
             msg.warning(
                 self,
                 "Error while installing Python!",
-                f"Error message:\n\n {out.decode('utf-8')}",
+                f"Error message:\n\n {out}",
             )
 
         LOG.debug("Triggering table widget update")
