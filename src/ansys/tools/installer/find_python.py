@@ -260,9 +260,7 @@ def get_all_python_venv():
 
     for venv_dir_name in os.listdir(venv_dir):
         if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
-
             script_path = "bin" if is_linux_os() else "Scripts"
-
             path = os.path.join(venv_dir, venv_dir_name, script_path)
             paths[path] = (
                 venv_dir_name,

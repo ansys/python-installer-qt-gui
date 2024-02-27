@@ -27,7 +27,7 @@ import subprocess
 
 
 def create_venv_windows(venv_dir: str, py_path: str):
-    """
+    r"""
     Create a virtual environment on Windows.
 
     Parameters
@@ -53,7 +53,7 @@ def create_venv_windows(venv_dir: str, py_path: str):
 
 
 def create_venv_windows_conda(venv_dir: str, py_path: str):
-    """
+    r"""
     Create a virtual environment on Windows using conda.
 
     Parameters
