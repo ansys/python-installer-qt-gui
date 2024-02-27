@@ -22,8 +22,11 @@
 
 """Windows functions."""
 
+import logging
 import os
 import subprocess
+
+LOG = logging.getLogger(__name__)
 
 
 def create_venv_windows(venv_dir: str, py_path: str):
@@ -74,3 +77,54 @@ def create_venv_windows_conda(venv_dir: str, py_path: str):
         shell=True,
         cwd=user_profile,
     )
+
+
+def run_ps(command, full_path_to_ps=False):
+    """Run a powershell command as admin."""
+    ps = (
+        r"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+        if full_path_to_ps
+        else "powershell.exe"
+    )
+    ps_command = [ps, command]
+
+    LOG.debug("Running: %s", str(ps_command))
+    proc = subprocess.run(
+        ps_command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        shell=True,
+    )
+
+    # stderr goes through stdout too
+    if proc.returncode:  # If return code != 0
+        LOG.error("From powershell: %s", proc.stdout)
+        if full_path_to_ps == False:
+            return run_ps(command, full_path_to_ps=True)
+
+    else:
+        LOG.debug("From powershell: %s", proc.stdout)
+
+    return proc.stdout.decode(), proc.returncode
+
+
+def install_python_windows(filename: str, wait: bool) -> tuple[str, int]:
+    """Install "vanilla" python for a single user.
+
+    Parameters
+    ----------
+    filename : str
+        Path to the Python installer.
+    wait : bool
+        Wait for the installation to complete.
+
+    Returns
+    -------
+    str
+        Output from the installation.
+    int
+        Return code from the installation.
+    """
+    wait_str = " -Wait" if wait else ""
+    command = f"(Start-Process '{filename}' -ArgumentList '/passive InstallAllUsers=0' {wait_str})"
+    return run_ps(command)

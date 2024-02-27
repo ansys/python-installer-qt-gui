@@ -691,12 +691,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         out, error_code = install_python(filename)
 
         if error_code:
-            LOG.error(f"Error while installing Python: {out.decode('utf-8')}")
+            LOG.error(f"Error while installing Python: {out}")
             msg = QtWidgets.QMessageBox()
             msg.warning(
                 self,
                 "Error while installing Python!",
-                f"Error message:\n\n {out.decode('utf-8')}",
+                f"Error message:\n\n {out}",
             )
 
         LOG.debug("Triggering table widget update")
