@@ -1,0 +1,9 @@
+-C package_Fedora
+-s dir
+-t rpm
+-n "ansys_python_manager"
+-p ansys_python_manager_Fedora.rpm
+-n "ansys_python_manager"
+--description "Ansys application to manage Python on the workstation."
+--url "https://installer.docs.pyansys.com/version/dev/installer.html"
+--maintainer "ANSYS, Inc. <pyansys.core@ansys.com>"
