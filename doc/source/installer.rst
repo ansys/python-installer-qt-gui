@@ -30,26 +30,26 @@ Installing the ``Ansys Python Manager``
 
         #. Update apt repository & Install **libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** previlages
 
-            .. code:: shell
+           .. code:: shell
 
-              sudo apt-get update -y
-              sudo apt-get install libffi-dev -y
-              sudo apt-get install libssl-dev -y
-              sudo apt-get install libsqlite3-dev -y
-              sudo apt-get install libxcb-xinerama0 -y
-              sudo apt-get install build-essential -y
+             sudo apt-get update -y
+             sudo apt-get install libffi-dev -y
+             sudo apt-get install libssl-dev -y
+             sudo apt-get install libsqlite3-dev -y
+             sudo apt-get install libxcb-xinerama0 -y
+             sudo apt-get install build-essential -y
 
         #. Install **zlib** package
 
-            .. code:: shell
+           .. code:: shell
 
-              wget https://zlib.net/current/zlib.tar.gz;
-              tar xvzf zlib.tar.gz;
-              cd zlib-*
-              make clean;
-              ./configure;
-              make;
-              sudo make install;
+             wget https://zlib.net/current/zlib.tar.gz;
+             tar xvzf zlib.tar.gz;
+             cd zlib-*
+             make clean;
+             ./configure;
+             make;
+             sudo make install;
 
         To install the ``Ansys Python Manager``, follow below steps.
 
@@ -57,10 +57,10 @@ Installing the ``Ansys Python Manager``
 
         #. Execute the below bommand on the terminal
 
-            .. code:: shell
+           .. code:: shell
 
-              unzip Ansys-Python-Manager_*.zip
-              ./installer.sh
+             unzip Ansys-Python-Manager_*.zip
+             ./installer.sh
 
         #. Search for the ``Ansys Python Manager`` and run it.
 
@@ -74,24 +74,24 @@ Installing the ``Ansys Python Manager``
 
         #. Update yum repository & Install **Development Tools, libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel** packages with **sudo** previlages
 
-            .. code:: shell
+           .. code:: shell
 
-              sudo yum update -y;
-              sudo yum groupinstall 'Development Tools' -y;
-              sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+             sudo yum update -y;
+             sudo yum groupinstall 'Development Tools' -y;
+             sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
 
         #. Install **zlib** package using **wget**
 
-            .. code:: shell
+           .. code:: shell
 
-              sudo yum install wget -y
-              wget https://zlib.net/current/zlib.tar.gz;
-              tar xvzf zlib.tar.gz;
-              cd zlib-*
-              make clean;
-              ./configure;
-              make;
-              sudo make install;
+             sudo yum install wget -y
+             wget https://zlib.net/current/zlib.tar.gz;
+             tar xvzf zlib.tar.gz;
+             cd zlib-*
+             make clean;
+             ./configure;
+             make;
+             sudo make install;
 
         To install the ``Ansys Python Manager``, follow below steps.
 
@@ -99,10 +99,10 @@ Installing the ``Ansys Python Manager``
 
         #. Execute the below bommand on the terminal
 
-            .. code:: shell
+           .. code:: shell
 
-              unzip Ansys-Python-Manager_linux_centos_*.zip
-              ./installer_CentOS.sh
+             unzip Ansys-Python-Manager_linux_centos_*.zip
+             ./installer_CentOS.sh
 
         #. Search for the ``Ansys Python Manager`` and run it.
 
@@ -116,24 +116,24 @@ Installing the ``Ansys Python Manager``
 
         #. Update yum repository & Install **Development Tools, libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel** packages with **sudo** previlages
 
-            .. code:: shell
+           .. code:: shell
 
-              sudo yum update -y;
-              sudo yum groupinstall 'Development Tools' -y;
-              sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+             sudo yum update -y;
+             sudo yum groupinstall 'Development Tools' -y;
+             sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
 
         #. Install **zlib** package using **wget**
 
-            .. code:: shell
+           .. code:: shell
 
-              sudo yum install wget -y
-              wget https://zlib.net/current/zlib.tar.gz;
-              tar xvzf zlib.tar.gz;
-              cd zlib-*
-              make clean;
-              ./configure;
-              make;
-              sudo make install;
+             sudo yum install wget -y
+             wget https://zlib.net/current/zlib.tar.gz;
+             tar xvzf zlib.tar.gz;
+             cd zlib-*
+             make clean;
+             ./configure;
+             make;
+             sudo make install;
 
         To install the ``Ansys Python Manager``, follow below steps.
 
@@ -141,10 +141,10 @@ Installing the ``Ansys Python Manager``
 
         #. Execute the below bommand on the terminal
 
-            .. code:: shell
+           .. code:: shell
 
-              unzip Ansys-Python-Manager_linux_fedora_*.zip
-              ./installer_Fedora.sh
+             unzip Ansys-Python-Manager_linux_fedora_*.zip
+             ./installer_Fedora.sh
 
         #. Search for the ``Ansys Python Manager`` and run it.
 
