@@ -17,6 +17,7 @@ dependencies = [
     "requests",
     "PySide6",
     "ansys-tools-path",
+    "setuptools; python_version >= '3.12'",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -43,6 +44,7 @@ tests = [
     "pytest==8.0.2",
     "pytest-cov==4.1.0",
     "pytest-qt==4.4.0",
+    "setuptools==69.1.1",
 ]
 doc = [
     "Sphinx==7.2.6",
