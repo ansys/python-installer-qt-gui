@@ -48,7 +48,7 @@ from ansys.tools.installer.constants import (
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
-from ansys.tools.installer.installer import install_python, run_ps
+from ansys.tools.installer.installer import install_python
 from ansys.tools.installer.linux_functions import (
     check_python_asset_linux,
     get_conda_url_and_filename,
@@ -59,6 +59,7 @@ from ansys.tools.installer.linux_functions import (
 )
 from ansys.tools.installer.misc import ImageWidget, PyAnsysDocsBox, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
+from ansys.tools.installer.windows_functions import run_ps
 
 
 class AnsysPythonInstaller(QtWidgets.QMainWindow):
