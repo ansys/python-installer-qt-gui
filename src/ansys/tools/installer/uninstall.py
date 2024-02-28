@@ -155,7 +155,7 @@ class Uninstall(QtWidgets.QWidget):
         if self.uninstall_window_cache_remove_configs_checkbox.isChecked():
             self._remove_configs()
 
-        scirpt_path = os.path.join(ASSETS_PATH, "scripts", "uninstaller_ubuntu.sh")
+        scirpt_path = os.path.join(ASSETS_PATH, "uninstaller_ubuntu.sh")
         if get_os_version().startswith("2"):
             execute_linux_command(f"{scirpt_path}")
 
