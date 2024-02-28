@@ -65,9 +65,9 @@ PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for y
 
 Please select the Python version from the table below to create its respective virtual environment."""
 
-NAME_FOR_VENV = f"""Provide the name for your virtual environment.<br><br>Virtual environments are created under user directory by default <i>{ANSYS_VENVS}</i> to configure virtual environment create path check configurations section(Ctrl + D). If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation."""
+NAME_FOR_VENV = f"""Provide the name for your virtual environment.<br><br>Virtual environments are created under user directory/<i>{ANSYS_VENVS}</i> by default. To configure create path, Go to configurations(Ctrl + D) and provide your preferred path under Virtual Environment Create path text box. If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation."""
 
-SELECT_VENV_MANAGE_TAB = f"""Choose a virtual environment to manage.It is recommended to use virtual environments for package management and launching options. Virtual environment which is available under user directory <i>{ANSYS_VENVS}</i> listed by default. To add other directory to list virtual environments, configure the path in configurations(Ctrl + D)."""
+SELECT_VENV_MANAGE_TAB = f"""Choose a virtual environment to manage.It is recommended to use virtual environments for package management and launching options. Environments which is available under user directory/<i>{ANSYS_VENVS}</i> dir listed by default. To add additional dirs, Go to configurations(Ctrl + D) and add dir path in Virtual Environment Search directory text box."""
 
 if getattr(sys, "frozen", False):
     # If the application is run as a bundle, the PyInstaller bootloader

@@ -54,25 +54,11 @@ class Configure(QtWidgets.QWidget):
 
             # Group 1: Configure Virtual Environment Create path
             configure_window_create_venv = QtWidgets.QGroupBox(
-                "Configure Virtual Environment Create path:"
+                "Virtual Environment Create path:"
             )
             configure_window_create_venv_layout = QtWidgets.QVBoxLayout()
             configure_window_create_venv_layout.setContentsMargins(10, 20, 10, 20)
             configure_window_create_venv.setLayout(configure_window_create_venv_layout)
-
-            # ---> Add label
-            configure_window_create_venv_text = QtWidgets.QLabel()
-            configure_window_create_venv_text.setText("PATH")
-            configure_window_create_venv_text.setTextFormat(
-                QtCore.Qt.TextFormat.RichText
-            )
-            configure_window_create_venv_text.setAlignment(
-                QtCore.Qt.AlignmentFlag.AlignJustify
-            )
-            configure_window_create_venv_text.setWordWrap(True)
-            configure_window_create_venv_layout.addWidget(
-                configure_window_create_venv_text
-            )
 
             # ---> Add box
             self.configure_window_create_venv_edit = QtWidgets.QLineEdit()
@@ -88,7 +74,7 @@ class Configure(QtWidgets.QWidget):
 
             # Group 2: Configure Virtual Environment Search path:
             configure_window_search_venv = QtWidgets.QGroupBox(
-                "Configure Virtual Environment Search directory:"
+                "Virtual Environment Search directory:"
             )
             configure_window_search_venv_layout = QtWidgets.QVBoxLayout()
             configure_window_search_venv_layout.setContentsMargins(10, 20, 10, 20)

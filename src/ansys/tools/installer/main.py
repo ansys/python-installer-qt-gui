@@ -112,7 +112,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         if is_linux_os():
             uninstall_app = QtGui.QAction("Uninstall", self)
             uninstall_app.triggered.connect(self.uninstall_application)
-            uninstall_app.setShortcut(QtGui.QKeySequence("Ctrl+U"))
             file_menu.addAction(uninstall_app)
 
         # Create an "Exit" action

@@ -65,7 +65,7 @@ class Uninstall(QtWidgets.QWidget):
 
             uninstall_window_cache_remove_venv_text = QtWidgets.QLabel()
             uninstall_window_cache_remove_venv_text.setText(
-                "Delete virtual environment?"
+                "Delete virtual environment "
             )
             uninstall_window_cache_remove_venv_text.setTextFormat(
                 QtCore.Qt.TextFormat.RichText
@@ -87,7 +87,7 @@ class Uninstall(QtWidgets.QWidget):
             uninstall_window_cache_remove_configs_layout = QtWidgets.QHBoxLayout()
 
             uninstall_window_cache_remove_configs_text = QtWidgets.QLabel()
-            uninstall_window_cache_remove_configs_text.setText("Delete configurations?")
+            uninstall_window_cache_remove_configs_text.setText("Delete configurations ")
             uninstall_window_cache_remove_configs_text.setTextFormat(
                 QtCore.Qt.TextFormat.RichText
             )

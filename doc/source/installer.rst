@@ -65,6 +65,21 @@ Installing the ``Ansys Python Manager``
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
+        To uninstall the ``Ansys Python Manager``, follow below steps.
+
+        #. Go to File menu. Click Uninstall option.
+
+        #. In the pop up window,
+
+            If you want to remove all the virtual environments as part of
+            uninstallation, mark ``Delete virtual environment`` checkbox
+
+            If you want to remove all the configurations as part of
+            uninstallation, mark ``Delete configurations`` checkbox
+
+        #. Click ``Uninstall`` button.
+
+
       .. tab-item:: CentOS9, RHEL9
 
         Prerequisites:
@@ -224,6 +239,23 @@ Regarding the available Python versions, users can select among the following on
 
   In the case of having selected ``Conda (miniforge)``, only Python 3.10 is available.
 
+Create Python virtual environment
+=================================
+
+#. Search for the ``Ansys Python Manager`` and run it.
+
+#. Access the ``Create Python Environments`` tab.
+
+#. Select your desired ``Python version`` from the listed options.
+
+#. Provide the name of the virtual environment in the ``Enter virtual environment name`` text box.
+
+#. Finally, Click ``Create`` button to create.
+
+By default, Ansys Python Manager create virtual environment under {user directory}/.ansys_python_venvs.
+To configure create path, Go to configurations section(Ctrl + D) and provide your
+preferred path under Virtual Environment Create path text box and click Save button.
+
 
 Managing Python environments
 ============================
@@ -237,6 +269,9 @@ installations. Have a look at how to access it here:
 
 #. Select your desired ``Python`` environment and start one of the listed options.
 
+By default, Ansys Python Manager list python environments available {user directory}/.ansys_python_venvs directory.
+To add additional directories, Go to configurations section(Ctrl + D) and add directory path one by one in the Virtual Environment Search directory text box and click Add button.
+Finally, click Save button to save the configurations.
 
 On the ``Launching options`` section, the following options are available:
 
