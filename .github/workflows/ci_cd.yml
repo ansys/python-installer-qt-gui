@@ -126,9 +126,9 @@ jobs:
 
       - name: Install Linux Dependencies
         run: |
-          ls package/opt/ansys_python_manager/_internal/assets/scripts/*
-          chmod +x package/opt/ansys_python_manager/_internal/assets/scripts/*
-          ls package/opt/ansys_python_manager/_internal/assets/scripts/*
+          ls src/ansys/tools/installer/assets/scripts/*
+          chmod +x src/ansys/tools/installer/assets/scripts/*.sh
+          ls src/ansys/tools/installer/assets/scripts/*
       #     sudo apt update
       #     sudo apt install aptitude -y;
       #     sudo aptitude install libfontconfig1-dev \
@@ -212,7 +212,7 @@ jobs:
       #     find package/opt/ansys_python_manager -type d -exec chmod 755 -- {} +
       #     find package/share -type f -exec chmod 644 -- {} +
       #     chmod +x package/opt/ansys_python_manager/ansys_python_manager
-      #     chmod +x package/opt/ansys_python_manager/_internal/assets/scripts/*
+      #     chmod +x package/opt/ansys_python_manager/_internal/assets/*.sh
       #     version=v`cat ./src/ansys/tools/installer/VERSION`
       #     echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
       #     fpm -v $version --fpm-options-file linux/debian/fpm-options-debian
