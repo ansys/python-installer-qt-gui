@@ -37,8 +37,11 @@ added_files = [
 # Missing metadata
 added_files += copy_metadata('ansys-tools-path')
 
-if is_linux():
+if is_linux() and os.getenv("ADD_PYTHON_BINARIES","true") == "true":
     added_files +=[(os.path.join(ASSETS_PATH, 'python-asset'), 'assets')]
+
+if is_linux():
+    added_files +=[(os.path.join(ASSETS_PATH, 'scripts'), 'assets')]
 
 a = Analysis([main_py],
              pathex=[],

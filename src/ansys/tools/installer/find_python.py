@@ -255,7 +255,14 @@ def get_all_python_venv():
     for venv_dir in configure.venv_search_path:
         try:
             for venv_dir_name in os.listdir(venv_dir):
-                if os.path.isdir(os.path.join(venv_dir, venv_dir_name)):
+                if os.path.isfile(
+                    os.path.join(venv_dir, venv_dir_name, script_path, "activate")
+                ) or (
+                    not os.path.isdir(os.path.join(venv_dir, venv_dir_name, "condabin"))
+                    and os.path.isdir(
+                        os.path.join(venv_dir, venv_dir_name, "conda-meta")
+                    )
+                ):
 
                     path = os.path.join(venv_dir, venv_dir_name, script_path)
                     paths[path] = (

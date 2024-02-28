@@ -201,13 +201,13 @@ def create_venv_linux(venv_dir, py_path):
     execute_linux_command(f"{py_path} -m venv {venv_dir}")
 
 
-def create_venv_conda(venv_dir, py_path):
+def create_venv_linux_conda(venv_dir, py_path):
     """
     Create virtual environment for Miniforge.
 
     Examples
     --------
-    >>> create_venv_conda(
+    >>> create_venv_linux_conda(
     ...     "/home/sha/.local/ansys/.ansys_python_venvs/myenv/bin",
     ...     "/home/sha/.local/ansys/python-3.8.10/bin/python3",
     ... )

@@ -390,7 +390,7 @@ class InstalledTab(QtWidgets.QWidget):
         )
         cmd = f"pip install {pck_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {pck_ver} --force-reinstall"
         self._update_pck_mnger()
-        self.launch_cmd(cmd, use_pip=True)
+        self.launch_cmd(cmd, always_use_pip=True)
 
     def update_package_combo(self, index):
         """Update the dropdown of available versions based on the package chosen."""
@@ -516,7 +516,12 @@ class InstalledTab(QtWidgets.QWidget):
         # Finally, update the venv table
         self.venv_table.update()
 
-    def launch_cmd(self, extra="", minimized_window=False, use_pip=False):
+    def launch_cmd(
+        self,
+        extra: str = "",
+        minimized_window: bool = False,
+        always_use_pip: bool = False,
+    ):
         """Run a command in a new command prompt.
 
         Parameters
@@ -525,6 +530,8 @@ class InstalledTab(QtWidgets.QWidget):
             Any additional command(s).
         minimized_window : bool, default: False
             Whether the window should run minimized or not.
+        always_use_pip : bool, default: False
+            Whether to always use pip for the command or not.
         """
         min_win = "/w /min" if minimized_window else ""
 
@@ -579,7 +586,7 @@ class InstalledTab(QtWidgets.QWidget):
             # Launch with active conda virtual environment
             if extra:
                 # Replace the pip install command for conda
-                if not use_pip:
+                if not always_use_pip:
                     extra = extra.replace("pip", "conda")
                     extra = extra.replace("conda install", "conda install --yes")
                 cmd = f"&& {extra}"
@@ -596,7 +603,7 @@ class InstalledTab(QtWidgets.QWidget):
             # not is_vanilla_python and not is_venv
             if extra:
                 # Replace the pip install command for conda
-                if not use_pip:
+                if not always_use_pip:
                     extra = extra.replace("pip", "conda")
                     extra = extra.replace("conda install", "conda install --yes")
                 cmd = f"&& {extra}"

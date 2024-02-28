@@ -38,9 +38,12 @@ class ConfigureJson:
 
     def __init__(self):
         """Instantiate Configuration class."""
-        self.config_file_path = os.path.join(
-            os.path.expanduser("~"), ".ansys", "ansys_python_manager", "config.json"
+        self.config_dir = os.path.join(
+            os.path.expanduser("~"), ".ansys", "ansys_python_manager"
         )
+        self.config_file_path = os.path.join(self.config_dir, "config.json")
+
+        self.history_file_path = os.path.join(self.config_dir, "history.json")
         self.default_path = os.path.join(
             ansys_linux_path if is_linux_os() else os.path.expanduser("~"), ANSYS_VENVS
         )
@@ -60,7 +63,18 @@ class ConfigureJson:
                     VENV_SEARCH_PATH: [self.default_path],
                 }
             }
+            self._create_history_file_if_not_exist()
             self._write_config_file()
+
+    def _create_history_file_if_not_exist(self):
+        """Create Configuration file if not exist."""
+        if not os.path.exists(self.history_file_path) or (
+            not os.path.getsize(self.history_file_path)
+        ):
+            os.makedirs(os.path.dirname(self.history_file_path), exist_ok=True)
+            self.history = {"path": [self.default_path]}
+        else:
+            self._read_history_file()
 
     def _read_config_file(self):
         """Read Configuration file."""
@@ -70,7 +84,19 @@ class ConfigureJson:
             self.venv_search_path = paths["path"][VENV_SEARCH_PATH]
             self.configs = paths
 
-    def rewrite_config_file(self, key, value):
+        self._read_history_file()
+
+    def _read_history_file(self):
+        """Read Configuration file."""
+        try:
+            with open(self.history_file_path) as f:
+                paths = json.load(f)
+                self.history = paths
+        except:
+            self.history = {"path": [self.default_path]}
+            self._write_history_file()
+
+    def rewrite_config(self, key, value):
         """Rewrite Configuration file.
 
         Parameters
@@ -82,9 +108,17 @@ class ConfigureJson:
             value to save the configuration
 
         """
+        print(self.history)
+        if key == VENV_CREATE_PATH and value not in self.history["path"]:
+            self.history["path"].append(value)
         self.configs["path"][key] = value
 
     def _write_config_file(self):
         with open(self.config_file_path, "w+") as f:
             f.write(json.dumps(self.configs))
+        self._write_history_file()
         self._read_config_file()
+
+    def _write_history_file(self):
+        with open(self.history_file_path, "w+") as f:
+            f.write(json.dumps(self.history))

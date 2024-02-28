@@ -49,7 +49,7 @@ from ansys.tools.installer.constants import (
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
-from ansys.tools.installer.installer import install_python, run_ps
+from ansys.tools.installer.installer import install_python
 from ansys.tools.installer.linux_functions import (
     check_python_asset_linux,
     get_conda_url_and_filename,
@@ -60,6 +60,8 @@ from ansys.tools.installer.linux_functions import (
 )
 from ansys.tools.installer.misc import ImageWidget, PyAnsysDocsBox, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
+from ansys.tools.installer.uninstall import Uninstall
+from ansys.tools.installer.windows_functions import run_ps
 
 
 class AnsysPythonInstaller(QtWidgets.QMainWindow):
@@ -106,6 +108,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         file_menu.addAction(configurations)
 
         file_menu.addSeparator()  # -------------------------------------------
+
+        if is_linux_os():
+            uninstall_app = QtGui.QAction("Uninstall", self)
+            uninstall_app.triggered.connect(self.uninstall_application)
+            uninstall_app.setShortcut(QtGui.QKeySequence("Ctrl+U"))
+            file_menu.addAction(uninstall_app)
 
         # Create an "Exit" action
         exit_action = QtGui.QAction("&Exit", self)
@@ -369,6 +377,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self.setEnabled(False)
         Configure(self)
         self.setEnabled(True)
+
+    @protected
+    def uninstall_application(self):
+        """Check for Ansys Python Manager application updates."""
+        LOG.debug("Trigger uninstall..")
+        Uninstall(self)
 
     def visit_website(self):
         """Access the Ansys Python Manager documentation."""
@@ -702,12 +716,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         out, error_code = install_python(filename)
 
         if error_code:
-            LOG.error(f"Error while installing Python: {out.decode('utf-8')}")
+            LOG.error(f"Error while installing Python: {out}")
             msg = QtWidgets.QMessageBox()
             msg.warning(
                 self,
                 "Error while installing Python!",
-                f"Error message:\n\n {out.decode('utf-8')}",
+                f"Error message:\n\n {out}",
             )
 
         LOG.debug("Triggering table widget update")

@@ -231,8 +231,8 @@ class Configure(QtWidgets.QWidget):
         )
 
     def _save_configuration(self):
-        self.configure_json.rewrite_config_file(
-            VENV_CREATE_PATH, self.configure_window_create_venv_edit.text()
+        self.configure_json.rewrite_config(
+            VENV_CREATE_PATH, self.configure_window_create_venv_edit.text().strip("\\")
         )
         i = 0
         venv_search_paths = []
@@ -248,7 +248,7 @@ class Configure(QtWidgets.QWidget):
             venv_search_paths.append(
                 self.configure_window_create_venv_edit.text().strip("\\")
             )
-        self.configure_json.rewrite_config_file(VENV_SEARCH_PATH, venv_search_paths)
+        self.configure_json.rewrite_config(VENV_SEARCH_PATH, venv_search_paths)
         i = 0
 
         self.configure_json._write_config_file()
