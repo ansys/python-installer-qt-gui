@@ -126,9 +126,9 @@ jobs:
 
       - name: Install Linux Dependencies
         run: |
-          ls src/ansys/tools/installer/assets/scripts/*
+          ls -l src/ansys/tools/installer/assets/scripts/*
           chmod +x src/ansys/tools/installer/assets/scripts/*.sh
-          ls src/ansys/tools/installer/assets/scripts/*
+          ls -l src/ansys/tools/installer/assets/scripts/*
       #     sudo apt update
       #     sudo apt install aptitude -y;
       #     sudo aptitude install libfontconfig1-dev \
