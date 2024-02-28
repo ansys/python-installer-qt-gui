@@ -159,7 +159,7 @@ class Uninstall(QtWidgets.QWidget):
         if get_os_version().startswith("2"):
             execute_linux_command(f"{scirpt_path}")
 
-        self._user_confirmation_form.close()
+        self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
         self._parent.close_emit()
 
@@ -195,35 +195,35 @@ class Uninstall(QtWidgets.QWidget):
             pass
 
     def _close_all(self):
-        self._user_confirmation_form.close()
+        self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
 
     def _pop_up(self, message, call_back):
 
-        self._user_confirmation_form = QtWidgets.QWidget()
-        _user_confirmation_label = QtWidgets.QLabel()
-        _user_confirmation_label.setText(message)
-        _user_confirmation_label.setOpenExternalLinks(True)
-        _user_confirmation_label.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        _user_confirmation_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
-        _user_confirmation_label.setWordWrap(True)
+        self.user_confirmation_form = QtWidgets.QWidget()
+        user_confirmation_label = QtWidgets.QLabel()
+        user_confirmation_label.setText(message)
+        user_confirmation_label.setOpenExternalLinks(True)
+        user_confirmation_label.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        user_confirmation_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
+        user_confirmation_label.setWordWrap(True)
 
-        _user_confirmation_layout_horizontal = QtWidgets.QHBoxLayout()
-        _user_confirmation_yes_button = QtWidgets.QPushButton("Yes")
-        _user_confirmation_yes_button.clicked.connect(call_back)
-        _user_confirmation_no_button = QtWidgets.QPushButton("No")
-        _user_confirmation_no_button.clicked.connect(self._user_confirmation_form.close)
-        _user_confirmation_layout = QtWidgets.QVBoxLayout()
-        _user_confirmation_layout.addWidget(_user_confirmation_label)
-        _user_confirmation_layout_horizontal.addWidget(_user_confirmation_yes_button)
-        _user_confirmation_layout_horizontal.addWidget(_user_confirmation_no_button)
-        _user_confirmation_layout.addLayout(_user_confirmation_layout_horizontal)
-        self._user_confirmation_form.setLayout(_user_confirmation_layout)
-        self._user_confirmation_form.setWindowTitle("Confirmation")
+        user_confirmation_layout_horizontal = QtWidgets.QHBoxLayout()
+        user_confirmation_yes_button = QtWidgets.QPushButton("Yes")
+        user_confirmation_yes_button.clicked.connect(call_back)
+        user_confirmation_no_button = QtWidgets.QPushButton("No")
+        user_confirmation_no_button.clicked.connect(self.user_confirmation_form.close)
+        user_confirmation_layout = QtWidgets.QVBoxLayout()
+        user_confirmation_layout.addWidget(user_confirmation_label)
+        user_confirmation_layout_horizontal.addWidget(user_confirmation_yes_button)
+        user_confirmation_layout_horizontal.addWidget(user_confirmation_no_button)
+        user_confirmation_layout.addLayout(user_confirmation_layout_horizontal)
+        self.user_confirmation_form.setLayout(user_confirmation_layout)
+        self.user_confirmation_form.setWindowTitle("Confirmation")
         icon = QtGui.QIcon(ANSYS_FAVICON)
-        self._user_confirmation_form.setWindowIcon(icon)
-        self._user_confirmation_form.resize(400, 40)
-        self._user_confirmation_form.setWindowFlag(
+        self.user_confirmation_form.setWindowIcon(icon)
+        self.user_confirmation_form.resize(400, 40)
+        self.user_confirmation_form.setWindowFlag(
             QtCore.Qt.WindowCloseButtonHint, False
         )
-        self._user_confirmation_form.show()
+        self.user_confirmation_form.show()

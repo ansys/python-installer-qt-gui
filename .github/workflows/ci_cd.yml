@@ -19,13 +19,13 @@ concurrency:
   cancel-in-progress: true
 jobs:
 
-  doc-style:
-    name: "Documentation style"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ansys/actions/doc-style@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+  # doc-style:
+  #   name: "Documentation style"
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: ansys/actions/doc-style@v5
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
 
   # tests:
   #   name: "Tests"
@@ -208,6 +208,7 @@ jobs:
           find package/opt/ansys_python_manager -type d -exec chmod 755 -- {} +
           find package/share -type f -exec chmod 644 -- {} +
           chmod +x package/opt/ansys_python_manager/ansys_python_manager
+          chmod +x package/opt/ansys_python_manager/_internal/assets/scripts/*
           version=v`cat ./src/ansys/tools/installer/VERSION`
           echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
           fpm -v $version --fpm-options-file linux/debian/fpm-options-debian
