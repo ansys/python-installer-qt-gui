@@ -127,7 +127,7 @@ jobs:
       - name: Install Linux Dependencies
         run: |
           ls -l src/ansys/tools/installer/assets/scripts/*
-          chmod +x src/ansys/tools/installer/assets/scripts/*.sh
+          chmod +x src/ansys/tools/installer/assets/scripts/uninstaller_ubuntu.sh
           ls -l src/ansys/tools/installer/assets/scripts/*
       #     sudo apt update
       #     sudo apt install aptitude -y;
