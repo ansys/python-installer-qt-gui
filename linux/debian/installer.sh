@@ -67,6 +67,6 @@ else
             echo "$x"
         done
         printf "Dependencies installation required sudo access.\n"
-        echo -e '\e]8;;https://installer.docs.pyansys.com/version/stable/installer.html\aFollow prerequsities in this link\e]8;;\a'
+        echo -e '\e]8;;https://installer.docs.pyansys.com/version/stable/installer.html\aFollow prerequisites in this link\e]8;;\a'
     fi
 fi
