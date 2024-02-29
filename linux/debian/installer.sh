@@ -66,7 +66,7 @@ else
         for x in "${missing_deps[@]}"; do
             echo "$x"
         done
-        echo "Dependencies installation required sudo access.\n"
-
+        printf "Dependencies installation required sudo access.\n"
+        echo -e '\e]8;;https://installer.docs.pyansys.com/version/stable/installer.html\aFollow prerequsities in this link\e]8;;\a'
     fi
 fi
