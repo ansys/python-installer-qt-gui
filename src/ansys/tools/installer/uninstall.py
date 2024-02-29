@@ -44,6 +44,9 @@ class Uninstall(QtWidgets.QWidget):
             super().__init__()
             self._parent = parent
             self._parent.uninstall_window = QtWidgets.QWidget()
+            self._parent.uninstall_window.move(
+                self._parent.uninstall_window.frameGeometry().center()
+            )
             uninstall_window_label = QtWidgets.QLabel()
             uninstall_window_label.setText("Do you want to uninstall the application?")
             uninstall_window_label.setTextFormat(QtCore.Qt.TextFormat.RichText)
@@ -201,6 +204,9 @@ class Uninstall(QtWidgets.QWidget):
     def _pop_up(self, message, call_back):
 
         self.user_confirmation_form = QtWidgets.QWidget()
+        self.user_confirmation_form.move(
+            self.user_confirmation_form.frameGeometry().center()
+        )
         user_confirmation_label = QtWidgets.QLabel()
         user_confirmation_label.setText(message)
         user_confirmation_label.setOpenExternalLinks(True)

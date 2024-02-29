@@ -44,6 +44,9 @@ class Configure(QtWidgets.QWidget):
             self._parent = parent
             self.configure_json = ConfigureJson()
             self._parent.configure_window = QtWidgets.QWidget()
+            self._parent.configure_window.move(
+                self._parent.configure_window.frameGeometry().center()
+            )
             configure_window_label = QtWidgets.QLabel()
             configure_window_label.setText("Configure Ansys Python Manager")
             configure_window_label.setTextFormat(QtCore.Qt.TextFormat.RichText)
@@ -250,6 +253,9 @@ class Configure(QtWidgets.QWidget):
     def _pop_up(self, message, call_back):
 
         self.user_confirmation_form = QtWidgets.QWidget()
+        self.user_confirmation_form.move(
+            self.user_confirmation_form.frameGeometry().center()
+        )
         user_confirmation_label = QtWidgets.QLabel()
         user_confirmation_label.setText(message)
         user_confirmation_label.setOpenExternalLinks(True)

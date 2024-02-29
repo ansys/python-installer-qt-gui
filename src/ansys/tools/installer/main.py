@@ -372,7 +372,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
     @protected
     def configure_application(self):
         """Check for Ansys Python Manager application updates."""
-        LOG.debug("Opening configuration..")
+        LOG.debug("Opening configuration...")
         self.setEnabled(False)
         Configure(self)
         self.setEnabled(True)
