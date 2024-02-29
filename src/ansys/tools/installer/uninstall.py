@@ -157,7 +157,7 @@ class Uninstall(QtWidgets.QWidget):
 
         scirpt_path = os.path.join(ASSETS_PATH, "uninstaller_ubuntu.sh")
         if get_os_version().startswith("2"):
-            execute_linux_command(f"{scirpt_path}")
+            execute_linux_command(f"{scirpt_path}", wait=False)
 
         self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
