@@ -1,5 +1,6 @@
 #! /bin/bash
 clear
+printf """Installation started.....\n"""
 missing_deps=()
 dependencies_available=true
 # check zlib
@@ -54,10 +55,39 @@ else
             if [ $install_zlib = true ]; then
                 install_script="$install_script rm -rf ansys-prereq/ ; mkdir -p ansys-prereq; cd ansys-prereq; wget https://zlib.net/current/zlib.tar.gz; tar xvzf zlib.tar.gz; cd zlib-*; make clean; ./configure; make; sudo make install; cd ../..; rm -rf ansys-prereq;"
             fi
+
+            dependencies_available=true
             eval $install_script
-            dpkg -x ./ansys_python_manager.deb ${HOME}/.local
-            ./postInstallScript.sh
-            printf "\nInstallation success...\n"
+            # Confirmation
+            # check zlib
+            ls /usr/local/lib/libz.so >/dev/null 2>&1
+            ret=$?
+            if [ $ret -eq 0 ]; then
+                :
+            else
+                missing_deps+=("zlib")
+                dependencies_available=false
+            fi
+            # check other dependencies
+            arr=("libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
+            for x in "${arr[@]}"; do
+                c="dpkg -s $x >/dev/null 2>&1"
+                eval $c
+                ret=$?
+                if [ $ret -eq 0 ]; then
+                    :
+                else
+                    missing_deps+=("$x")
+                    dependencies_available=false
+                fi
+            done
+            if [ $dependencies_available = false ]; then
+                echo "Unable to install dependencies. Check above logs and try again..."
+            else
+                dpkg -x ./ansys_python_manager.deb ${HOME}/.local
+                ./postInstallScript.sh
+                printf "\nInstallation success...\n"
+            fi
         else
             echo "You don't have access to sudo. Please try again..."
         fi
