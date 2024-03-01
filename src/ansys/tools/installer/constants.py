@@ -84,6 +84,8 @@ else:
 
 ASSETS_PATH = os.path.join(THIS_PATH, "assets")
 
+RPM_ASSETS_PATH = os.path.join("/opt/ansys_python_manager/_internal/assets")
+
 ANSYS_FAVICON = os.path.join(ASSETS_PATH, "ansys-favicon.png")
 
 PYANSYS_DOCS_SITES = {

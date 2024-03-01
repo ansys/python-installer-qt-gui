@@ -34,7 +34,7 @@ from github import Github
 from packaging import version
 
 from ansys.tools.installer import CACHE_DIR
-from ansys.tools.installer.constants import ASSETS_PATH
+from ansys.tools.installer.constants import ASSETS_PATH, RPM_ASSETS_PATH
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
@@ -490,16 +490,22 @@ def check_python_asset_linux(version):
         confirmation.
 
     """
-    try:
-        for folder_name in os.listdir(os.path.join(ASSETS_PATH)):
+    os_version = get_os_version()
+    if os_version in ["centos", "fedora"]:
+        assets_path = os.path.join(RPM_ASSETS_PATH)
+    else:
+        assets_path = os.path.join(ASSETS_PATH)
+
+    try:        
+        for folder_name in os.listdir(assets_path):
             if folder_name in get_os_version():
-                for assets in os.listdir(os.path.join(ASSETS_PATH, folder_name)):
+                for assets in os.listdir(os.path.join(assets_path, folder_name)):
                     if version in assets:
                         shutil.copyfile(
-                            os.path.join(ASSETS_PATH, folder_name, assets),
+                            os.path.join(assets_path, folder_name, assets),
                             os.path.join(os.getcwd(), assets),
                         )
-                        verify = install_python_linux_from_assets(assets)
+                        verify = install_python_linux_from_assets(assets) 
                         return verify
     except Exception as e:
         LOG.debug(f"check_python_asset_linux {e}")

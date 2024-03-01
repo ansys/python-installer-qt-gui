@@ -158,9 +158,13 @@ class Uninstall(QtWidgets.QWidget):
         if self.uninstall_window_cache_remove_configs_checkbox.isChecked():
             self._remove_configs()
 
-        scirpt_path = os.path.join(ASSETS_PATH, "uninstaller_ubuntu.sh")
-        if get_os_version().startswith("2"):
-            execute_linux_command(f"{scirpt_path}", wait=False)
+        os_version = get_os_version()
+        if os_version in ["centos", "fedora"]:
+            script_path = os.path.join(ASSETS_PATH, "uninstaller_yum.sh")
+            execute_linux_command(f"{script_path}", wait=False)
+        elif get_os_version().startswith("2"):
+            script_path = os.path.join(ASSETS_PATH, "uninstaller_ubuntu.sh")
+            execute_linux_command(f"{script_path}", wait=False)
 
         self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
