@@ -155,6 +155,7 @@ class Configure(QtWidgets.QWidget):
             self._parent.show_error(str(e))
 
     def _add_elments_to_search_configure(self):
+        """Add paths to dropdown based on configure json file."""
         for x in self.configure_json.venv_search_path:
             self.configure_window_search_venv_model.appendRow(QStandardItem(x))
         self.configure_window_search_venv_combo.setModel(
@@ -162,6 +163,7 @@ class Configure(QtWidgets.QWidget):
         )
 
     def _remove_search_env(self):
+        """Remove env path to the drop down."""
         if self.configure_window_search_venv_model.rowCount() <= 1:
             self._parent.show_error(
                 "Minimum one path should be available to search virtual environment. Add path to remove the existing one"
@@ -193,6 +195,7 @@ class Configure(QtWidgets.QWidget):
                 )
 
     def _add_search_env(self):
+        """Add env path to the drop down."""
         if not os.path.exists(self.configure_window_search_venv_edit.text()):
             self._parent.show_error("Path not found. Create path before configure.")
         else:
@@ -215,11 +218,13 @@ class Configure(QtWidgets.QWidget):
             )
 
     def _change_text_search_venv(self):
+        """Change the venv text bsed on the drop down."""
         self.configure_window_search_venv_edit.setText(
             self.configure_window_search_venv_combo.currentText()
         )
 
     def _save_configuration(self):
+        """Save the configuration."""
         self.configure_json.rewrite_config(
             VENV_CREATE_PATH, self.configure_window_create_venv_edit.text().strip("\\")
         )
@@ -247,11 +252,12 @@ class Configure(QtWidgets.QWidget):
         self._parent.configure_window.close()
 
     def _close_all(self):
+        """Close all the pop-up window."""
         self.user_confirmation_form.close()
         self._parent.configure_window.close()
 
     def _pop_up(self, message, call_back):
-
+        """Launch the confirmation pop-up window."""
         self.user_confirmation_form = QtWidgets.QWidget()
         self.user_confirmation_form.move(
             self.user_confirmation_form.frameGeometry().center()
