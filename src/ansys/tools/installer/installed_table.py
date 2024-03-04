@@ -190,7 +190,6 @@ class InstalledTab(QtWidgets.QWidget):
         # Group 1: Available Virtual Environments
         self.available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
         available_venv_box_layout = QtWidgets.QVBoxLayout()
-        # available_venv_box_layout.setContentsMargins(10, 20, 10, 20)
         self.available_venv_box.setLayout(available_venv_box_layout)
 
         # --> Add text for available virtual environments
