@@ -493,7 +493,7 @@ def check_python_asset_linux(version):
     os_version = get_os_version()
     assets_path = os.path.join(ASSETS_PATH)
 
-    try:        
+    try:
         for folder_name in os.listdir(assets_path):
             if folder_name in os_version:
                 for assets in os.listdir(os.path.join(assets_path, folder_name)):
@@ -502,7 +502,7 @@ def check_python_asset_linux(version):
                             os.path.join(assets_path, folder_name, assets),
                             os.path.join(os.getcwd(), assets),
                         )
-                        verify = install_python_linux_from_assets(assets) 
+                        verify = install_python_linux_from_assets(assets)
                         return verify
     except Exception as e:
         LOG.debug(f"check_python_asset_linux {e}")

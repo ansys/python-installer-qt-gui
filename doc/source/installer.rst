@@ -136,8 +136,8 @@ Installing the ``Ansys Python Manager``
             If you want to remove all the configurations as part of
             uninstallation, mark ``Delete configurations`` checkbox
 
-        #. Click ``Uninstall`` button. 
-        
+        #. Click ``Uninstall`` button.
+
         #. Follow the uninstaller script & provide sudo permission to uninstall the application.
 
       .. tab-item:: Fedora39
@@ -196,8 +196,8 @@ Installing the ``Ansys Python Manager``
             If you want to remove all the configurations as part of
             uninstallation, mark ``Delete configurations`` checkbox
 
-        #. Click ``Uninstall`` button. 
-        
+        #. Click ``Uninstall`` button.
+
         #. Follow the uninstaller script & provide sudo permission to uninstall the application.
 
 
