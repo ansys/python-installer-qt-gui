@@ -36,7 +36,7 @@ from ansys.tools.installer.linux_functions import (
 
 
 class Uninstall(QtWidgets.QWidget):
-    ""Instantiate uninstall class."""
+    """Instantiate uninstall class."""
 
     def __init__(self, parent):
         """Initialize this tab."""
