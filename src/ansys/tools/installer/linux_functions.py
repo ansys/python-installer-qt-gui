@@ -34,7 +34,7 @@ from github import Github
 from packaging import version
 
 from ansys.tools.installer import CACHE_DIR
-from ansys.tools.installer.constants import ASSETS_PATH, RPM_ASSETS_PATH
+from ansys.tools.installer.constants import ASSETS_PATH
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
@@ -491,14 +491,11 @@ def check_python_asset_linux(version):
 
     """
     os_version = get_os_version()
-    if os_version in ["centos", "fedora"]:
-        assets_path = os.path.join(RPM_ASSETS_PATH)
-    else:
-        assets_path = os.path.join(ASSETS_PATH)
+    assets_path = os.path.join(ASSETS_PATH)
 
     try:        
         for folder_name in os.listdir(assets_path):
-            if folder_name in get_os_version():
+            if folder_name in os_version:
                 for assets in os.listdir(os.path.join(assets_path, folder_name)):
                     if version in assets:
                         shutil.copyfile(
