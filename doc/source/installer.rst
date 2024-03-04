@@ -270,8 +270,13 @@ installations. Have a look at how to access it here:
 #. Select your desired ``Python`` environment and start one of the listed options.
 
 By default, Ansys Python Manager list python environments available {user directory}/.ansys_python_venvs directory.
-To add additional directories, Go to configurations section(Ctrl + D) and add directory path one by one in the Virtual Environment Search directory text box and click Add button.
-Finally, click Save button to save the configurations.
+To Manage this directory, Go to configurations section(Ctrl + D) and make the appropriate changes.
+
+#. To add directory path one by one in the Virtual Environment Search directory text box and click Add button.
+
+#. To remove directory path select the respective path that you want remove from the Virtual Environment Search directory dropdown and click Remove button.
+
+#. Finally, click Save button to save the configurations.
 
 On the ``Launching options`` section, the following options are available:
 

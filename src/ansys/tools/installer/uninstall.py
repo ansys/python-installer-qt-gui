@@ -151,7 +151,7 @@ class Uninstall(QtWidgets.QWidget):
             self._parent.show_error(str(e))
 
     def _uninstall(self):
-
+        """Uninstallation function. Execute the uninstaller script."""
         if self.uninstall_window_cache_remove_venv_checkbox.isChecked():
             self._remove_all_venvs()
 
@@ -171,6 +171,7 @@ class Uninstall(QtWidgets.QWidget):
         self._parent.close_emit()
 
     def _remove_all_venvs(self):
+        """Remove all the venv created by Ansys Python Manager."""
         try:
             configure = ConfigureJson()
             script_path = "bin" if is_linux_os() else "Scripts"
@@ -194,6 +195,7 @@ class Uninstall(QtWidgets.QWidget):
             pass
 
     def _remove_configs(self):
+        """Remove all the configurations created by Ansys Python Manager."""
         try:
             configure = ConfigureJson()
             print(f"removed {configure.config_dir}")
@@ -202,11 +204,12 @@ class Uninstall(QtWidgets.QWidget):
             pass
 
     def _close_all(self):
+        """Close all the pop-up window."""
         self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
 
     def _pop_up(self, message, call_back):
-
+        """Launch the confirmation pop-up window."""
         self.user_confirmation_form = QtWidgets.QWidget()
         self.user_confirmation_form.move(
             self.user_confirmation_form.frameGeometry().center()

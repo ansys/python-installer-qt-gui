@@ -108,17 +108,18 @@ class ConfigureJson:
             value to save the configuration
 
         """
-        print(self.history)
         if key == VENV_CREATE_PATH and value not in self.history["path"]:
             self.history["path"].append(value)
         self.configs["path"][key] = value
 
     def _write_config_file(self):
+        """Write config json file."""
         with open(self.config_file_path, "w+") as f:
             f.write(json.dumps(self.configs))
         self._write_history_file()
         self._read_config_file()
 
     def _write_history_file(self):
+        """Write history json file."""
         with open(self.history_file_path, "w+") as f:
             f.write(json.dumps(self.history))

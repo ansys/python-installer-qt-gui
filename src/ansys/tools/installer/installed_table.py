@@ -196,6 +196,7 @@ class InstalledTab(QtWidgets.QWidget):
         # --> Add text for available virtual environments
         available_venv_box_text = QtWidgets.QLabel()
         available_venv_box_text.setText(SELECT_VENV_MANAGE_TAB)
+        available_venv_box_text.setOpenExternalLinks(True)
         available_venv_box_text.setTextFormat(QtCore.Qt.TextFormat.RichText)
         available_venv_box_text.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         available_venv_box_text.setWordWrap(True)
