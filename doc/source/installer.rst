@@ -252,7 +252,11 @@ Create Python virtual environment
 
 #. Finally, Click ``Create`` button to create.
 
-By default, Ansys Python Manager create virtual environment under {user directory}/.ansys_python_venvs.
+By default, Ansys Python Manager create virtual environment under,
+
+  #. {user directory}/.ansys_python_venvs for windows
+  #. {user directory}/.local/ansys/.ansys_python_venvs for linux
+
 To configure create path, Go to configurations section(Ctrl + D) and provide your
 preferred path under Virtual Environment Create path text box and click Save button.
 
@@ -269,7 +273,11 @@ installations. Have a look at how to access it here:
 
 #. Select your desired ``Python`` environment and start one of the listed options.
 
-By default, Ansys Python Manager list python environments available {user directory}/.ansys_python_venvs directory.
+By default, Ansys Python Manager list python environments available under,
+
+  #. {user directory}/.ansys_python_venvs directory for windows
+  #. {user directory}/.local/ansys/.ansys_python_venvs directory for linux.
+
 To Manage this directory, Go to configurations section(Ctrl + D) and make the appropriate changes.
 
 #. To add directory path one by one in the Virtual Environment Search directory text box and click Add button.

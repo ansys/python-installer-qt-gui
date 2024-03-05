@@ -197,7 +197,6 @@ class InstalledTab(QtWidgets.QWidget):
         available_venv_box_text.setText(SELECT_VENV_MANAGE_TAB)
         available_venv_box_text.setOpenExternalLinks(True)
         available_venv_box_text.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        available_venv_box_text.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
         available_venv_box_text.setWordWrap(True)
         available_venv_box_layout.addWidget(available_venv_box_text)
 
