@@ -334,6 +334,7 @@ jobs:
           mkdir -p package_CentOS/opt
           mkdir -p package_CentOS/usr/share/applications
           mkdir -p package_CentOS/usr/share/icons/hicolor/scalable/apps
+          chmod +x src/ansys/tools/installer/assets/scripts/uninstaller_yum.sh
           cp -r dist/ansys_python_manager package_CentOS/opt/ansys_python_manager
           cp src/ansys/tools/installer/assets/pyansys_icon.svg package_CentOS/usr/share/icons/hicolor/scalable/apps/pyansys_icon.svg
           cp linux/non-debian/ansys_python_manager.desktop package_CentOS/usr/share/applications
@@ -356,6 +357,7 @@ jobs:
           mkdir -p package_Fedora/opt
           mkdir -p package_Fedora/usr/share/applications
           mkdir -p package_Fedora/usr/share/icons/hicolor/scalable/apps
+          chmod +x src/ansys/tools/installer/assets/scripts/uninstaller_yum.sh
           cp -r dist/ansys_python_manager package_Fedora/opt/ansys_python_manager
           cp src/ansys/tools/installer/assets/pyansys_icon.svg package_Fedora/usr/share/icons/hicolor/scalable/apps/pyansys_icon.svg
           cp linux/non-debian/ansys_python_manager.desktop package_Fedora/usr/share/applications

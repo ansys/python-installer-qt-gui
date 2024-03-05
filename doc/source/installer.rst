@@ -124,6 +124,22 @@ Installing the ``Ansys Python Manager``
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
+        To uninstall the ``Ansys Python Manager``, follow below steps.
+
+        #. Go to File menu. Click Uninstall option.
+
+        #. In the pop up window,
+
+            If you want to remove all the virtual environments as part of
+            uninstallation, mark ``Delete virtual environment`` checkbox
+
+            If you want to remove all the configurations as part of
+            uninstallation, mark ``Delete configurations`` checkbox
+
+        #. Click ``Uninstall`` button.
+
+        #. Follow the uninstaller script & provide sudo permission to uninstall the application.
+
       .. tab-item:: Fedora39
 
         Prerequisites:
@@ -167,6 +183,22 @@ Installing the ``Ansys Python Manager``
         #. Search for the ``Ansys Python Manager`` and run it.
 
         The ``Ansys Python Manager`` window should appear at this stage.
+
+        To uninstall the ``Ansys Python Manager``, follow below steps.
+
+        #. Go to File menu. Click Uninstall option.
+
+        #. In the pop up window,
+
+            If you want to remove all the virtual environments as part of
+            uninstallation, mark ``Delete virtual environment`` checkbox
+
+            If you want to remove all the configurations as part of
+            uninstallation, mark ``Delete configurations`` checkbox
+
+        #. Click ``Uninstall`` button.
+
+        #. Follow the uninstaller script & provide sudo permission to uninstall the application.
 
 
 Installing Python
