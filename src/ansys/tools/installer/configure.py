@@ -29,7 +29,7 @@ from PySide6.QtGui import QStandardItem, QStandardItemModel
 from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import (
     ANSYS_FAVICON,
-    VENV_CREATE_PATH,
+    VENV_DEFAULT_PATH,
     VENV_SEARCH_PATH,
 )
 
@@ -48,16 +48,16 @@ class Configure(QtWidgets.QWidget):
                 self._parent.configure_window.frameGeometry().center()
             )
             configure_window_label = QtWidgets.QLabel()
-            configure_window_label.setText("Configure Ansys Python Manager")
+            configure_window_label.setText("Configuration")
             configure_window_label.setTextFormat(QtCore.Qt.TextFormat.RichText)
             configure_window_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
             configure_window_label.setWordWrap(True)
 
             configure_options_layout = QtWidgets.QVBoxLayout()
 
-            # Group 1: Configure Virtual Environment Create path
+            # Group 1: Configure default Virtual Environment creation path
             configure_window_create_venv = QtWidgets.QGroupBox(
-                "Virtual Environment Create path:"
+                "Default virtual environment creation path:"
             )
             configure_window_create_venv_layout = QtWidgets.QVBoxLayout()
             configure_window_create_venv_layout.setContentsMargins(10, 20, 10, 20)
@@ -77,7 +77,7 @@ class Configure(QtWidgets.QWidget):
 
             # Group 2: Configure Virtual Environment Search path:
             configure_window_search_venv = QtWidgets.QGroupBox(
-                "Virtual Environment Search directory:"
+                "Locations to search for virtual environments:"
             )
             configure_window_search_venv_layout = QtWidgets.QVBoxLayout()
             configure_window_search_venv_layout.setContentsMargins(10, 20, 10, 20)
@@ -191,7 +191,7 @@ class Configure(QtWidgets.QWidget):
                 i += 1
             if not removed:
                 self._parent.show_error(
-                    "Path is not available in the Environment search list."
+                    "Path is not available in the environment search list."
                 )
 
     def _add_search_env(self):
@@ -226,7 +226,7 @@ class Configure(QtWidgets.QWidget):
     def _save_configuration(self):
         """Save the configuration."""
         self.configure_json.rewrite_config(
-            VENV_CREATE_PATH, self.configure_window_create_venv_edit.text().strip("\\")
+            VENV_DEFAULT_PATH, self.configure_window_create_venv_edit.text().strip("\\")
         )
         i = 0
         venv_search_paths = []

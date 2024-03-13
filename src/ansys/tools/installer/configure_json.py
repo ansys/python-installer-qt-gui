@@ -27,7 +27,7 @@ import os
 
 from ansys.tools.installer.constants import (
     ANSYS_VENVS,
-    VENV_CREATE_PATH,
+    VENV_DEFAULT_PATH,
     VENV_SEARCH_PATH,
 )
 from ansys.tools.installer.linux_functions import ansys_linux_path, is_linux_os
@@ -59,7 +59,7 @@ class ConfigureJson:
             os.makedirs(os.path.dirname(self.config_file_path), exist_ok=True)
             self.configs = {
                 "path": {
-                    VENV_CREATE_PATH: self.default_path,
+                    VENV_DEFAULT_PATH: self.default_path,
                     VENV_SEARCH_PATH: [self.default_path],
                 }
             }
@@ -77,12 +77,21 @@ class ConfigureJson:
             self._read_history_file()
 
     def _read_config_file(self):
-        """Read Configuration file."""
-        with open(self.config_file_path) as f:
-            paths = json.load(f)
-            self.default_path = paths["path"][VENV_CREATE_PATH]
-            self.venv_search_path = paths["path"][VENV_SEARCH_PATH]
-            self.configs = paths
+        """Read configuration file."""
+        try:
+            with open(self.config_file_path) as f:
+                paths = json.load(f)
+                self.default_path = paths["path"][VENV_DEFAULT_PATH]
+                self.venv_search_path = paths["path"][VENV_SEARCH_PATH]
+                self.configs = paths
+        except:
+            self.configs = {
+                "path": {
+                    VENV_DEFAULT_PATH: self.default_path,
+                    VENV_SEARCH_PATH: [self.default_path],
+                }
+            }
+            self._write_config_file()
 
         self._read_history_file()
 
@@ -91,35 +100,36 @@ class ConfigureJson:
         try:
             with open(self.history_file_path) as f:
                 paths = json.load(f)
+                # Verify it is a dictionary with a key "path"
+                if "path" not in paths:
+                    raise ValueError("Invalid history file")
                 self.history = paths
         except:
             self.history = {"path": [self.default_path]}
             self._write_history_file()
 
     def rewrite_config(self, key, value):
-        """Rewrite Configuration file.
+        """Rewrite configuration file.
 
         Parameters
         ----------
         key : str
             key to save the configuration
-
         value : str
             value to save the configuration
-
         """
-        if key == VENV_CREATE_PATH and value not in self.history["path"]:
+        if key == VENV_DEFAULT_PATH and value not in self.history["path"]:
             self.history["path"].append(value)
         self.configs["path"][key] = value
 
     def _write_config_file(self):
         """Write config json file."""
         with open(self.config_file_path, "w+") as f:
-            f.write(json.dumps(self.configs))
+            f.write(json.dumps(self.configs, indent=4))
         self._write_history_file()
         self._read_config_file()
 
     def _write_history_file(self):
         """Write history json file."""
         with open(self.history_file_path, "w+") as f:
-            f.write(json.dumps(self.history))
+            f.write(json.dumps(self.history, indent=4))
