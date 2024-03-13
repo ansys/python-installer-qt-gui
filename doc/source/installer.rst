@@ -69,13 +69,13 @@ Installing the ``Ansys Python Manager``
 
         #. Go to File menu. Click Uninstall option.
 
-        #. In the pop up window,
+        #. In the pop up window:
 
-            If you want to remove all the virtual environments as part of
-            uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all the virtual environments as part of
+             uninstallation, mark ``Delete virtual environment`` checkbox
 
-            If you want to remove all the configurations as part of
-            uninstallation, mark ``Delete configurations`` checkbox
+           * If you want to remove all the configurations as part of
+             uninstallation, mark ``Delete configurations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -128,13 +128,13 @@ Installing the ``Ansys Python Manager``
 
         #. Go to File menu. Click Uninstall option.
 
-        #. In the pop up window,
+        #. In the pop up window:
 
-            If you want to remove all the virtual environments as part of
-            uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all the virtual environments as part of
+             uninstallation, mark ``Delete virtual environment`` checkbox
 
-            If you want to remove all the configurations as part of
-            uninstallation, mark ``Delete configurations`` checkbox
+           * If you want to remove all the configurations as part of
+             uninstallation, mark ``Delete configurations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -188,13 +188,13 @@ Installing the ``Ansys Python Manager``
 
         #. Go to File menu. Click Uninstall option.
 
-        #. In the pop up window,
+        #. In the pop up window:
 
-            If you want to remove all the virtual environments as part of
-            uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all the virtual environments as part of
+             uninstallation, mark ``Delete virtual environment`` checkbox
 
-            If you want to remove all the configurations as part of
-            uninstallation, mark ``Delete configurations`` checkbox
+           * If you want to remove all the configurations as part of
+             uninstallation, mark ``Delete configurations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -286,8 +286,8 @@ Create Python virtual environment
 
 By default, Ansys Python Manager create virtual environment under,
 
-  #. {user directory}/.ansys_python_venvs for Windows
-  #. {user directory}/.local/ansys/.ansys_python_venvs for Linux
+* ``{user directory}/.ansys_python_venvs`` for Windows
+* ``{user directory}/.local/ansys/.ansys_python_venvs`` for Linux
 
 To configure create path, Go to configurations section(Ctrl + D) and provide your
 preferred path under Virtual Environment Create path text box and click Save button.
@@ -300,23 +300,20 @@ Through the ``Ansys Python Manager``, users can also have access to their differ
 installations. Have a look at how to access it here:
 
 #. Search for the ``Ansys Python Manager`` and run it.
-
 #. Access the ``Manage Python Environments`` tab.
-
 #. Select your desired ``Python`` environment and start one of the listed options.
 
 By default, Ansys Python Manager list python environments available under,
 
-  #. {user directory}/.ansys_python_venvs directory for Windows
-  #. {user directory}/.local/ansys/.ansys_python_venvs directory for Linux
+* ``{user directory}/.ansys_python_venvs`` for Windows
+* ``{user directory}/.local/ansys/.ansys_python_venvs`` for Linux
 
-To Manage this directory, Go to configurations section(Ctrl + D) and make the appropriate changes.
+To manage this directory, go to the ``File >> Configure`` section (Ctrl + D) and make the appropriate changes.
 
-#. To add directory path one by one in the Virtual Environment Search directory text box and click Add button.
-
-#. To remove directory path select the respective path that you want remove from the Virtual Environment Search directory dropdown and click Remove button.
-
-#. Finally, click Save button to save the configurations.
+#. To add a new default directory path, provide the path in the corresponding text box.
+#. To add a new path where virtual environments will be searched for, provide the path in the corresponding text box and click the ``Add`` button.
+#. To remove directory path select the respective path that you want remove from the dropdown and click the ``Remove`` button.
+#. Finally, click the ``Save`` button to save the configurations.
 
 On the ``Launching options`` section, the following options are available:
 
