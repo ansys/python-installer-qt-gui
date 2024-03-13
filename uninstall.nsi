@@ -35,7 +35,7 @@ doneAsking:
   DetailPrint "User home: $PROFILE"
   DetailPrint "DeleteConfiguration: $DeleteConfiguration"
   DetailPrint "DeleteDefaultVenvPath: $DeleteDefaultVenvPath"
-  
+
 
   ; Delete directories if required
   ${If} $DeleteDefaultVenvPath == 1
