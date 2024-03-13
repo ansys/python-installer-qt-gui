@@ -8,16 +8,28 @@ Var DeleteConfiguration
 ; Define the uninstaller section
 Section "Uninstall"
   ; Prompt the user to confirm uninstallation
-  MessageBox MB_YESNO|MB_ICONQUESTION "Are you sure you want to uninstall ${PRODUCT_NAME} ${PRODUCT_VERSION}?" /SD IDYES IDYES +2
+  MessageBox MB_YESNO|MB_ICONQUESTION "Are you sure you want to uninstall ${PRODUCT_NAME} ${PRODUCT_VERSION}?" /SD IDYES IDYES userConfirmed
   Abort
 
-  MessageBox MB_YESNO "Do you want to delete the contents in the default virtual environment path location?" IDYES +2
-  StrCpy $DeleteDefaultVenvPath 1
-+2:
-  MessageBox MB_YESNO "Do you want to delete the Ansys Python Manager stored configuration?" IDYES +2
-  StrCpy $DeleteConfiguration 1
-+2:
+checkDeleteVenvPath:
+  MessageBox MB_YESNO "Do you want to delete the contents in the default virtual environment path location?" IDYES deleteVenvPath
+  StrCpy $DeleteDefaultVenvPath 0
+  Goto checkDeleteConfiguration
 
+deleteVenvPath:
+  StrCpy $DeleteDefaultVenvPath 1
+  Goto checkDeleteConfiguration
+
+checkDeleteConfiguration:
+  MessageBox MB_YESNO "Do you want to delete the Ansys Python Manager stored configuration?" IDYES deleteConfiguration
+  StrCpy $DeleteConfiguration 0
+  Goto doneAsking
+
+deleteConfiguration:
+  StrCpy $DeleteConfiguration 1
+  Goto doneAsking
+
+doneAsking:
   ; Get the user's profile directory
   ReadEnvStr $0 "PROFILE"
 
