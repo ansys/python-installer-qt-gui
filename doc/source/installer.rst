@@ -311,7 +311,7 @@ By default, Ansys Python Manager list python environments available under,
 To manage this directory, go to the ``File >> Configure`` section ``(Ctrl + D)`` and make the appropriate changes.
 
 #. To add a new default directory path, provide the path in the corresponding text box.
-#. To add a new path where virtual environments will be searched for, provide the path in the corresponding text box and click the ``Add`` button.
+#. To add a new path where virtual environments are searched for, provide the path in the corresponding text box and click the ``Add`` button.
 #. To remove directory path select the respective path that you want remove from the dropdown and click the ``Remove`` button.
 #. Finally, click the ``Save`` button to save the configurations.
 
