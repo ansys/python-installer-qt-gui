@@ -26,6 +26,8 @@ import logging
 import os
 import sys
 
+from ansys.tools.path.misc import is_linux
+
 from ansys.tools.installer import __version__
 
 LOG = logging.getLogger(__name__)
@@ -51,6 +53,10 @@ PYANSYS_DOCS_TEXT = f"""<h2>PyAnsys Documentation</h2>
 <p>Feel free to explore the different PyAnsys initiatives.</p>
 """
 
+USER_PATH = os.path.expanduser("~")
+ANSYS_LINUX_PATH = f".local/ansys"
+ANSYS_FULL_LINUX_PATH = f"{USER_PATH}/{ANSYS_LINUX_PATH}"
+
 ANSYS_VENVS = ".ansys_python_venvs"
 
 ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7", "3_10"]
@@ -65,11 +71,15 @@ PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for y
 
 Please select the Python version from the table below to create its respective virtual environment."""
 
-NAME_FOR_VENV = f"""Provide the name for your virtual environment.<br><br>Virtual environments are created under user directory <i>{ANSYS_VENVS}</i>. If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation."""
+NAME_FOR_VENV = f"""Provide the name for your virtual environment.
 
-SELECT_VENV_MANAGE_TAB = """Choose a virtual environment to manage.
+<br><br>Virtual environments are created under user directory /<i>{ANSYS_LINUX_PATH + "/" + ANSYS_VENVS if is_linux() else ANSYS_VENVS}</i> by default. To configure the default path, go to File >> Configure (Ctrl + D) and provide your preferred path.
 
-It is recommended to use virtual environments for package management and launching options."""
+If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation. For more details, refer <a href='https://installer.docs.pyansys.com/version/dev/installer.html#create-python-virtual-environment'>here</a>."""
+
+SELECT_VENV_MANAGE_TAB = f"""Choose a virtual environment to manage.
+
+It is recommended to use virtual environments for package management and launching options. Environments which are available under the user directory /<i>{ANSYS_LINUX_PATH + "/" + ANSYS_VENVS if is_linux() else ANSYS_VENVS}</i> are listed by default. To configure this default directory, refer <a href='https://installer.docs.pyansys.com/version/dev/installer.html#managing-python-environments'>here</a>."""
 
 if getattr(sys, "frozen", False):
     # If the application is run as a bundle, the PyInstaller bootloader
@@ -163,3 +173,6 @@ PYANSYS_LIBS = {
     "PyAnsys Tools Versioning": "pyansys-tools-versioning",
     "PyAnsys Units": "ansys-units",
 }
+
+VENV_DEFAULT_PATH = "venv_default_path"
+VENV_SEARCH_PATH = "venv_search_path"

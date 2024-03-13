@@ -65,6 +65,21 @@ Installing the ``Ansys Python Manager``
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
+        To uninstall the ``Ansys Python Manager``, follow below steps.
+
+        #. Go to File menu. Click Uninstall option.
+
+        #. In the pop up window:
+
+           * If you want to remove all the virtual environments as part of
+             uninstallation, mark ``Delete virtual environment`` checkbox
+
+           * If you want to remove all the configurations as part of
+             uninstallation, mark ``Delete configurations`` checkbox
+
+        #. Click ``Uninstall`` button.
+
+
       .. tab-item:: CentOS9, RHEL9
 
         Prerequisites:
@@ -109,6 +124,22 @@ Installing the ``Ansys Python Manager``
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
+        To uninstall the ``Ansys Python Manager``, follow below steps.
+
+        #. Go to File menu. Click Uninstall option.
+
+        #. In the pop up window:
+
+           * If you want to remove all the virtual environments as part of
+             uninstallation, mark ``Delete virtual environment`` checkbox
+
+           * If you want to remove all the configurations as part of
+             uninstallation, mark ``Delete configurations`` checkbox
+
+        #. Click ``Uninstall`` button.
+
+        #. Follow the uninstaller script & provide sudo permission to uninstall the application.
+
       .. tab-item:: Fedora39
 
         Prerequisites:
@@ -152,6 +183,22 @@ Installing the ``Ansys Python Manager``
         #. Search for the ``Ansys Python Manager`` and run it.
 
         The ``Ansys Python Manager`` window should appear at this stage.
+
+        To uninstall the ``Ansys Python Manager``, follow below steps.
+
+        #. Go to File menu. Click Uninstall option.
+
+        #. In the pop up window:
+
+           * If you want to remove all the virtual environments as part of
+             uninstallation, mark ``Delete virtual environment`` checkbox
+
+           * If you want to remove all the configurations as part of
+             uninstallation, mark ``Delete configurations`` checkbox
+
+        #. Click ``Uninstall`` button.
+
+        #. Follow the uninstaller script & provide sudo permission to uninstall the application.
 
 
 Installing Python
@@ -224,6 +271,27 @@ Regarding the available Python versions, users can select among the following on
 
   In the case of having selected ``Conda (miniforge)``, only Python 3.10 is available.
 
+Create Python virtual environment
+=================================
+
+#. Search for the ``Ansys Python Manager`` and run it.
+
+#. Access the ``Create Python Environments`` tab.
+
+#. Select your desired ``Python version`` from the listed options.
+
+#. Provide the name of the virtual environment in the ``Enter virtual environment name`` text box.
+
+#. Finally, Click ``Create`` button to create.
+
+By default, Ansys Python Manager create virtual environment under,
+
+* ``{user directory}/.ansys_python_venvs`` for Windows
+* ``{user directory}/.local/ansys/.ansys_python_venvs`` for Linux
+
+To configure the default virtual environment creation path, go to the ``File >> Configure`` section
+``(Ctrl + D)`` and provide your preferred path under the first text box. Then, click the ``Save`` button.
+
 
 Managing Python environments
 ============================
@@ -232,11 +300,20 @@ Through the ``Ansys Python Manager``, users can also have access to their differ
 installations. Have a look at how to access it here:
 
 #. Search for the ``Ansys Python Manager`` and run it.
-
 #. Access the ``Manage Python Environments`` tab.
-
 #. Select your desired ``Python`` environment and start one of the listed options.
 
+By default, Ansys Python Manager list python environments available under,
+
+* ``{user directory}/.ansys_python_venvs`` for Windows
+* ``{user directory}/.local/ansys/.ansys_python_venvs`` for Linux
+
+To manage this directory, go to the ``File >> Configure`` section ``(Ctrl + D)`` and make the appropriate changes.
+
+#. To add a new default directory path, provide the path in the corresponding text box.
+#. To add a new path where virtual environments are searched for, provide the path in the corresponding text box and click the ``Add`` button.
+#. To remove directory path select the respective path that you want remove from the dropdown and click the ``Remove`` button.
+#. Finally, click the ``Save`` button to save the configurations.
 
 On the ``Launching options`` section, the following options are available:
 

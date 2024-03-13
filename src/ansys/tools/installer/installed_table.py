@@ -33,6 +33,7 @@ from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
 from ansys.tools.installer.common import get_pkg_versions
+from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import PYANSYS_LIBS, SELECT_VENV_MANAGE_TAB
 from ansys.tools.installer.find_python import (
     find_all_python,
@@ -189,13 +190,13 @@ class InstalledTab(QtWidgets.QWidget):
         # Group 1: Available Virtual Environments
         self.available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
         available_venv_box_layout = QtWidgets.QVBoxLayout()
-        available_venv_box_layout.setContentsMargins(10, 20, 10, 20)
         self.available_venv_box.setLayout(available_venv_box_layout)
 
         # --> Add text for available virtual environments
         available_venv_box_text = QtWidgets.QLabel()
         available_venv_box_text.setText(SELECT_VENV_MANAGE_TAB)
-        available_venv_box_text.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
+        available_venv_box_text.setOpenExternalLinks(True)
+        available_venv_box_text.setTextFormat(QtCore.Qt.TextFormat.RichText)
         available_venv_box_text.setWordWrap(True)
         available_venv_box_layout.addWidget(available_venv_box_text)
 
@@ -474,6 +475,7 @@ class InstalledTab(QtWidgets.QWidget):
         """Delete virtual environment using right click."""
         # Get the cell that was right-clicked
         index = self.venv_table.indexAt(point)
+        configure_json = ConfigureJson()
         if not index.isValid():
             return
 

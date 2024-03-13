@@ -34,13 +34,12 @@ from github import Github
 from packaging import version
 
 from ansys.tools.installer import CACHE_DIR
-from ansys.tools.installer.constants import ASSETS_PATH
+from ansys.tools.installer.constants import ANSYS_FULL_LINUX_PATH, ASSETS_PATH
 
 LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 try:
-    user_name = getpass.getuser()
-    ansys_linux_path = f"/home/{user_name}/.local/ansys"
+    ansys_linux_path = ANSYS_FULL_LINUX_PATH
     Path(f"{ansys_linux_path}").mkdir(parents=True, exist_ok=True)
 except:
     user_name = getpass.getuser()
@@ -490,13 +489,16 @@ def check_python_asset_linux(version):
         confirmation.
 
     """
+    os_version = get_os_version()
+    assets_path = os.path.join(ASSETS_PATH)
+
     try:
-        for folder_name in os.listdir(os.path.join(ASSETS_PATH)):
-            if folder_name in get_os_version():
-                for assets in os.listdir(os.path.join(ASSETS_PATH, folder_name)):
+        for folder_name in os.listdir(assets_path):
+            if folder_name in os_version:
+                for assets in os.listdir(os.path.join(assets_path, folder_name)):
                     if version in assets:
                         shutil.copyfile(
-                            os.path.join(ASSETS_PATH, folder_name, assets),
+                            os.path.join(assets_path, folder_name, assets),
                             os.path.join(os.getcwd(), assets),
                         )
                         verify = install_python_linux_from_assets(assets)

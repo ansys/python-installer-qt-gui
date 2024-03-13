@@ -37,6 +37,7 @@ import requests
 from ansys.tools.installer import CACHE_DIR, __version__
 from ansys.tools.installer.auto_updater import query_gh_latest_release
 from ansys.tools.installer.common import protected
+from ansys.tools.installer.configure import Configure
 from ansys.tools.installer.constants import (
     ABOUT_TEXT,
     ANSYS_FAVICON,
@@ -59,6 +60,7 @@ from ansys.tools.installer.linux_functions import (
 )
 from ansys.tools.installer.misc import ImageWidget, PyAnsysDocsBox, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
+from ansys.tools.installer.uninstall import Uninstall
 from ansys.tools.installer.windows_functions import run_ps
 
 
@@ -100,7 +102,17 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         updates_action.triggered.connect(self.check_for_updates)
         file_menu.addAction(updates_action)
 
+        configurations = QtGui.QAction("Configure", self)
+        configurations.setShortcut(QtGui.QKeySequence("Ctrl+D"))
+        configurations.triggered.connect(self.configure_application)
+        file_menu.addAction(configurations)
+
         file_menu.addSeparator()  # -------------------------------------------
+
+        if is_linux_os():
+            uninstall_app = QtGui.QAction("Uninstall", self)
+            uninstall_app.triggered.connect(self.uninstall_application)
+            file_menu.addAction(uninstall_app)
 
         # Create an "Exit" action
         exit_action = QtGui.QAction("&Exit", self)
@@ -357,6 +369,20 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             msgBox.setIconPixmap(pixmap)
             msgBox.exec_()
 
+    @protected
+    def configure_application(self):
+        """Check for Ansys Python Manager application updates."""
+        LOG.debug("Opening configuration...")
+        self.setEnabled(False)
+        Configure(self)
+        self.setEnabled(True)
+
+    @protected
+    def uninstall_application(self):
+        """Check for Ansys Python Manager application updates."""
+        LOG.debug("Trigger uninstall..")
+        Uninstall(self)
+
     def visit_website(self):
         """Access the Ansys Python Manager documentation."""
         url = QtCore.QUrl(
@@ -477,10 +503,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         if not isinstance(text, str):
             text = str(text)
         self._err_message_box = QtWidgets.QMessageBox(
-            QtWidgets.QMessageBox.Critical,
-            "Error",
-            text,
-            QtWidgets.QMessageBox.Ok,
+            QtWidgets.QMessageBox.Critical, "Error", text, QtWidgets.QMessageBox.Ok
         )
         self._err_message_box.show()
 
