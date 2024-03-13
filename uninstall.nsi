@@ -30,15 +30,19 @@ deleteConfiguration:
   Goto doneAsking
 
 doneAsking:
-  ; Get the user's profile directory
-  ReadEnvStr $0 "PROFILE"
+
+  ; Echo the values of $DeleteConfiguration and $DeleteDefaultVenvPath
+  DetailPrint "User home: $PROFILE"
+  DetailPrint "DeleteConfiguration: $DeleteConfiguration"
+  DetailPrint "DeleteDefaultVenvPath: $DeleteDefaultVenvPath"
+  
 
   ; Delete directories if required
   ${If} $DeleteDefaultVenvPath == 1
-      RMDir /r "$0\.ansys_python_venvs"
+      RMDir /r "$PROFILE\.ansys_python_venvs"
   ${EndIf}
   ${If} $DeleteConfiguration == 1
-      RMDir /r "$0\.ansys"
+      RMDir /r "$PROFILE\.ansys"
   ${EndIf}
 
   ; Remove the installed files
