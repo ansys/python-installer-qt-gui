@@ -296,7 +296,7 @@ def run_linux_command_conda(pypath, extra, venv=False):
                     )
                     conda_path = ""
                     break
-        venvParam = f"; . {miniforge_path}; . {miniforge_path.replace('conda.sh','mamba.sh')} ;mamba activate {pypath}"
+        venvParam = f"; . {miniforge_path}; . {miniforge_path.replace('conda.sh', 'mamba.sh')} ;mamba activate {pypath}"
     else:
         extra = extra.replace(" pip", f" {pypath}/bin/pip")
     execute_linux_command(f"cd ~ {venvParam} ; {conda_path}{extra} ", wait=False)
