@@ -187,7 +187,7 @@ class Uninstall(QtWidgets.QWidget):
                             os.path.join(venv_dir, venv_dir_name, "conda-meta")
                         )
                     ):
-                        print(f"removed {os.path.join(venv_dir,venv_dir_name)}")
+                        print(f"removed {os.path.join(venv_dir, venv_dir_name)}")
                         shutil.rmtree(
                             os.path.join(venv_dir, venv_dir_name), ignore_errors=True
                         )
