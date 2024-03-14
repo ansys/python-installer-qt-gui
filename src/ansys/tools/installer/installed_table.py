@@ -355,7 +355,7 @@ class InstalledTab(QtWidgets.QWidget):
         error_msg = "(pip install spyder && spyder && exit 0) || echo Failed to launch. Try reinstalling spyder with pip install spyder --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(
-            f'pip list | findstr "spyder" && spyder && exit 0 || {error_msg}'
+            f'pip list | {"grep" if is_linux_os() else "findstr"} "spyder" && spyder && exit 0 || {error_msg}'
         )
 
     def launch_jupyterlab(self):
