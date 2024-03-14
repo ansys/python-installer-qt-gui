@@ -30,12 +30,12 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Ubuntu(20.04 and 22.04)**.
 
         #. Update ``apt-get`` repository and install the following packages with **sudo** privileges:
-           **libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
+           **wget, gnome, libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
 
            .. code:: shell
 
              sudo apt-get update -y
-             sudo apt-get install libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
+             sudo apt-get install wget gnome libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
 
         #. Install **zlib** package
 
@@ -71,11 +71,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all the virtual environments as part of
-             uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which was created by
+             Ansys Python Manageras part of uninstallation, mark
+             ``Delete virtual environment`` checkbox
 
-           * If you want to remove all the configurations as part of
+           * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
+
+           * If you want to remove all python installations which was installed by
+             Ansys Python Manageras as part of uninstallation, mark
+             ``Delete python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -130,11 +135,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all the virtual environments as part of
-             uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which was created by
+             Ansys Python Manageras part of uninstallation, mark
+             ``Delete virtual environment`` checkbox
 
-           * If you want to remove all the configurations as part of
+           * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
+
+           * If you want to remove all python installations which was installed by
+             Ansys Python Manageras as part of uninstallation, mark
+             ``Delete python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -190,11 +200,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all the virtual environments as part of
-             uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which was created by
+             Ansys Python Manageras part of uninstallation, mark
+             ``Delete virtual environment`` checkbox
 
-           * If you want to remove all the configurations as part of
+           * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
+
+           * If you want to remove all python installations which was installed by
+             Ansys Python Manageras as part of uninstallation, mark
+             ``Delete python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -241,30 +256,30 @@ Regarding the available Python versions, users can select among the following on
 
     2. Standard python installation happens in two ways:
 
-      #. If the Debian version is 22.04 and Python 3.11 (recommended by Ansys) is specified, the installer will
-         automatically install the pre-compiled version of Python available within the installer.
+  #. If the Debian version is 22.04 and Python 3.11 (recommended by Ansys) is specified, the installer will
+     automatically install the pre-compiled version of Python available within the installer.
 
-      #. Otherwise, Python will be installed following these steps:
+  #. Otherwise, Python will be installed following these steps:
 
-        #. Download Python Tarball and Untar:
+    #. Download Python Tarball and Untar:
 
-          i. The Python tar file will be downloaded from the Python FTP server (https://www.python.org/ftp/python)
-             based on the version selected from the dropdown menu. Example: For Python version 3.8.11, the download link
-             would be here(https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz).
+      i. The Python tar file will be downloaded from the Python FTP server (https://www.python.org/ftp/python)
+         based on the version selected from the dropdown menu. Example: For Python version 3.8.11, the download link
+         would be here(https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz).
 
-          ii.  Decompress the downloaded file in the user’s cache directory.
+      ii.  Decompress the downloaded file in the user’s cache directory.
 
-        * Configure the Source:
+    * Configure the Source:
 
-          i. Following will be executed configure the installation:
+      i. Following will be executed configure the installation:
 
-            .. code:: shell
+        .. code:: shell
 
-              ./configure --prefix=~/.local/ansys/{python_folder_name}
+          ./configure --prefix=~/.local/ansys/{python_folder_name}
 
-        * Build and install Python:
+    * Build and install Python:
 
-          i. Build and install Python using the make and make install commands.
+      i. Build and install Python using the make and make install commands.
 
 
 .. warning::

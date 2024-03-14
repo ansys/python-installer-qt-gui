@@ -13,7 +13,7 @@ else
     dependencies_available=false
 fi
 # check other dependencies
-arr=("libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
+arr=("wget", "gnome", "libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
 for x in "${arr[@]}"; do
     c="dpkg -s $x >/dev/null 2>&1"
     eval $c
@@ -69,7 +69,7 @@ else
                 dependencies_available=false
             fi
             # check other dependencies
-            arr=("libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
+            arr=("wget", "gnome", "libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
             for x in "${arr[@]}"; do
                 c="dpkg -s $x >/dev/null 2>&1"
                 eval $c

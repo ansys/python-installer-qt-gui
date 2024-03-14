@@ -30,6 +30,8 @@ from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import ANSYS_FAVICON, ASSETS_PATH
 from ansys.tools.installer.linux_functions import (
     execute_linux_command,
+    find_ansys_installed_python_linux,
+    find_miniforge_linux,
     get_os_version,
     is_linux_os,
 )
@@ -86,6 +88,28 @@ class Uninstall(QtWidgets.QWidget):
                 self.uninstall_window_cache_remove_venv_checkbox
             )
 
+            # remove installed python
+            uninstall_window_cache_remove_python_layout = QtWidgets.QHBoxLayout()
+            uninstall_window_cache_remove_python_text = QtWidgets.QLabel()
+            uninstall_window_cache_remove_python_text.setText(
+                "Delete python installations"
+            )
+            uninstall_window_cache_remove_python_text.setTextFormat(
+                QtCore.Qt.TextFormat.RichText
+            )
+            uninstall_window_cache_remove_python_text.setAlignment(
+                QtCore.Qt.AlignmentFlag.AlignLeft
+            )
+
+            self.uninstall_window_cache_remove_python_checkbox = QtWidgets.QCheckBox()
+
+            uninstall_window_cache_remove_python_layout.addWidget(
+                uninstall_window_cache_remove_python_text
+            )
+            uninstall_window_cache_remove_python_layout.addWidget(
+                self.uninstall_window_cache_remove_python_checkbox
+            )
+
             # configs
             uninstall_window_cache_remove_configs_layout = QtWidgets.QHBoxLayout()
 
@@ -111,6 +135,10 @@ class Uninstall(QtWidgets.QWidget):
             # add layout to group
             uninstall_window_cache_remove_layout.addLayout(
                 uninstall_window_cache_remove_venv_layout
+            )
+
+            uninstall_window_cache_remove_layout.addLayout(
+                uninstall_window_cache_remove_python_layout
             )
 
             uninstall_window_cache_remove_layout.addLayout(
@@ -155,6 +183,9 @@ class Uninstall(QtWidgets.QWidget):
         if self.uninstall_window_cache_remove_venv_checkbox.isChecked():
             self._remove_all_venvs()
 
+        if self.uninstall_window_cache_remove_python_checkbox.isChecked():
+            self._remove_all_installed_python()
+
         if self.uninstall_window_cache_remove_configs_checkbox.isChecked():
             self._remove_configs()
 
@@ -169,6 +200,13 @@ class Uninstall(QtWidgets.QWidget):
         self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
         self._parent.close_emit()
+
+    def _remove_all_installed_python(self):
+        for path in find_ansys_installed_python_linux():
+            path = path.split("bin")[0]
+            shutil.rmtree(path, ignore_errors=True)
+        for path in find_miniforge_linux(ansys_manager_installed_only=True):
+            shutil.rmtree(path, ignore_errors=True)
 
     def _remove_all_venvs(self):
         """Remove all the venv created by Ansys Python Manager."""
