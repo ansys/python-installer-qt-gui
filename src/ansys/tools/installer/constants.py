@@ -67,6 +67,10 @@ PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
 
+PRE_COMPILED_PYTHON_WARNING = """
+
+NOTE - Only 'Python 3.11' version is readily available. Other python versions are compiled from source and it takes approx 2-3 minutes."""
+
 PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for your virtual environment.
 
 Please select the Python version from the table below to create its respective virtual environment."""
