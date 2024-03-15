@@ -92,7 +92,7 @@ else
                 then
                     echo -e "# Add alias for Ansys Python Manager \nalias  ansys_python_manager=~/.local/opt/ansys_python_manager/ansys_python_manager" >> ~/.bashrc
                 fi
-                printf "\nInstallation successful. \nIt is suggested to restart your machine to begin using the software...."
+                printf "\nInstallation successful. \nIt is suggested to restart your machine to begin using the software....\n"
             fi
         else
             echo "You don't have access to sudo. Please try again..."

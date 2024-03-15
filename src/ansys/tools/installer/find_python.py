@@ -193,7 +193,7 @@ def _find_installed_python_linux():
                 pythons[path] = (version, admin)
                 LOG.debug("Identified %s at %s", version, path)
                 previous_found_version = version
-        except subprocess.CalledProcessError:
+        except:
             # Ignore if the command fails (e.g., if the Python version is not installed)
             pass
 
