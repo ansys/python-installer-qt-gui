@@ -34,7 +34,7 @@ if [ "$user_selection" = "Y" ]; then
             missing_deps+=("Development Tools")
             dependencies_available=false
         fi
-        arr=("wget" "libffi-devel" "openssl-devel" "rpm-build" "sqlite-devel" "sqlite-libs" "libXinerama-devel")
+        arr=("wget" "gnome-terminal" "libffi-devel" "openssl-devel" "rpm-build" "sqlite-devel" "sqlite-libs" "libXinerama-devel")
         for x in "${arr[@]}"; do
             c="rpm -qa | grep $x"
             eval $c
