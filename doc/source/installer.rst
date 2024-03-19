@@ -92,19 +92,18 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **CentOS9** and **RHEL9**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
 
            .. code:: shell
 
              sudo yum update -y;
              sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
 
         #. Install **zlib** package using **wget**
 
            .. code:: shell
 
-             sudo yum install wget -y
              wget https://zlib.net/current/zlib.tar.gz
              tar xvzf zlib.tar.gz
              cd zlib-*
@@ -157,19 +156,18 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Fedora39**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
 
            .. code:: shell
 
              sudo yum update -y;
              sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
 
         #. Install **zlib** package using **wget**
 
            .. code:: shell
 
-             sudo yum install wget -y
              wget https://zlib.net/current/zlib.tar.gz
              tar xvzf zlib.tar.gz
              cd zlib-*
