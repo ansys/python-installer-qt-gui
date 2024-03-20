@@ -44,8 +44,8 @@ from ansys.tools.installer.constants import (
     ASSETS_PATH,
     INSTALL_TEXT,
     LOG,
-    PYTHON_VERSION_TEXT,
     PRE_COMPILED_PYTHON_WARNING,
+    PYTHON_VERSION_TEXT,
     UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT,
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
@@ -237,7 +237,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         python_version_box_layout.addWidget(python_version)
         form_layout.addWidget(python_version_box)
-        
+
         # Linux Warning/Note for Python pre-compiled version
         if is_linux_os():
             python_version_warning = QtWidgets.QLabel(PRE_COMPILED_PYTHON_WARNING)
