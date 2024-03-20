@@ -6,7 +6,7 @@ on:
     tags:
       - "*"
     branches:
-      - feature/remove-python-installations
+      - main
 
 env:
   MAIN_PYTHON_VERSION: '3.11'
