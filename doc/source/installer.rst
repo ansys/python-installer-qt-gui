@@ -61,7 +61,7 @@ Installing the ``Ansys Python Manager``
              unzip Ansys-Python-Manager_*.zip
              ./installer.sh
 
-        #. Restart the machine and run ``ansys_python_installer``.
+        #. Search for the ``Ansys Python Manager`` and run it.
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
@@ -125,7 +125,7 @@ Installing the ``Ansys Python Manager``
              unzip Ansys-Python-Manager_linux_centos_*.zip
              ./installer_CentOS.sh
 
-        #. Restart the machine and run ``ansys_python_installer``.
+        #. Search for the ``Ansys Python Manager`` and run it.
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
@@ -190,7 +190,7 @@ Installing the ``Ansys Python Manager``
              unzip Ansys-Python-Manager_linux_fedora_*.zip
              ./installer_Fedora.sh
 
-        #. Restart the machine and run ``ansys_python_installer``.
+        #. Search for the ``Ansys Python Manager`` and run it.
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
@@ -223,7 +223,7 @@ Now, instructions on how to install Python from the ``Ansys Python Manager`` are
 
 In order to do so, just follow the upcoming steps:
 
-#. Launch ``Ansys Python Manager``.
+#. Search for the ``Ansys Python Manager`` and run it.
 
 #. Go to the ``Install Python`` tab, and select your desired Python install, version and extra packages.
 
@@ -289,7 +289,7 @@ Regarding the available Python versions, users can select among the following on
 Create Python virtual environment
 =================================
 
-#. Launch ``Ansys Python Manager``.
+#. Search for the ``Ansys Python Manager`` and run it.
 
 #. Access the ``Create Python Environments`` tab.
 
@@ -314,7 +314,7 @@ Managing Python environments
 Through the ``Ansys Python Manager``, users can also have access to their different Python
 installations. Have a look at how to access it here:
 
-#. Launch ``Ansys Python Manager``.
+#. Search for the ``Ansys Python Manager`` and run it.
 #. Access the ``Manage Python Environments`` tab.
 #. Select your desired ``Python`` environment and start one of the listed options.
 
