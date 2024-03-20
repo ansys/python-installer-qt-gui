@@ -61,7 +61,7 @@ Installing the ``Ansys Python Manager``
              unzip Ansys-Python-Manager_*.zip
              ./installer.sh
 
-        #. Search for the ``Ansys Python Manager`` and run it.
+        #. Restart the machine and run ``ansys_python_installer``.
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
@@ -104,6 +104,7 @@ Installing the ``Ansys Python Manager``
 
            .. code:: shell
 
+             sudo yum install wget -y
              wget https://zlib.net/current/zlib.tar.gz
              tar xvzf zlib.tar.gz
              cd zlib-*
@@ -124,7 +125,7 @@ Installing the ``Ansys Python Manager``
              unzip Ansys-Python-Manager_linux_centos_*.zip
              ./installer_CentOS.sh
 
-        #. Search for the ``Ansys Python Manager`` and run it.
+        #. Restart the machine and run ``ansys_python_installer``.
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
@@ -168,6 +169,7 @@ Installing the ``Ansys Python Manager``
 
            .. code:: shell
 
+             sudo yum install wget -y
              wget https://zlib.net/current/zlib.tar.gz
              tar xvzf zlib.tar.gz
              cd zlib-*
@@ -188,7 +190,7 @@ Installing the ``Ansys Python Manager``
              unzip Ansys-Python-Manager_linux_fedora_*.zip
              ./installer_Fedora.sh
 
-        #. Search for the ``Ansys Python Manager`` and run it.
+        #. Restart the machine and run ``ansys_python_installer``.
 
         The ``Ansys Python Manager`` window should appear at this stage.
 
@@ -221,7 +223,7 @@ Now, instructions on how to install Python from the ``Ansys Python Manager`` are
 
 In order to do so, just follow the upcoming steps:
 
-#. Search for the ``Ansys Python Manager`` and run it.
+#. Launch ``Ansys Python Manager``.
 
 #. Go to the ``Install Python`` tab, and select your desired Python install, version and extra packages.
 
@@ -254,30 +256,30 @@ Regarding the available Python versions, users can select among the following on
 
     2. Standard python installation happens in two ways:
 
-  #. If the Debian version is 22.04 and Python 3.11 (recommended by Ansys) is specified, the installer will
-     automatically install the pre-compiled version of Python available within the installer.
+      #. If the Debian version is 22.04 and Python 3.11 (recommended by Ansys) is specified, the installer will
+         automatically install the pre-compiled version of Python available within the installer.
 
-  #. Otherwise, Python will be installed following these steps:
+      #. Otherwise, Python will be installed following these steps:
 
-    #. Download Python Tarball and Untar:
+        #. Download Python Tarball and Untar:
 
-      i. The Python tar file will be downloaded from the Python FTP server (https://www.python.org/ftp/python)
-         based on the version selected from the dropdown menu. Example: For Python version 3.8.11, the download link
-         would be here(https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz).
+          i. The Python tar file will be downloaded from the Python FTP server (https://www.python.org/ftp/python)
+             based on the version selected from the dropdown menu. Example: For Python version 3.8.11, the download link
+             would be here(https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz).
 
-      ii.  Decompress the downloaded file in the user’s cache directory.
+          ii.  Decompress the downloaded file in the user’s cache directory.
 
-    * Configure the Source:
+        * Configure the Source:
 
-      i. Following will be executed configure the installation:
+          i. Following will be executed configure the installation:
 
-        .. code:: shell
+            .. code:: shell
 
-          ./configure --prefix=~/.local/ansys/{python_folder_name}
+              ./configure --prefix=~/.local/ansys/{python_folder_name}
 
-    * Build and install Python:
+        * Build and install Python:
 
-      i. Build and install Python using the make and make install commands.
+          i. Build and install Python using the make and make install commands.
 
 
 .. warning::
@@ -287,7 +289,7 @@ Regarding the available Python versions, users can select among the following on
 Create Python virtual environment
 =================================
 
-#. Search for the ``Ansys Python Manager`` and run it.
+#. Launch ``Ansys Python Manager``.
 
 #. Access the ``Create Python Environments`` tab.
 
@@ -312,7 +314,7 @@ Managing Python environments
 Through the ``Ansys Python Manager``, users can also have access to their different Python
 installations. Have a look at how to access it here:
 
-#. Search for the ``Ansys Python Manager`` and run it.
+#. Launch ``Ansys Python Manager``.
 #. Access the ``Manage Python Environments`` tab.
 #. Select your desired ``Python`` environment and start one of the listed options.
 

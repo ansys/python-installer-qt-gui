@@ -45,6 +45,7 @@ from ansys.tools.installer.constants import (
     INSTALL_TEXT,
     LOG,
     PYTHON_VERSION_TEXT,
+    PRE_COMPILED_PYTHON_WARNING,
     UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT,
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
@@ -229,13 +230,21 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self.python_version_select.addItem("Python 3.11", "3.11.6")
         self.python_version_select.addItem("Python 3.12", "3.12.0")
 
-        # Set the default selection to "Python 3.10"
+        # Set the default selection to "Python 3.11"
         default_index = self.python_version_select.findText("Python 3.11")
         self.python_version_select.setCurrentIndex(default_index)
         python_version_layout.addWidget(self.python_version_select)
 
         python_version_box_layout.addWidget(python_version)
         form_layout.addWidget(python_version_box)
+        
+        # Linux Warning/Note for Python pre-compiled version
+        if is_linux_os():
+            python_version_warning = QtWidgets.QLabel(PRE_COMPILED_PYTHON_WARNING)
+            python_version_warning.setStyleSheet("color: red;")
+            python_version_warning.setWordWrap(True)
+            python_version_warning.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
+            python_version_box_layout.addWidget(python_version_warning)
 
         # ensure content does not get squished
         form_layout.addStretch()
