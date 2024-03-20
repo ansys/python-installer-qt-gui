@@ -35,10 +35,11 @@ LOG.setLevel("DEBUG")
 
 ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Created by the PyAnsys Team.</p>
+<p>Project build using <a href='https://wiki.qt.io/Qt_for_Python'> PySide6</a> and <a href='https://pyinstaller.org/en/stable/'> PyInstaller</a>.</p>
 <p>If you have any questions or issues, please open an issue in <a href='https://github.com/ansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
 <p>Alternatively, you can contact us at <a href='mailto:pyansys.core@ansys.com'>pyansys.core@ansys.com</a>.</p>
 <p>Your use of this software is governed by the MIT License. In addition, this installer allows you to access and install software that is licensed under separate terms ("Separately Licensed Software"). If you chose to install such Separately Licensed Software, you acknowledge that you are responsible for complying with any associated terms and conditions.</p>
-<p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
+<p>Copyright 2023 - 2024 ANSYS, Inc. All rights reserved.</p>
 """
 
 UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT = f"""
