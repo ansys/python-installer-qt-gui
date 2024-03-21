@@ -143,10 +143,10 @@ def find_miniforge_linux(ansys_manager_installed_only=False):
     """
     Find miniforge installation on the host machine.
 
-    Parameters:
+    Parameters
     ----------
-    ansys_manager_installed_only : Boolean(default: False)
-        If this value is true, then python installed via Ansys python manager will be returned.
+    ansys_manager_installed_only : bool, optional
+        If this value is True, then the Python versions installed via Ansys Python Manager will be returned.
 
     Returns
     -------
@@ -227,7 +227,7 @@ def create_venv_linux_conda(venv_dir, py_path):
 
 def delete_venv_conda(miniforge_path, parent_path):
     """
-    Delete virtual environment for Miniforge.
+    Delete virtual environments for Miniforge.
 
     Examples
     --------

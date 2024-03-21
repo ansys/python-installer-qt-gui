@@ -71,16 +71,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all virtual environments which was created by
-             Ansys Python Manageras part of uninstallation, mark
-             ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which were created by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete virtual environments`` checkbox
 
            * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
 
-           * If you want to remove all python installations which was installed by
-             Ansys Python Manageras as part of uninstallation, mark
-             ``Delete python installations`` checkbox
+           * If you want to remove all Python installations which were installed by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete Python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -135,16 +135,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all virtual environments which was created by
-             Ansys Python Manageras part of uninstallation, mark
-             ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which were created by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete virtual environments`` checkbox
 
            * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
 
-           * If you want to remove all python installations which was installed by
-             Ansys Python Manageras as part of uninstallation, mark
-             ``Delete python installations`` checkbox
+           * If you want to remove all Python installations which were installed by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete Python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -200,16 +200,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all virtual environments which was created by
-             Ansys Python Manageras part of uninstallation, mark
-             ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which were created by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete virtual environments`` checkbox
 
            * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
 
-           * If you want to remove all python installations which was installed by
-             Ansys Python Manageras as part of uninstallation, mark
-             ``Delete python installations`` checkbox
+           * If you want to remove all Python installations which were installed by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete Python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 

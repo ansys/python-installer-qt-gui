@@ -70,7 +70,7 @@ class Uninstall(QtWidgets.QWidget):
 
             uninstall_window_cache_remove_venv_text = QtWidgets.QLabel()
             uninstall_window_cache_remove_venv_text.setText(
-                "Delete virtual environment "
+                "Delete virtual environments "
             )
             uninstall_window_cache_remove_venv_text.setTextFormat(
                 QtCore.Qt.TextFormat.RichText
@@ -92,7 +92,7 @@ class Uninstall(QtWidgets.QWidget):
             uninstall_window_cache_remove_python_layout = QtWidgets.QHBoxLayout()
             uninstall_window_cache_remove_python_text = QtWidgets.QLabel()
             uninstall_window_cache_remove_python_text.setText(
-                "Delete python installations"
+                "Delete Python installations"
             )
             uninstall_window_cache_remove_python_text.setTextFormat(
                 QtCore.Qt.TextFormat.RichText

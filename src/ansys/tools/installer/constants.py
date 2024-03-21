@@ -70,7 +70,7 @@ While choosing the latest version of Python is generally recommended, some third
 
 PRE_COMPILED_PYTHON_WARNING = """
 
-NOTE - Only 'Python 3.11' version is readily available. Other python versions are compiled from source and it takes approx 2-3 minutes."""
+NOTE - Only 'Python 3.11' version is readily available. Other Python versions are compiled from source and it takes approximately 2-3 minutes."""
 
 PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for your virtual environment.
 

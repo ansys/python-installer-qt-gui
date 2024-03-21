@@ -96,7 +96,7 @@ have options available, such as deleting a virtual environment, Launch
 Options, General Package Management, and PyAnsys Package Management for
 the selected virtual environment. You can also delete a virtual
 environment by selecting it from the available list under “Available
-virtual environments” and clicking on the “Delete virtual environment”
+virtual environments” and clicking on the “Delete virtual environments”
 option available with context menu.
 
 .. image:: _static/manage_venv_tab.PNG
