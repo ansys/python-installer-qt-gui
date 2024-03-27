@@ -481,7 +481,7 @@ class InstalledTab(QtWidgets.QWidget):
 
         # Create the context menu
         menu = QtWidgets.QMenu(self)
-        delete_action = menu.addAction("Delete virtual environments")
+        delete_action = menu.addAction("Delete virtual environment")
 
         # Show the context menu and handle the user's choice
         action = menu.exec(self.venv_table.mapToGlobal(point))
