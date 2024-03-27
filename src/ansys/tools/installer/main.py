@@ -241,7 +241,6 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         # Linux Warning/Note for Python pre-compiled version
         if is_linux_os():
             python_version_warning = QtWidgets.QLabel(PRE_COMPILED_PYTHON_WARNING)
-            python_version_warning.setStyleSheet("color: red;")
             python_version_warning.setWordWrap(True)
             python_version_warning.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
             python_version_box_layout.addWidget(python_version_warning)
