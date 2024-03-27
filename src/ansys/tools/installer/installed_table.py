@@ -472,7 +472,7 @@ class InstalledTab(QtWidgets.QWidget):
         return is_vanilla_python, miniforge_path, parent_path
 
     def delete_virtual_environment(self, point):
-        """Delete virtual environment using right click."""
+        """Delete virtual environments using right click."""
         # Get the cell that was right-clicked
         index = self.venv_table.indexAt(point)
         configure_json = ConfigureJson()

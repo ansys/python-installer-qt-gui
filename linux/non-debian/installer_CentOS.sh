@@ -34,7 +34,7 @@ if [ "$user_selection" = "Y" ]; then
             missing_deps+=("Development Tools")
             dependencies_available=false
         fi
-        arr=("wget" "libffi-devel" "openssl-devel" "rpm-build" "sqlite-devel" "sqlite-libs" "libXinerama-devel")
+        arr=("wget" "gnome-terminal" "libffi-devel" "openssl-devel" "rpm-build" "sqlite-devel" "sqlite-libs" "libXinerama-devel" "coreutils")
         for x in "${arr[@]}"; do
             c="rpm -qa | grep $x"
             eval $c
@@ -48,7 +48,13 @@ if [ "$user_selection" = "Y" ]; then
         done
         if [ $dependencies_available = true ]; then
             sudo rpm -iv ansys_python_manager_*.rpm
-            printf "\nInstallation success...\n"
+            available=$(cat ~/.bashrc | grep -zoP "# Add alias for Ansys Python Manager \nalias  ansys_python_manager=~/.local/opt/ansys_python_manager/ansys_python_manager" | wc -l)
+            echo $available
+            if [ $available -lt 1 ]
+            then
+                echo -e "# Add alias for Ansys Python Manager \nalias  ansys_python_manager=~/.local/opt/ansys_python_manager/ansys_python_manager" | sudo tee -a ~/.bashrc
+            fi
+            printf "\nInstallation success...\nIt is suggested to restart your machine to begin using the software....\n"
         else
             echo "Missing dependencies..."
             install_script="sudo yum update -y; sudo yum install "

@@ -6,3 +6,6 @@ rm -rf ${HOME}/.local/share/applications/ansys_python_manager.desktop
 rm -rf ${HOME}/.local/usr/share/doc/ansys-python-manager
 
 rm -rf ${HOME}/.local/opt/ansys_python_manager
+
+sed -i '/# Add alias for Ansys Python Manager/d' ~/.bashrc
+sed -i  '/alias  ansys_python_manager/d' ~/.bashrc
