@@ -6,7 +6,7 @@ on:
     tags:
       - "*"
     branches:
-      - main
+      - vcode-enablement
 
 env:
   MAIN_PYTHON_VERSION: '3.11'
