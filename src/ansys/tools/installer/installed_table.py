@@ -251,6 +251,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_launch_cmd.clicked.connect(self.launch_cmd)
         hbox.addWidget(self.button_launch_cmd)
 
+        self.button_launch_cmd = QtWidgets.QPushButton("Launch VSCode")
+        self.button_launch_cmd.clicked.connect(self.launch_vscode)
+        hbox.addWidget(self.button_launch_cmd)
+
         self.button_launch_lab = QtWidgets.QPushButton("Launch Jupyterlab")
         self.button_launch_lab.clicked.connect(self.launch_jupyterlab)
         hbox.addWidget(self.button_launch_lab)
@@ -364,6 +368,12 @@ class InstalledTab(QtWidgets.QWidget):
         error_msg = "pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(f"python -m jupyter lab || {error_msg}")
+
+    def launch_vscode(self):
+        """Launch VSCode."""
+        # handle errors
+        error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
+        self.launch_cmd(f"code . || {error_msg}")
 
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook."""
