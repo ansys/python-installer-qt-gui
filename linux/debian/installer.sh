@@ -13,7 +13,7 @@ else
     dependencies_available=false
 fi
 # check other dependencies
-arr=("libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
+arr=("wget" "gnome" "libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
 for x in "${arr[@]}"; do
     c="dpkg -s $x >/dev/null 2>&1"
     eval $c
@@ -28,7 +28,13 @@ done
 if [ $dependencies_available = true ]; then
     dpkg -x ./ansys_python_manager.deb ${HOME}/.local
     ./postInstallScript.sh
-    printf "\nInstallation success...\n"
+    available=$(cat ~/.bashrc | grep -zoP "# Add alias for Ansys Python Manager \nalias ansys_python_manager=~/.local/opt/ansys_python_manager/ansys_python_manager" | wc -l)
+    echo $available
+    if [ $available -lt 1 ]
+    then
+        echo -e "# Add alias for Ansys Python Manager \nalias ansys_python_manager=~/.local/opt/ansys_python_manager/ansys_python_manager" >> ~/.bashrc
+    fi
+    printf "\nInstallation successful. \nIt is suggested to restart your machine to begin using the software....\n"
 else
     echo "Missing dependencies..."
     while true; do
@@ -69,7 +75,7 @@ else
                 dependencies_available=false
             fi
             # check other dependencies
-            arr=("libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
+            arr=("wget" "gnome" "libffi-dev" "libssl-dev" "build-essential" "libsqlite3-dev" "libxcb-xinerama0")
             for x in "${arr[@]}"; do
                 c="dpkg -s $x >/dev/null 2>&1"
                 eval $c
@@ -86,7 +92,13 @@ else
             else
                 dpkg -x ./ansys_python_manager.deb ${HOME}/.local
                 ./postInstallScript.sh
-                printf "\nInstallation success...\n"
+                available=$(cat ~/.bashrc | grep -zoP "# Add alias for Ansys Python Manager \nalias ansys_python_manager=~/.local/opt/ansys_python_manager/ansys_python_manager" | wc -l)
+                echo $available
+                if [ $available -lt 1 ]
+                then
+                    echo -e "# Add alias for Ansys Python Manager \nalias ansys_python_manager=~/.local/opt/ansys_python_manager/ansys_python_manager" >> ~/.bashrc
+                fi
+                printf "\nInstallation successful. \nIt is suggested to restart your machine to begin using the software....\n"
             fi
         else
             echo "You don't have access to sudo. Please try again..."
