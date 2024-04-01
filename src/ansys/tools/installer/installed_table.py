@@ -46,6 +46,7 @@ from ansys.tools.installer.linux_functions import (
     run_linux_command,
     run_linux_command_conda,
 )
+from ansys.tools.installer.vscode import VSCode
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
 LOG = logging.getLogger(__name__)
@@ -371,9 +372,7 @@ class InstalledTab(QtWidgets.QWidget):
 
     def launch_vscode(self):
         """Launch VSCode."""
-        # handle errors
-        error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
-        self.launch_cmd(f"code . || {error_msg}")
+        vscode = VSCode(self)
 
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook."""
