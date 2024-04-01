@@ -31,7 +31,7 @@ from ansys.tools.path import get_available_ansys_installations
 from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import ANSYS_SUPPORTED_PYTHON_VERSIONS
 from ansys.tools.installer.linux_functions import (
-    find_installed_python_linux,
+    find_ansys_installed_python_linux,
     find_miniforge_linux,
     is_linux_os,
 )
@@ -193,7 +193,7 @@ def _find_installed_python_linux():
                 pythons[path] = (version, admin)
                 LOG.debug("Identified %s at %s", version, path)
                 previous_found_version = version
-        except subprocess.CalledProcessError:
+        except:
             # Ignore if the command fails (e.g., if the Python version is not installed)
             pass
 
@@ -235,7 +235,7 @@ def find_all_python():
         paths.update(_find_installed_ansys_python_win())
     else:
         paths = _find_installed_python_linux()
-        paths.update(find_installed_python_linux())
+        paths.update(find_ansys_installed_python_linux())
 
     return paths
 

@@ -139,9 +139,14 @@ def install_python_linux(filename):
     return 0
 
 
-def find_miniforge_linux():
+def find_miniforge_linux(ansys_manager_installed_only=False):
     """
     Find miniforge installation on the host machine.
+
+    Parameters
+    ----------
+    ansys_manager_installed_only : bool, optional
+        If this value is True, then the Python versions installed via Ansys Python Manager will be returned.
 
     Returns
     -------
@@ -161,18 +166,19 @@ def find_miniforge_linux():
 
     """
     paths = {}
-    try:
-        subprocess.check_output("printenv | grep CONDA_PYTHON_EXE > /tmp/conda.txt")
-        with open("/tmp/conda.txt") as f:
-            conda_system_path = f.read()
-            conda_system_path = conda_system_path.replace("CONDA_PYTHON_EXE=", "")
-            conda_system_path = conda_system_path.replace("/bin/python", "").strip()
-            version = subprocess.check_output([f"conda", "--version"])
-            version = version.split()[1].decode("utf-8")
-            paths[conda_system_path] = (version, True)
-        os.remove("/tmp/conda.txt")
-    except:
-        pass
+    if not ansys_manager_installed_only:
+        try:
+            subprocess.check_output("printenv | grep CONDA_PYTHON_EXE > /tmp/conda.txt")
+            with open("/tmp/conda.txt") as f:
+                conda_system_path = f.read()
+                conda_system_path = conda_system_path.replace("CONDA_PYTHON_EXE=", "")
+                conda_system_path = conda_system_path.replace("/bin/python", "").strip()
+                version = subprocess.check_output([f"conda", "--version"])
+                version = version.split()[1].decode("utf-8")
+                paths[conda_system_path] = (version, True)
+            os.remove("/tmp/conda.txt")
+        except:
+            pass
     try:
         version = subprocess.check_output(
             [f"{ansys_linux_path}/conda/bin/conda", "--version"]
@@ -221,7 +227,7 @@ def create_venv_linux_conda(venv_dir, py_path):
 
 def delete_venv_conda(miniforge_path, parent_path):
     """
-    Delete virtual environment for Miniforge.
+    Delete virtual environments for Miniforge.
 
     Examples
     --------
@@ -302,7 +308,7 @@ def run_linux_command_conda(pypath, extra, venv=False):
     execute_linux_command(f"cd ~ {venvParam} ; {conda_path}{extra} ", wait=False)
 
 
-def find_installed_python_linux():
+def find_ansys_installed_python_linux():
     """
     Find all installed Ansys Python Manager installed Python versions on Linux.
 
@@ -314,7 +320,7 @@ def find_installed_python_linux():
 
     Examples
     --------
-    >>> installed_pythons = find_installed_python_linux()
+    >>> installed_pythons = find_ansys_installed_python_linux()
     >>> installed_pythons
     {'/home/user/python/py311/bin/python': ('3.11.3', False),
      '/home/user/python/py311/bin/python3': ('3.11.3', False),
