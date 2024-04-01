@@ -167,7 +167,10 @@ class VSCode(QtWidgets.QWidget):
             Boolean
         """
         try:
-            os.system("code --version")
-            return True
+            return_val = os.system("code --version")
+            if return_val == 0:
+                return True
+            else:
+                return False
         except:
             return False
