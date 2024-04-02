@@ -36,7 +36,6 @@ class VSCode(QtWidgets.QWidget):
         try:
             super().__init__()
             self._parent = parent
-            self._parent.setEnabled(False)
             if self.is_vscode_installed():
                 self._parent.vscode_window = QtWidgets.QWidget()
                 self._parent.vscode_window.move(
@@ -65,6 +64,13 @@ class VSCode(QtWidgets.QWidget):
                     self.vscode_window_path_config_edit
                 )
 
+                self.vscode_warning_text = QtWidgets.QLabel()
+                self.vscode_warning_text.setAlignment(
+                    QtCore.Qt.AlignmentFlag.AlignJustify
+                )
+                self.vscode_warning_text.setWordWrap(True)
+                vscode_window_path_config_layout.addWidget(self.vscode_warning_text)
+
                 # Finally, add all the previous widgets to the global layout
                 vscode_layout.addWidget(vscode_window_path_config)
 
@@ -91,9 +97,6 @@ class VSCode(QtWidgets.QWidget):
 
                 self._parent.vscode_window.setWindowTitle("Configuration")
                 self._parent.vscode_window.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
-                self._parent.vscode_window.setWindowFlag(
-                    QtCore.Qt.WindowCloseButtonHint, False
-                )
                 self._parent.vscode_window.resize(500, 40)
                 self._parent.vscode_window.show()
             else:
@@ -104,7 +107,6 @@ class VSCode(QtWidgets.QWidget):
                     "VS Code Launch Error",
                     f"Failed to launch vscode. Try reinstalling code by following this  <a href='https://code.visualstudio.com/download'>link</a>",
                 )
-                self._parent.setEnabled(True)
 
         except Exception as e:
             self._parent.show_error(str(e))
@@ -112,20 +114,28 @@ class VSCode(QtWidgets.QWidget):
     def _open_vscode(self):
         """Open VS code from path."""
         # handle errors
-        error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
-        self._parent.launch_cmd(
-            f"code {self.vscode_window_path_config_edit.text().strip()} || {error_msg}"
-        )
+        path = self.vscode_window_path_config_edit.text().strip()
+        if os.path.exists(path):
+            error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
+            self._parent.launch_cmd(f"code {path} && exit 0 || {error_msg}")
 
-        self.user_confirmation_form.close()
-        self._parent.vscode_window.close()
-        self._parent.setEnabled(True)
+            self.user_confirmation_form.close()
+            self._parent.vscode_window.close()
+        else:
+            self.vscode_warning_text.setText(
+                f"""{path} does not exist. Provide a valid path."""
+            )
+            self.vscode_warning_text.setStyleSheet(
+                """
+                    color: rgb(255, 0, 0);
+            """
+            )
+            self.user_confirmation_form.close()
 
     def _close_all(self):
         """Close all the pop-up window."""
         self.user_confirmation_form.close()
         self._parent.vscode_window.close()
-        self._parent.setEnabled(True)
 
     def _pop_up(self, message, call_back):
         """Launch the confirmation pop-up window."""

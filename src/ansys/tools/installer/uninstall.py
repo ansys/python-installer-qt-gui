@@ -45,7 +45,6 @@ class Uninstall(QtWidgets.QWidget):
         try:
             super().__init__()
             self._parent = parent
-            self._parent.setEnabled(False)
             self._parent.uninstall_window = QtWidgets.QWidget()
             self._parent.uninstall_window.move(
                 self._parent.uninstall_window.frameGeometry().center()
@@ -171,7 +170,7 @@ class Uninstall(QtWidgets.QWidget):
             self._parent.uninstall_window.setWindowTitle("Uninstall")
             self._parent.uninstall_window.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
             self._parent.uninstall_window.setWindowFlag(
-                QtCore.Qt.WindowCloseButtonHint, False
+                QtCore.Qt.WindowCloseButtonHint, True
             )
             self._parent.uninstall_window.resize(500, 40)
             self._parent.uninstall_window.show()
@@ -201,7 +200,6 @@ class Uninstall(QtWidgets.QWidget):
         self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
         self._parent.close_emit()
-        self._parent.setEnabled(True)
 
     def _remove_all_installed_python(self):
         for path in find_ansys_installed_python_linux():
@@ -254,7 +252,6 @@ class Uninstall(QtWidgets.QWidget):
         """Close all the pop-up window."""
         self.user_confirmation_form.close()
         self._parent.uninstall_window.close()
-        self._parent.setEnabled(True)
 
     def _pop_up(self, message, call_back):
         """Launch the confirmation pop-up window."""
