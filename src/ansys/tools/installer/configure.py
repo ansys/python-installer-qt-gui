@@ -42,7 +42,6 @@ class Configure(QtWidgets.QWidget):
         try:
             super().__init__()
             self._parent = parent
-            self._parent.setEnabled(False)
             self.configure_json = ConfigureJson()
             self._parent.configure_window = QtWidgets.QWidget()
             self._parent.configure_window.move(
@@ -251,13 +250,11 @@ class Configure(QtWidgets.QWidget):
 
         self.user_confirmation_form.close()
         self._parent.configure_window.close()
-        self._parent.setEnabled(True)
 
     def _close_all(self):
         """Close all the pop-up window."""
         self.user_confirmation_form.close()
         self._parent.configure_window.close()
-        self._parent.setEnabled(True)
 
     def _pop_up(self, message, call_back):
         """Launch the confirmation pop-up window."""

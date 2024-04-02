@@ -170,7 +170,7 @@ class Uninstall(QtWidgets.QWidget):
             self._parent.uninstall_window.setWindowTitle("Uninstall")
             self._parent.uninstall_window.setWindowIcon(QtGui.QIcon(ANSYS_FAVICON))
             self._parent.uninstall_window.setWindowFlag(
-                QtCore.Qt.WindowCloseButtonHint, True
+                QtCore.Qt.WindowCloseButtonHint, False
             )
             self._parent.uninstall_window.resize(500, 40)
             self._parent.uninstall_window.show()
