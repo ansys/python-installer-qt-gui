@@ -22,8 +22,18 @@ OutFile "dist\${OUTFILE_NAME}"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 !insertmacro MUI_PAGE_LICENSE "${LICENSE_FILE}"
 !insertmacro MUI_PAGE_INSTFILES
-!insertmacro MUI_LANGUAGE English
 !include "uninstall.nsi"
+
+Function CreateDesktopShortCut
+  CreateShortCut "$desktop\Ansys Python Manager.lnk" "$INSTDIR\Ansys Python Manager.exe"
+FunctionEnd
+
+!define MUI_FINISHPAGE_RUN "$INSTDIR\Ansys Python Manager.exe"
+!define MUI_FINISHPAGE_SHOWREADME
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Create Desktop Shortcut"
+!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION "CreateDesktopShortCut"
+!insertmacro MUI_PAGE_FINISH
 
 Function .onInit
   !insertmacro MULTIUSER_INIT
@@ -74,6 +84,7 @@ Section "Uninstall" SEC02
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
   Delete "$SMPROGRAMS\Ansys Python Manager\Ansys Python Manager.lnk"
   RMDir "$SMPROGRAMS\Ansys Python Manager"
+  Delete "$desktop\Ansys Python Manager.lnk"
 SectionEnd
 
 Icon "dist\ansys_python_manager\_internal\assets\pyansys_icon.ico"
@@ -90,3 +101,4 @@ FunctionEnd
 ; Call the MUI2 OneClick plugin
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_LANGUAGE English

@@ -114,7 +114,7 @@ class VSCode(QtWidgets.QWidget):
         # handle errors
         error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
         self._parent.launch_cmd(
-            f"code {self.vscode_window_path_config_edit.text()} || {error_msg}"
+            f"code {self.vscode_window_path_config_edit.text().strip()} || {error_msg}"
         )
 
         self.user_confirmation_form.close()
