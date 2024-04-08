@@ -334,8 +334,10 @@ On the ``Launching options`` section, the following options are available:
 
 * ``Launch Console``: this option starts a console window with the command ``python`` pointing
   towards your selected Python environment.
-* ``Launch JupyterLab``: this option starts a ``JupyterLab`` session. If ``JupyterLab`` is
+* ``Launch VSCode``: this option starts a ``Visual Studio Code``. If ``Visual Studio Code`` is
   not installed, then the ``Ansys Python Manager`` installs it for you.
+* ``Launch JupyterLab``: this option starts a ``JupyterLab`` session. If ``JupyterLab`` is
+  not installed, then the ``Ansys Python Manager`` provides instructions to install it.
 * ``Launch Jupyter Notebook``: this option starts a ``Jupyter Notebook`` session. If
   ``Jupyter Notebook`` is not installed, then the ``Ansys Python Manager`` installs it for you.
 * ``Launch Spyder``: this option starts a Spyder IDE session. If Spyder is not installed,
