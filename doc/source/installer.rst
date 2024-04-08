@@ -30,12 +30,12 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Ubuntu(20.04 and 22.04)**.
 
         #. Update ``apt-get`` repository and install the following packages with **sudo** privileges:
-           **libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
+           **wget, gnome, libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
 
            .. code:: shell
 
              sudo apt-get update -y
-             sudo apt-get install libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
+             sudo apt-get install wget gnome libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
 
         #. Install **zlib** package
 
@@ -71,11 +71,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all the virtual environments as part of
-             uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which were created by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete virtual environments`` checkbox
 
-           * If you want to remove all the configurations as part of
+           * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
+
+           * If you want to remove all Python installations which were installed by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete Python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -87,13 +92,13 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **CentOS9** and **RHEL9**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
 
            .. code:: shell
 
              sudo yum update -y;
              sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
 
         #. Install **zlib** package using **wget**
 
@@ -130,11 +135,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all the virtual environments as part of
-             uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which were created by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete virtual environments`` checkbox
 
-           * If you want to remove all the configurations as part of
+           * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
+
+           * If you want to remove all Python installations which were installed by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete Python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 
@@ -147,13 +157,13 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Fedora39**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
 
            .. code:: shell
 
              sudo yum update -y;
              sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
 
         #. Install **zlib** package using **wget**
 
@@ -190,11 +200,16 @@ Installing the ``Ansys Python Manager``
 
         #. In the pop up window:
 
-           * If you want to remove all the virtual environments as part of
-             uninstallation, mark ``Delete virtual environment`` checkbox
+           * If you want to remove all virtual environments which were created by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete virtual environments`` checkbox
 
-           * If you want to remove all the configurations as part of
+           * If you want to remove all configurations as part of
              uninstallation, mark ``Delete configurations`` checkbox
+
+           * If you want to remove all Python installations which were installed by
+             the Ansys Python Manager as part of uninstallation, mark
+             ``Delete Python installations`` checkbox
 
         #. Click ``Uninstall`` button.
 

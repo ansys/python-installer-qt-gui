@@ -35,10 +35,11 @@ LOG.setLevel("DEBUG")
 
 ABOUT_TEXT = f"""<h2>Ansys Python Installer {__version__}</h2>
 <p>Created by the PyAnsys Team.</p>
+<p>Project build using <a href='https://wiki.qt.io/Qt_for_Python'> PySide6</a> and <a href='https://pyinstaller.org/en/stable/'> PyInstaller</a>.</p>
 <p>If you have any questions or issues, please open an issue in <a href='https://github.com/ansys/python-installer-qt-gui/issues'>python-installer-qt-gui Issues</a> page.</p>
 <p>Alternatively, you can contact us at <a href='mailto:pyansys.core@ansys.com'>pyansys.core@ansys.com</a>.</p>
 <p>Your use of this software is governed by the MIT License. In addition, this installer allows you to access and install software that is licensed under separate terms ("Separately Licensed Software"). If you chose to install such Separately Licensed Software, you acknowledge that you are responsible for complying with any associated terms and conditions.</p>
-<p>Copyright 2023 ANSYS, Inc. All rights reserved.</p>
+<p>Copyright 2023 - 2024 ANSYS, Inc. All rights reserved.</p>
 """
 
 UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT = f"""
@@ -66,6 +67,9 @@ INSTALL_TEXT = """Choose to use either the standard Python install from <a href=
 PYTHON_VERSION_TEXT = """Choose the version of Python to install.
 
 While choosing the latest version of Python is generally recommended, some third-party libraries and applications may not yet be fully compatible with the newest release. Therefore, it is recommended to try the second newest version, as it will still have most of the latest features and improvements while also having broader support among third-party packages."""
+
+PRE_COMPILED_PYTHON_WARNING = """
+<b>NOTE:</b> Only 'Python 3.11' version is readily available. Other Python versions are compiled from source and it takes approximately 2-3 minutes."""
 
 PYTHON_VERSION_SELECTION_FOR_VENV = """Choose the version of Python to use for your virtual environment.
 
