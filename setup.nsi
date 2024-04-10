@@ -67,7 +67,7 @@ Section "Ansys Python Manager" SEC01
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
-  
+
 SectionEnd
 
 ; Define the uninstaller section
