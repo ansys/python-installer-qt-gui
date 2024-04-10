@@ -35,7 +35,7 @@ from ansys.tools.installer.constants import (
 
 
 class Configure(QtWidgets.QWidget):
-    """Configure tab tab."""
+    """Configure tab."""
 
     def __init__(self, parent):
         """Initialize this class."""

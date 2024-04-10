@@ -208,13 +208,6 @@ class Uninstall(QtWidgets.QWidget):
         for path in find_miniforge_linux(ansys_manager_installed_only=True):
             shutil.rmtree(path, ignore_errors=True)
 
-    def _remove_all_installed_python(self):
-        for path in find_ansys_installed_python_linux():
-            path = path.split("bin")[0]
-            shutil.rmtree(path, ignore_errors=True)
-        for path in find_miniforge_linux(ansys_manager_installed_only=True):
-            shutil.rmtree(path, ignore_errors=True)
-
     def _remove_all_venvs(self):
         """Remove all the venv created by Ansys Python Manager."""
         try:
