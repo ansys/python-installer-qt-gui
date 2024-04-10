@@ -171,7 +171,7 @@ class VSCode(QtWidgets.QWidget):
         self.user_confirmation_form.show()
 
     def is_vscode_installed(self):
-        """Check vs code installed or Not.
+        """Check if VSCode is installed or not.
 
         Returns
         -------
