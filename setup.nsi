@@ -67,13 +67,7 @@ Section "Ansys Python Manager" SEC01
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
-
-  ; start after install
-  Exec "$INSTDIR\Ansys Python Manager.exe"
-
-  ; After installation succeeded, wait and close
-  Sleep 5000
-  Quit
+  
 SectionEnd
 
 ; Define the uninstaller section
