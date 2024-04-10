@@ -173,8 +173,10 @@ class VSCode(QtWidgets.QWidget):
     def is_vscode_installed(self):
         """Check vs code installed or Not.
 
-        Returns:
-            Boolean
+        Returns
+        -------
+        bool
+            Whether VSCode is installed or not.
         """
         try:
             return_val = os.system("code --version")
