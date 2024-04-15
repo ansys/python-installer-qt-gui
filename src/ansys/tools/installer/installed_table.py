@@ -46,6 +46,7 @@ from ansys.tools.installer.linux_functions import (
     run_linux_command,
     run_linux_command_conda,
 )
+from ansys.tools.installer.vscode import VSCode
 
 ALLOWED_FOCUS_EVENTS = [QtCore.QEvent.Type.WindowActivate, QtCore.QEvent.Type.Show]
 LOG = logging.getLogger(__name__)
@@ -251,6 +252,10 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_launch_cmd.clicked.connect(self.launch_cmd)
         hbox.addWidget(self.button_launch_cmd)
 
+        self.button_launch_cmd = QtWidgets.QPushButton("Launch VSCode")
+        self.button_launch_cmd.clicked.connect(self.launch_vscode)
+        hbox.addWidget(self.button_launch_cmd)
+
         self.button_launch_lab = QtWidgets.QPushButton("Launch Jupyterlab")
         self.button_launch_lab.clicked.connect(self.launch_jupyterlab)
         hbox.addWidget(self.button_launch_lab)
@@ -364,6 +369,10 @@ class InstalledTab(QtWidgets.QWidget):
         error_msg = "pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(f"python -m jupyter lab || {error_msg}")
+
+    def launch_vscode(self):
+        """Launch VSCode."""
+        vscode = VSCode(self)
 
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook."""
