@@ -47,8 +47,8 @@ from ansys.tools.installer.constants import (
     LOG,
     PRE_COMPILED_PYTHON_WARNING,
     PYTHON_VERSION_TEXT,
-    VANILLA_PYTHON_VERSIONS,
     UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT,
+    VANILLA_PYTHON_VERSIONS,
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
@@ -230,7 +230,9 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             self.python_version_select.addItem(elem_key, elem_value)
 
         # Set the default selection to the last Python version
-        default_index = self.python_version_select.findText(VANILLA_PYTHON_VERSIONS.keys()[-1])
+        default_index = self.python_version_select.findText(
+            VANILLA_PYTHON_VERSIONS.keys()[-1]
+        )
         self.python_version_select.setCurrentIndex(default_index)
         python_version_layout.addWidget(self.python_version_select)
 
