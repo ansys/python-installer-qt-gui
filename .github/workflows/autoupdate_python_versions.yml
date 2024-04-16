@@ -3,6 +3,11 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
+  # Or if the "scripts" directory is modified
+  push:
+    paths:
+      - 'scripts/**'
+
 
 env:
   MAIN_PYTHON_VERSION: '3.12'
