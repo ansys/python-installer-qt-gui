@@ -1,0 +1,60 @@
+name: GitHub CI
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+env:
+  MAIN_PYTHON_VERSION: '3.12'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  autoupdate-python-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
+
+      - name: Set up Python ${{ env.MAIN_PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Run the autoupdate script
+        run: |
+          python scripts/autoupdate_python_versions.py
+
+      - name: Commit changes (if any)
+        run: |
+          # Configure git username & email
+          git config user.name 'pyansys-ci-bot'
+          git config user.email 'pyansys.github.bot@ansys.com'
+
+          # Check if there are any changes
+          diff_code=$(git diff --exit-code)
+
+          # If there are changes, verify whether the branch 'feat/update-python-version' exists
+          # If it does, switch to it, rebase it on top of the main branch, and push the changes
+          # If it doesn't, create the branch, commit the changes, and push the branch
+          if [ -n "$diff_code" ]; then
+            if git show-ref --verify --quiet refs/heads/feat/update-python-version; then
+              git checkout feat/update-python-version
+              git rebase main
+            else
+              git checkout -b feat/update-python-version
+            fi
+
+            git add .
+            git commit -m "chore: update Python versions"
+            git push origin feat/update-python-version
+          fi
+
+          # If there are changes, create a pull request
+          if [ -n "$diff_code" ]; then
+            gh pr create --title "chore: update Python versions" --body "This PR updates the Python versions in the CI configuration files." --base main --head feat/update-python-version
+          fi
