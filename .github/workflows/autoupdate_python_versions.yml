@@ -1,4 +1,4 @@
-name: GitHub CI
+name: Autoupdate Python Versions
 on:
   workflow_dispatch:
   schedule:
