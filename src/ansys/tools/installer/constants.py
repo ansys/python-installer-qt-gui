@@ -193,8 +193,8 @@ VANILLA_PYTHON_VERSIONS = {
     "Python 3.8": "3.8.10",
     "Python 3.9": "3.9.13",
     "Python 3.10": "3.10.11",
-    "Python 3.11": "3.11.6",
-    "Python 3.12": "3.12.0",
+    "Python 3.11": "3.11.9",
+    "Python 3.12": "3.12.3",
 }
 
-CONDA_PYTHON_VERSION = "23.1.0-4"
+CONDA_PYTHON_VERSION = "24.1.2-0"
