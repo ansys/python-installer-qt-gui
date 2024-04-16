@@ -35,10 +35,10 @@ from ansys.tools.installer.constants import (
 
 
 class Configure(QtWidgets.QWidget):
-    """Manage Virtual Environment w.r.t Python versions tab."""
+    """Configure tab."""
 
     def __init__(self, parent):
-        """Initialize this tab."""
+        """Initialize this class."""
         try:
             super().__init__()
             self._parent = parent
