@@ -13,6 +13,7 @@ concurrency:
 
 jobs:
   autoupdate-python-versions:
+    name: Autoupdate Python Versions
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -27,7 +28,7 @@ jobs:
 
       - name: Run the autoupdate script
         run: |
-          python scripts/autoupdate_python_versions.py
+          python scripts/update_python_versions.py
 
       - name: Commit changes (if any)
         run: |
