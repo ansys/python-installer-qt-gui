@@ -230,8 +230,9 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
             self.python_version_select.addItem(elem_key, elem_value)
 
         # Set the default selection to the last Python version
+        VANILLA_PYTHON_VERSIONS
         default_index = self.python_version_select.findText(
-            VANILLA_PYTHON_VERSIONS.keys()[-1]
+            list(VANILLA_PYTHON_VERSIONS.keys())[-1]
         )
         self.python_version_select.setCurrentIndex(default_index)
         python_version_layout.addWidget(self.python_version_select)
