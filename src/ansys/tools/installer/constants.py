@@ -180,3 +180,21 @@ PYANSYS_LIBS = {
 
 VENV_DEFAULT_PATH = "venv_default_path"
 VENV_SEARCH_PATH = "venv_search_path"
+
+
+###############################################################################
+# Python versions
+###############################################################################
+#
+# Do not modify below this section
+#
+
+VANILLA_PYTHON_VERSIONS = {
+    "Python 3.8": "3.8.10",
+    "Python 3.9": "3.9.13",
+    "Python 3.10": "3.10.11",
+    "Python 3.11": "3.11.6",
+    "Python 3.12": "3.12.0",
+}
+
+CONDA_PYTHON_VERSION = "23.1.0-4"
