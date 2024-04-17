@@ -42,11 +42,13 @@ from ansys.tools.installer.constants import (
     ABOUT_TEXT,
     ANSYS_FAVICON,
     ASSETS_PATH,
+    CONDA_PYTHON_VERSION,
     INSTALL_TEXT,
     LOG,
     PRE_COMPILED_PYTHON_WARNING,
     PYTHON_VERSION_TEXT,
     UNABLE_TO_RETRIEVE_LATEST_VERSION_TEXT,
+    VANILLA_PYTHON_VERSIONS,
 )
 from ansys.tools.installer.create_virtual_environment import CreateVenvTab
 from ansys.tools.installer.installed_table import InstalledTab
@@ -224,14 +226,14 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         python_version.setLayout(python_version_layout)
 
         self.python_version_select = QtWidgets.QComboBox()
-        self.python_version_select.addItem("Python 3.8", "3.8.10")
-        self.python_version_select.addItem("Python 3.9", "3.9.13")
-        self.python_version_select.addItem("Python 3.10", "3.10.11")
-        self.python_version_select.addItem("Python 3.11", "3.11.6")
-        self.python_version_select.addItem("Python 3.12", "3.12.0")
+        for elem_key, elem_value in VANILLA_PYTHON_VERSIONS.items():
+            self.python_version_select.addItem(elem_key, elem_value)
 
-        # Set the default selection to "Python 3.11"
-        default_index = self.python_version_select.findText("Python 3.11")
+        # Set the default selection to the last Python version
+        VANILLA_PYTHON_VERSIONS
+        default_index = self.python_version_select.findText(
+            list(VANILLA_PYTHON_VERSIONS.keys())[-1]
+        )
         self.python_version_select.setCurrentIndex(default_index)
         python_version_layout.addWidget(self.python_version_select)
 
@@ -561,14 +563,13 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
                     filename = f"python-{selected_version}-amd64.exe"
                 LOG.info("Installing vanilla Python %s", selected_version)
             else:
-                conda_version = "23.1.0-4"
                 # OS based file download
                 if is_linux_os():
                     LOG.info("Linux")
-                    url, filename = get_conda_url_and_filename(conda_version)
+                    url, filename = get_conda_url_and_filename(CONDA_PYTHON_VERSION)
                 else:
-                    url = f"https://github.com/conda-forge/miniforge/releases/download/{conda_version}/Miniforge3-{conda_version}-Windows-x86_64.exe"
-                    filename = f"Miniforge3-{conda_version}-Windows-x86_64.exe"
+                    url = f"https://github.com/conda-forge/miniforge/releases/download/{CONDA_PYTHON_VERSION}/Miniforge3-{CONDA_PYTHON_VERSION}-Windows-x86_64.exe"
+                    filename = f"Miniforge3-{CONDA_PYTHON_VERSION}-Windows-x86_64.exe"
                 LOG.info("Installing miniconda from %s", url)
             try:
                 self._download(url, filename, when_finished=self._run_install_python)
