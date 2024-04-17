@@ -2,8 +2,8 @@
 
 import os
 import re
-from packaging.version import Version
 
+from packaging.version import Version
 import requests
 
 
