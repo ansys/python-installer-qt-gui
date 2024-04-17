@@ -117,7 +117,7 @@ class VSCode(QtWidgets.QWidget):
         path = self.vscode_window_path_config_edit.text().strip()
         if os.path.exists(path):
             error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
-            self._parent.launch_cmd(f"code \"{path}\" && exit 0 || {error_msg}")
+            self._parent.launch_cmd(f'code "{path}" && exit 0 || {error_msg}')
 
             self.user_confirmation_form.close()
             self._parent.vscode_window.close()
