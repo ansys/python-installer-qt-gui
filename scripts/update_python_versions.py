@@ -3,6 +3,7 @@
 import os
 import re
 
+from packaging.version import Version
 import requests
 
 
@@ -53,10 +54,7 @@ def get_minor_version_sublist_with_greater_patch(list: list[str], current_versio
     major, minor, patch = int(major), int(minor), int(patch)
     sublist = [version for version in list if version.startswith(f"{major}.{minor}.")]
     sublist = [version for version in sublist if int(version.split(".")[2]) > patch]
-
-    # Since the list is nuilt in ascending order, the first element is the smallest version
-    # of the list. We want the list to be sorted in desscending order (always take the latest)
-    sublist.reverse()
+    sublist = sorted(sublist, key=Version, reverse=True)
 
     return sublist
 
