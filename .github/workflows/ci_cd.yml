@@ -322,7 +322,7 @@ jobs:
 
       - name: Install pip Dependencies
         run: |
-          python3 -m pip install -e .[freeze]
+          python3 -m pip install --ignore-installed -e .[freeze]
 
       - name: Freeze application
         env:
