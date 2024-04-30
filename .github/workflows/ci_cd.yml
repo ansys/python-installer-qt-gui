@@ -322,6 +322,7 @@ jobs:
 
       - name: Install pip Dependencies
         run: |
+          yum remove packaging -y
           python3 -m pip install --force-reinstall -e .[freeze]
 
       - name: Freeze application
