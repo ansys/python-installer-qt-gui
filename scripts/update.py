@@ -6,7 +6,9 @@ import subprocess
 
 from packaging.version import parse
 
-print(subprocess.check_output(["ls", "-altr"]).decode("utf-8"))
+print(subprocess.check_output(["ls", "-alRtr"]).decode("utf-8"))
+
+print(subprocess.check_output(["pwd"]).decode("utf-8"))
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
