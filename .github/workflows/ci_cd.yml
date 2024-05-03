@@ -196,7 +196,7 @@ jobs:
 
       - name: Freeze application
         env:
-          ADD_PYTHON_BINARIES: true
+          ADD_PYTHON_BINARIES: false
         run: pyinstaller frozen.spec
 
       - name: Setup and Copy Linux files for packaging
