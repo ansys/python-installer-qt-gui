@@ -3,7 +3,7 @@
 import os
 import re
 
-from packaging.version import Version
+from packaging.version import Version, parse
 import requests
 
 
@@ -232,7 +232,7 @@ with open(YAML_FILE, "r") as f:
     yaml_contents = f.readlines()
 
 # Get pattern to replace
-py_version = version.parse(list(vanilla_python_versions.values())[-2])
+py_version = parse(list(vanilla_python_versions.values())[-2])
 py_version_search = f"{str(py_version.major)}.{str(py_version.minor)}"
 search_str = re.compile(py_version_search + "\.[\d]{1,}")
 
