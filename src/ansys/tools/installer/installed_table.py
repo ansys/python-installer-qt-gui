@@ -542,6 +542,9 @@ class InstalledTab(QtWidgets.QWidget):
             Whether to always use pip for the command or not.
         """
         print(f"extra:{extra}")
+        if is_linux_os() and isinstance(extra, bool):
+            extra = ""
+        print(f"extra:{extra}")
         min_win = "/w /min" if minimized_window else ""
 
         # is_venv            -  True : virtual environment , False: base python installation
