@@ -230,6 +230,7 @@ YAML_FILE = os.path.join(ROOT_DIR, ".github", "workflows", "ci_cd.yml")
 # Read the file
 with open(YAML_FILE, "r") as f:
     yaml_contents = f.readlines()
+    print(yaml_contents)
 
 # Get pattern to replace
 py_version = parse(list(vanilla_python_versions.values())[-2])
@@ -244,3 +245,7 @@ for n, yaml_line in enumerate(yaml_contents):
 # Rewrite the yaml file
 with open(YAML_FILE, "w") as yaml:
     yaml.writelines(yaml_contents)
+
+with open(YAML_FILE, "r") as f:
+    yaml_contents = f.readlines()
+    print(yaml_contents)
