@@ -225,7 +225,7 @@ with open(CONSTANTS_FILE, "w") as f:
 
 
 # Path for ci_cd.yaml
-YAML_FILE = os.path.join(ROOT_DIR, ".github", "workflows", "ci_cd.yaml")
+YAML_FILE = os.path.join(ROOT_DIR, ".github", "workflows", "ci_cd.yml")
 
 # Read the file
 with open(YAML_FILE, "r") as f:
