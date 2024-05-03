@@ -250,7 +250,9 @@ def run_linux_command(pypath, extra, venv=False):
 
     """
     prefix = f"{pypath}"
-    extra = extra.replace("&&", ";")
+    print(extra)
+    if not get_os_version().startswith("20.04"):
+        extra = extra.replace("&&", ";")
     extra = extra.replace("timeout", "sleep")
     python_name = prefix.split("/")[-1]
     major_version = (
@@ -278,7 +280,8 @@ def run_linux_command_conda(pypath, extra, venv=False):
 
     """
     venvParam = ""
-    extra = extra.replace("&&", ";")
+    if not get_os_version().startswith("20.04"):
+        extra = extra.replace("&&", ";")
     extra = extra.replace("timeout", "sleep")
     extra = extra.replace("conda install --yes", "mamba install --yes")
     # extra = extra.replace("conda update conda --yes", "python -m pip install -U pip")
