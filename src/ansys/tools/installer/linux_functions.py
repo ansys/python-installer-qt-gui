@@ -250,7 +250,7 @@ def run_linux_command(pypath, extra, venv=False):
 
     """
     prefix = f"{pypath}"
-    print(extra)
+    print(f"pythonpath={pypath},extra={extra},venv={venv}")
     # if not get_os_version().startswith("20.04"):
     #     extra = extra.replace("&&", ";")
     extra = extra.replace("timeout", "sleep")
