@@ -1,8 +1,8 @@
 name: Autoupdate Python Versions
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * *'
+  # workflow_dispatch:
+  # schedule:
+  #   - cron: '0 0 * * *'
   # Or if the "scripts" directory is modified
   push:
     paths:
