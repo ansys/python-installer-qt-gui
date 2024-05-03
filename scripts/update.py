@@ -6,7 +6,7 @@ import subprocess
 
 from packaging.version import parse
 
-print(subprocess.check_output(["ls", "-alRtr"]).decode("utf-8"))
+print(subprocess.check_output(["ls", "-alRtr", ".github/"]).decode("utf-8"))
 
 print(subprocess.check_output(["pwd"]).decode("utf-8"))
 
@@ -17,6 +17,13 @@ vanilla_python_versions = ("3.9.13",)
 
 # Path for ci_cd.yaml
 YAML_FILE = os.path.join(ROOT_DIR, ".github", "workflows", "ci_cd.yaml")
+
+YAML_FILE1 = os.path.join(".github", "workflows", "ci_cd.yaml")
+
+# Read the file
+with open(YAML_FILE1, "r") as f:
+    yaml_contents1 = f.readlines()
+print(yaml_contents1)
 
 # Read the file
 with open(YAML_FILE, "r") as f:
