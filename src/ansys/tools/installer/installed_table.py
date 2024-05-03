@@ -541,6 +541,7 @@ class InstalledTab(QtWidgets.QWidget):
         always_use_pip : bool, default: False
             Whether to always use pip for the command or not.
         """
+        print(f"extra:{extra}")
         min_win = "/w /min" if minimized_window else ""
 
         # is_venv            -  True : virtual environment , False: base python installation
