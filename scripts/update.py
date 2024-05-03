@@ -12,7 +12,7 @@ print(subprocess.check_output(["pwd"]).decode("utf-8"))
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
-vanilla_python_versions = ("3.9.13",)
+vanilla_python_versions = "3.9.13"
 
 
 # Path for ci_cd.yaml
