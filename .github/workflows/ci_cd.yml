@@ -6,7 +6,7 @@ on:
     tags:
       - "*"
     branches:
-      - main
+      - bug/linux-auto-version-update
 
 env:
   MAIN_PYTHON_VERSION: '3.11'
