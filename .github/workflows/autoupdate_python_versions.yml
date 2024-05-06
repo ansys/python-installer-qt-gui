@@ -48,7 +48,6 @@ jobs:
           commit-message: 'chore: update Python versions'
           author: 'pyansys-ci-bot <pyansys.github.bot@ansys.com>'
           title: 'chore: update Python versions'
-          token: ${{ secrets.PYANSYS_CI_BOT_PACKAGE_TOKEN }}
           body: 'This PR updates the Python versions in the CI configuration files.'
           branch: feat/update-python-version
           base: main
