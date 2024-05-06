@@ -44,14 +44,14 @@ jobs:
           git config user.email 'pyansys.github.bot@ansys.com'
           echo "User configured as $(git config user.name) <$(git config user.email)>"
 
-          # Run git diff command in a subshell to prevent script exit
-          (diff_code=$(git diff --exit-code 2>/dev/null) || diff_code=$?)
-          echo "git diff exit code: $diff_code"
+          # Run git diff command and store the exit code
+          diff_code=$(git diff --exit-code) | true
+          echo "git diff command exited with code $diff_code"
 
           # If there are changes, verify whether the branch 'feat/update-python-version' exists
           # If it does, switch to it, rebase it on top of the main branch, and push the changes
           # If it doesn't, create the branch, commit the changes, and push the branch
-          if [ -n "$diff_code" ] && [ "$diff_code" -ne 0 ]; then
+          if [ $diff_code -ne 0 ]; then
             if git show-ref --verify --quiet refs/heads/feat/update-python-version; then
               echo "Branch 'feat/update-python-version' exists. Switching to it, rebasing on top of the main branch, and pushing the changes."
               git checkout feat/update-python-version
@@ -70,7 +70,7 @@ jobs:
           fi
 
           # If there are changes, create a pull request
-          if [ -n "$diff_code" ] && [ "$diff_code" -ne 0 ]; then
+          if [ $diff_code -ne 0 ]; then
             echo "Creating a pull request..."
             gh pr create --title "chore: update Python versions" --body "This PR updates the Python versions in the CI configuration files." --base main --head feat/update-python-version
           fi
