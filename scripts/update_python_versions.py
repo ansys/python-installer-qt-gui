@@ -3,7 +3,7 @@
 import os
 import re
 
-from packaging.version import Version
+from packaging.version import Version, parse
 import requests
 
 
@@ -222,3 +222,25 @@ with open(CONSTANTS_FILE, "w") as f:
     f.write("}\n\n")
 
     f.write(f'CONDA_PYTHON_VERSION = "{conda_python_version}"\n')
+
+
+# Path for ci_cd.yaml
+YAML_FILE = os.path.join(ROOT_DIR, ".github", "workflows", "ci_cd.yml")
+
+# Read the file
+with open(YAML_FILE, "r") as f:
+    yaml_contents = f.readlines()
+
+# Get pattern to replace
+py_version = parse(list(vanilla_python_versions.values())[-2])
+py_version_search = f"{str(py_version.major)}.{str(py_version.minor)}"
+search_str = re.compile(py_version_search + "\.[\d]{1,}")
+
+# Replace the version
+for n, yaml_line in enumerate(yaml_contents):
+    if "PRECOMPILE_PYTHON_VERSION:" in yaml_line:
+        yaml_contents[n] = search_str.sub(py_version.base_version, yaml_line)
+
+# Rewrite the yaml file
+with open(YAML_FILE, "w") as yaml:
+    yaml.writelines(yaml_contents)

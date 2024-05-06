@@ -10,6 +10,7 @@ on:
 
 env:
   MAIN_PYTHON_VERSION: '3.11'
+  PRECOMPILE_PYTHON_VERSION: '3.11.6'
   DOCUMENTATION_CNAME: 'installer.docs.pyansys.com'
   LIBRARY_NAME: 'ansys-tools-installer'
   LIBRARY_NAMESPACE: 'ansys.tools.installer'
@@ -175,18 +176,18 @@ jobs:
         run: |
           mkdir -p cd ${HOME}/.cache
           cd ${HOME}/.cache
-          wget https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz
-          tar -xf Python-3.11.6.tar.xz
-          cd Python-3.11.6
-          ./configure --prefix=${HOME}/python-3.11.6
-          cd ${HOME}/.cache/Python-3.11.6
+          wget https://www.python.org/ftp/python/${{ env.PRECOMPILE_PYTHON_VERSION }}/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          tar -xf Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          cd Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          ./configure --prefix=${HOME}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          cd ${HOME}/.cache/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           make;
           make install;
-          cd ${HOME}/python-3.11.6
+          cd ${HOME}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           cd ..
-          tar -czf python-3.11.6.tar.gz python-3.11.6/
+          tar -czf python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz python-${{ env.PRECOMPILE_PYTHON_VERSION }}/
           mkdir -p ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
-          mv python-3.11.6.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
+          mv python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
           ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
 
       - name: Install Dependencies
@@ -302,18 +303,18 @@ jobs:
         run: |
           mkdir -p cd ${{ env.GITHUB_WORKSPACE }}/.cache
           cd ${{ env.GITHUB_WORKSPACE }}/.cache
-          wget https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz
-          tar -xf Python-3.11.6.tar.xz
-          cd Python-3.11.6
-          ./configure --prefix=${{ env.GITHUB_WORKSPACE }}/python-3.11.6
-          cd ${{ env.GITHUB_WORKSPACE }}/.cache/Python-3.11.6
+          wget https://www.python.org/ftp/python/${{ env.PRECOMPILE_PYTHON_VERSION }}/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          tar -xf Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          cd Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          ./configure --prefix=${{ env.GITHUB_WORKSPACE }}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          cd ${{ env.GITHUB_WORKSPACE }}/.cache/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           make;
           make install;
-          cd ${{ env.GITHUB_WORKSPACE }}/python-3.11.6
+          cd ${{ env.GITHUB_WORKSPACE }}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           cd ..
-          tar -czf python-3.11.6.tar.gz python-3.11.6/
+          tar -czf python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz python-${{ env.PRECOMPILE_PYTHON_VERSION }}/
           mkdir -p ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
-          mv python-3.11.6.tar.gz ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
+          mv python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
           ls -l ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
 
       - name: Update pip
