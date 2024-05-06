@@ -10,7 +10,7 @@ on:
 
 env:
   MAIN_PYTHON_VERSION: '3.11'
-  PRECOMPILE_PYTHON_VERSION: '3.11.6'
+  PRECOMPILE_PYTHON_VERSION: '3.11.9'
   DOCUMENTATION_CNAME: 'installer.docs.pyansys.com'
   LIBRARY_NAME: 'ansys-tools-installer'
   LIBRARY_NAMESPACE: 'ansys.tools.installer'
