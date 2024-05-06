@@ -45,8 +45,7 @@ jobs:
           echo "User configured as $(git config user.name) <$(git config user.email)>"
 
           # Run git diff command and store the exit code
-          git diff --exit-code > /dev/null
-          diff_code=$?
+          diff_code=`git diff --exit-code`
           echo "git diff command exited with code $diff_code"
 
           # If there are changes, verify whether the branch 'feat/update-python-version' exists
