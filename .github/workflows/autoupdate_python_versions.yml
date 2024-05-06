@@ -44,8 +44,12 @@ jobs:
           git config user.email 'pyansys.github.bot@ansys.com'
           echo "User configured as $(git config user.name) <$(git config user.email)>"
 
-          # Run git diff command and store the exit code
-          diff_code=$(git diff --exit-code) | true
+          # Run git diff command and store the exit code but avoid failing the script
+          if git diff --exit-code; then
+            diff_code=0
+          else
+            diff_code=$?
+          fi
           echo "git diff command exited with code $diff_code"
 
           # If there are changes, verify whether the branch 'feat/update-python-version' exists
