@@ -44,12 +44,8 @@ jobs:
           git config user.email 'pyansys.github.bot@ansys.com'
           echo "User configured as $(git config user.name) <$(git config user.email)>"
 
-          # Check if there are any changes
-          git diff --exit-code 2>/dev/null
-
-          # Store the exit code
-          diff_code=$?
-          echo "Diff code: $diff_code"
+          # Run git diff command in a subshell to prevent script exit
+          (diff_code=$(git diff --exit-code 2>/dev/null) || diff_code=$?)
 
           # If there are changes, verify whether the branch 'feat/update-python-version' exists
           # If it does, switch to it, rebase it on top of the main branch, and push the changes
