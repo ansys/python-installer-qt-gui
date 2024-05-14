@@ -10,6 +10,7 @@ on:
 
 env:
   MAIN_PYTHON_VERSION: '3.11'
+  PRECOMPILE_PYTHON_VERSION: '3.11.9'
   DOCUMENTATION_CNAME: 'installer.docs.pyansys.com'
   LIBRARY_NAME: 'ansys-tools-installer'
   LIBRARY_NAMESPACE: 'ansys.tools.installer'
@@ -23,7 +24,7 @@ jobs:
     name: "Documentation style"
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v5
+      - uses: ansys/actions/doc-style@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,7 +46,7 @@ jobs:
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v2
 
-      - uses: ansys/actions/tests-pytest@v5
+      - uses: ansys/actions/tests-pytest@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -55,7 +56,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Build project documentation
-        uses: ansys/actions/doc-build@v5
+        uses: ansys/actions/doc-build@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
@@ -66,7 +67,7 @@ jobs:
     needs: [doc-build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: ansys/actions/doc-deploy-dev@v5
+      - uses: ansys/actions/doc-deploy-dev@v6
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -114,6 +115,7 @@ jobs:
     strategy:
       matrix:
         os: ["22.04", "20.04"]
+      fail-fast: false
     name: "Build Application Linux - Ubuntu ${{ matrix.os }}"
     runs-on: ubuntu-${{ matrix.os }}
     steps:
@@ -174,18 +176,18 @@ jobs:
         run: |
           mkdir -p cd ${HOME}/.cache
           cd ${HOME}/.cache
-          wget https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz
-          tar -xf Python-3.11.6.tar.xz
-          cd Python-3.11.6
-          ./configure --prefix=${HOME}/python-3.11.6
-          cd ${HOME}/.cache/Python-3.11.6
+          wget https://www.python.org/ftp/python/${{ env.PRECOMPILE_PYTHON_VERSION }}/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          tar -xf Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          cd Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          ./configure --prefix=${HOME}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          cd ${HOME}/.cache/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           make;
           make install;
-          cd ${HOME}/python-3.11.6
+          cd ${HOME}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           cd ..
-          tar -czf python-3.11.6.tar.gz python-3.11.6/
+          tar -czf python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz python-${{ env.PRECOMPILE_PYTHON_VERSION }}/
           mkdir -p ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
-          mv python-3.11.6.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
+          mv python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
           ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
 
       - name: Install Dependencies
@@ -234,6 +236,7 @@ jobs:
     strategy:
       matrix:
         os: ["quay.io/centos/centos:stream9", "fedora:latest"]
+      fail-fast: false
     name: "Build Application Linux - ${{ matrix.os }}"
     runs-on: ubuntu-latest
     container:
@@ -300,18 +303,18 @@ jobs:
         run: |
           mkdir -p cd ${{ env.GITHUB_WORKSPACE }}/.cache
           cd ${{ env.GITHUB_WORKSPACE }}/.cache
-          wget https://www.python.org/ftp/python/3.11.6/Python-3.11.6.tar.xz
-          tar -xf Python-3.11.6.tar.xz
-          cd Python-3.11.6
-          ./configure --prefix=${{ env.GITHUB_WORKSPACE }}/python-3.11.6
-          cd ${{ env.GITHUB_WORKSPACE }}/.cache/Python-3.11.6
+          wget https://www.python.org/ftp/python/${{ env.PRECOMPILE_PYTHON_VERSION }}/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          tar -xf Python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.xz
+          cd Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          ./configure --prefix=${{ env.GITHUB_WORKSPACE }}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
+          cd ${{ env.GITHUB_WORKSPACE }}/.cache/Python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           make;
           make install;
-          cd ${{ env.GITHUB_WORKSPACE }}/python-3.11.6
+          cd ${{ env.GITHUB_WORKSPACE }}/python-${{ env.PRECOMPILE_PYTHON_VERSION }}
           cd ..
-          tar -czf python-3.11.6.tar.gz python-3.11.6/
+          tar -czf python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz python-${{ env.PRECOMPILE_PYTHON_VERSION }}/
           mkdir -p ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
-          mv python-3.11.6.tar.gz ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
+          mv python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
           ls -l ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
 
       - name: Update pip
@@ -320,7 +323,7 @@ jobs:
 
       - name: Install pip Dependencies
         run: |
-          python3 -m pip install -e .[freeze]
+          python3 -m pip install --ignore-installed -e .[freeze]
 
       - name: Freeze application
         env:
@@ -482,7 +485,7 @@ jobs:
     needs: [release, doc-build]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v5
+        uses: ansys/actions/doc-deploy-stable@v6
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
