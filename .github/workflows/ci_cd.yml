@@ -291,7 +291,7 @@ jobs:
             dbus-x11 \
             -y
           yum install ruby -y
-          gem install --no-ri --no-rdoc fpm
+          gem install fpm
 
       - name: Create OS version, Github Workspace, Folder Name variables
         run: |
