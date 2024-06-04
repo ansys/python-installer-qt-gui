@@ -106,18 +106,23 @@ def get_pkg_versions(pkg_name):
     """
     session = requests.Session()
     session.verify = False
-    url = f"https://pypi.python.org/pypi/{pkg_name}/json"
+    urls = [
+        f"https://pypi.python.org/pypi/{pkg_name}/json",
+        f"https://pypi.org/pypi/{pkg_name}/json",
+    ]
+    all_versions = [""]
 
-    try:
-        releases = json.loads(requests.get(url, verify=certifi.where()).content)[
-            "releases"
-        ]
-        all_versions = sorted(releases, key=parse_version, reverse=True)
-        if pkg_name == "pyansys":
-            all_versions = [x for x in all_versions if int(x.split(".")[0]) > 0]
-    except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
-        LOG.warning(f"Cannot connect to {url}... No version listed.")
-        all_versions = [""]
+    for url in urls:
+        try:
+            releases = json.loads(requests.get(url, verify=certifi.where()).content)[
+                "releases"
+            ]
+            all_versions = sorted(releases, key=parse_version, reverse=True)
+            if pkg_name == "pyansys":
+                all_versions = [x for x in all_versions if int(x.split(".")[0]) > 0]
+            break
+        except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
+            LOG.warning(f"Cannot connect to {url}... No version listed.")
 
     session.verify = True
 
