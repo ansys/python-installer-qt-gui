@@ -256,6 +256,8 @@ jobs:
             python3-pip \
             wget \
             binutils \
+            ruby-devel \
+            rubygems \
             rpm-build \
             openssl \
             fontconfig-devel \
