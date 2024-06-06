@@ -383,7 +383,7 @@ class InstalledTab(QtWidgets.QWidget):
 
     def install_defaults(self):
         """Install Python default packages."""
-        cmd = "pip install numpy pandas scipy scikit-learn matplotlib && timeout 3 && exit || echo Failed to install default Python packages. Try reinstalling it with pip install numpy pandas scipy scikit-learn matplotlib --force-reinstall"
+        cmd = "pip install numpy pandas scipy scikit-learn matplotlib pyvista[all] && timeout 3 && exit || echo Failed to install default Python packages. Try reinstalling it with pip install numpy pandas scipy scikit-learn matplotlib pyvista[all] --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd)
 

@@ -346,7 +346,7 @@ On the ``Launching options`` section, the following options are available:
 On the ``Package management`` section, the following options are available:
 
 * ``Install Python default packages``: by selecting this option, your selected Python install
-  receives the latest compatible versions for ``numpy``, ``scipy``, ``pandas``, ``matplotlib``
+  receives the latest compatible versions for ``numpy``, ``scipy``, ``pandas``, ``matplotlib``, ``pyvista``,
   and  ``scikit-learn``.
 * ``Install PyAnsys``: by selecting this option, your selected Python install has access to
   the latest, compatible PyAnsys metapackage installation. This metapackage provides you with
