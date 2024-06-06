@@ -129,7 +129,7 @@ In the "General Package Management" section, users are presented with the choice
 to "install default packages." By opting for this selection, the chosen
 Python installation or virtual environment receives the most up-to-date
 compatible versions of essential packages such as such as ``numpy``, ``scipy``,
-``pandas``, ``matplotlib``, and ``scikit-learn``.
+``pandas``, ``matplotlib``, ``pyvista``, and ``scikit-learn``.
 After the installation process concludes, users can view the list of
 installed packages by clicking the ``List Installed Packages`` button.
 The Ansys Python Manager subsequently display the installed packages in the
