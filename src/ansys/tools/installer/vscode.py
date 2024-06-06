@@ -75,13 +75,9 @@ class VSCode(QtWidgets.QWidget):
                 vscode_layout.addWidget(vscode_window_path_config)
 
                 vscode_window_button_open = QtWidgets.QPushButton("Open")
-                vscode_window_button_open.clicked.connect(
-                    lambda x: self._pop_up("Do you want to open?", self._open_vscode)
-                )
+                vscode_window_button_open.clicked.connect(lambda x: self._open_vscode())
                 vscode_window_button_close = QtWidgets.QPushButton("Close")
-                vscode_window_button_close.clicked.connect(
-                    lambda x: self._pop_up("Do you want to close?", self._close_all)
-                )
+                vscode_window_button_close.clicked.connect(lambda x: self._close_all())
 
                 vscode_window_layout_1 = QtWidgets.QHBoxLayout()
                 vscode_window_layout_1.addWidget(vscode_window_label)
@@ -118,8 +114,6 @@ class VSCode(QtWidgets.QWidget):
         if os.path.exists(rf"{path}"):
             error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
             self._parent.launch_cmd(f'code "{path}" && exit 0 || {error_msg}')
-
-            self.user_confirmation_form.close()
             self._parent.vscode_window.close()
         else:
             self.vscode_warning_text.setText(
@@ -130,45 +124,10 @@ class VSCode(QtWidgets.QWidget):
                     color: rgb(255, 0, 0);
             """
             )
-            self.user_confirmation_form.close()
 
     def _close_all(self):
         """Close all the pop-up window."""
-        self.user_confirmation_form.close()
         self._parent.vscode_window.close()
-
-    def _pop_up(self, message, call_back):
-        """Launch the confirmation pop-up window."""
-        self.user_confirmation_form = QtWidgets.QWidget()
-        self.user_confirmation_form.move(
-            self.user_confirmation_form.frameGeometry().center()
-        )
-        user_confirmation_label = QtWidgets.QLabel()
-        user_confirmation_label.setText(message)
-        user_confirmation_label.setOpenExternalLinks(True)
-        user_confirmation_label.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        user_confirmation_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignJustify)
-        user_confirmation_label.setWordWrap(True)
-
-        user_confirmation_layout_horizontal = QtWidgets.QHBoxLayout()
-        user_confirmation_yes_button = QtWidgets.QPushButton("Yes")
-        user_confirmation_yes_button.clicked.connect(call_back)
-        user_confirmation_no_button = QtWidgets.QPushButton("No")
-        user_confirmation_no_button.clicked.connect(self.user_confirmation_form.close)
-        user_confirmation_layout = QtWidgets.QVBoxLayout()
-        user_confirmation_layout.addWidget(user_confirmation_label)
-        user_confirmation_layout_horizontal.addWidget(user_confirmation_yes_button)
-        user_confirmation_layout_horizontal.addWidget(user_confirmation_no_button)
-        user_confirmation_layout.addLayout(user_confirmation_layout_horizontal)
-        self.user_confirmation_form.setLayout(user_confirmation_layout)
-        self.user_confirmation_form.setWindowTitle("Confirmation")
-        icon = QtGui.QIcon(ANSYS_FAVICON)
-        self.user_confirmation_form.setWindowIcon(icon)
-        self.user_confirmation_form.resize(400, 40)
-        self.user_confirmation_form.setWindowFlag(
-            QtCore.Qt.WindowCloseButtonHint, False
-        )
-        self.user_confirmation_form.show()
 
     def is_vscode_installed(self):
         """Check if VSCode is installed or not.
