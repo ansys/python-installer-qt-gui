@@ -704,13 +704,13 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         if error_code:
             LOG.error(
-                f"Error while downloading Python on Windows fail-safe mode: {out.decode('utf-8')}"
+                f"Error while downloading Python on Windows fail-safe mode: {out}"
             )
             msg = QtWidgets.QMessageBox()
             msg.warning(
                 self,
                 "Error while downloading Python on Windows fail-safe mode!",
-                f"Error message:\n\n {out.decode('utf-8')}",
+                f"Error message:\n\n {out}",
             )
             self.setEnabled(True)
             return
