@@ -47,7 +47,7 @@ tests = [
     "setuptools==70.3.0",
 ]
 doc = [
-    "Sphinx==7.4.4",
+    "Sphinx==7.4.7",
     "ansys-sphinx-theme==0.16.6",
     "sphinx-copybutton==0.5.2",
     "sphinx_design==0.6.0",
