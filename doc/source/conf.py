@@ -5,7 +5,6 @@ import os
 import shutil
 
 from ansys_sphinx_theme import get_version_match
-from ansys_sphinx_theme import pyansys_logo_black as logo
 
 from ansys.tools.installer import __version__
 
@@ -17,8 +16,7 @@ release = version = __version__
 cname = os.getenv("DOCUMENTATION_CNAME", default="nocname.com")
 switcher_version = get_version_match(__version__)
 
-# Select desired logo, theme, and declare the html title
-html_logo = logo
+# Select desired theme, and declare the html title
 html_theme = "ansys_sphinx_theme"
 html_short_title = html_title = "Ansys Python Manager"
 
@@ -30,6 +28,7 @@ html_context = {
     "doc_path": "doc/source",
 }
 html_theme_options = {
+    "logo": "pyansys",
     "switcher": {
         "json_url": f"https://{cname}/versions.json",
         "version_match": switcher_version,
