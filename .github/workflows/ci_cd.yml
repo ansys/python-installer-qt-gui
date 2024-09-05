@@ -6,7 +6,7 @@ on:
     tags:
       - "*"
     branches:
-      - issue/343
+      - main
 
 env:
   MAIN_PYTHON_VERSION: '3.11'
