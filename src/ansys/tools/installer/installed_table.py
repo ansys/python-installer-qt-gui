@@ -541,6 +541,16 @@ class InstalledTab(QtWidgets.QWidget):
         always_use_pip : bool, default: False
             Whether to always use pip for the command or not.
         """
+        path = os.environ["PATH"].split(";")
+        altered_path = path.copy()
+        for p in path:
+            if (
+                "Ansys Python Manager\_internal" in p
+                or "ansys_python_manager\_internal" in p
+            ):
+                altered_path.remove(p)
+        myenv = ";".join(altered_path)
+
         # Handle unexpected bool parameter for linux
         if is_linux_os() and isinstance(extra, bool):
             extra = ""
@@ -567,7 +577,8 @@ class InstalledTab(QtWidgets.QWidget):
 
         if is_vanilla_python and not is_venv:
             scripts_path = os.path.join(py_path, "Scripts")
-            new_path = f"{py_path};{scripts_path};%PATH%"
+
+            new_path = f"{py_path};{scripts_path};{myenv}"
 
             if extra:
                 cmd = f"&& {extra}"
@@ -591,7 +602,7 @@ class InstalledTab(QtWidgets.QWidget):
                 run_linux_command(py_path, extra, True)
             else:
                 subprocess.call(
-                    f'start {min_win} cmd /K "{py_path}\\Scripts\\activate.bat && cd %userprofile% {cmd}"',
+                    f'start {min_win} cmd /K "set PATH={myenv} && {py_path}\\Scripts\\activate.bat && cd %userprofile% {cmd}"',
                     shell=True,
                 )
         elif not is_vanilla_python and is_venv:
@@ -608,7 +619,7 @@ class InstalledTab(QtWidgets.QWidget):
                 run_linux_command_conda(py_path, extra, True)
             else:
                 subprocess.call(
-                    f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
+                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
                     shell=True,
                 )
         else:
@@ -625,6 +636,6 @@ class InstalledTab(QtWidgets.QWidget):
                 run_linux_command_conda(py_path, extra, False)
             else:
                 subprocess.call(
-                    f'start {min_win} cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
+                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
                     shell=True,
                 )
