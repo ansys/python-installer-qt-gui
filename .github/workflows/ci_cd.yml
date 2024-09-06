@@ -24,7 +24,7 @@ jobs:
     name: "Documentation style"
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v6
+      - uses: ansys/actions/doc-style@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,7 +46,7 @@ jobs:
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v2
 
-      - uses: ansys/actions/tests-pytest@v6
+      - uses: ansys/actions/tests-pytest@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -56,7 +56,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Build project documentation
-        uses: ansys/actions/doc-build@v6
+        uses: ansys/actions/doc-build@v7
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
@@ -67,7 +67,7 @@ jobs:
     needs: [doc-build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: ansys/actions/doc-deploy-dev@v6
+      - uses: ansys/actions/doc-deploy-dev@v7
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -487,7 +487,7 @@ jobs:
     needs: [release, doc-build]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v6
+        uses: ansys/actions/doc-deploy-stable@v7
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
