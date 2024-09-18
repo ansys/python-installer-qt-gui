@@ -1,4 +1,4 @@
-name: Issue reporting template
+name: 🐞 Bug, problem, error
 description: Issue reporting template
 title: "[BUG] Problem found in..."
 labels: ["bug"]
