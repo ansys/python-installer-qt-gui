@@ -742,10 +742,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 def __restore_windows_dll_load():
     """PyInstaller on Windows may break DLL loading. This function restores it."""
     import sys
+
     LOG.debug(f"sys.platform: {sys.platform}")
     if sys.platform == "win32":
         LOG.debug("Restoring DLL loading on Windows...")
         import ctypes
+
         ctypes.windll.kernel32.SetDllDirectoryA(None)
 
 
@@ -753,13 +755,13 @@ def open_gui():
     """Start the installer as a QT Application."""
     import argparse
     import ctypes
-    
+
     # Enable logging early
     enable_logging()
 
     if os.name == "nt":
         import msvcrt
-        
+
         # Restore DLL loading on Windows...
         __restore_windows_dll_load()
 
