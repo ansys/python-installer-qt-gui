@@ -740,7 +740,13 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
 
 def __restore_windows_dll_load():
-    """PyInstaller on Windows may break DLL loading. This function restores it."""
+    """Restore DLL loading on Windows.
+
+    Notes
+    -----
+    PyInstaller on Windows may break DLL loading.
+    This function restores the DLL loading on Windows.
+    """
     import sys
 
     LOG.debug(f"sys.platform: {sys.platform}")
