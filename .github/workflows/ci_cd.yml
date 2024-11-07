@@ -253,7 +253,11 @@ jobs:
         if: contains(matrix.os, 'centos') || contains(matrix.os, 'fedora')
         run: |
           yum update -y
-          yum group install "development-tools" -y
+          if [[ ${{ matrix.os }} == "quay.io/centos/centos:stream9" ]]; then
+            yum groupinstall "Development Tools" -y
+          else
+            yum group install "development-tools" -y
+          fi
           yum install python3 \
             python3-pip \
             wget \
