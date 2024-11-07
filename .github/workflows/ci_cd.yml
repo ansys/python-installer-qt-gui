@@ -340,8 +340,6 @@ jobs:
 
       - name: Setup and Copy CentOS/RHEL files for packaging
         if: contains(matrix.os, 'centos')
-        env:
-          ACTIONS_STEP_DEBUG : true
         run: |
           yum install xorg-x11-utils -y
           mkdir -p package_CentOS/opt
@@ -357,7 +355,7 @@ jobs:
           chmod +x package_CentOS/opt/ansys_python_manager/ansys_python_manager
           version=v`cat ./src/ansys/tools/installer/VERSION`
           echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
-          fpm -v $version --fpm-options-file linux/non-debian/fpm-options-centos
+          fpm -v $version --fpm-options-file linux/non-debian/fpm-options-centos --verbose
           cp ./linux/non-debian/installer_CentOS.sh installer_CentOS.sh
           cp ./linux/non-debian/updater_CentOS.sh updater_CentOS.sh
           chmod +x installer_CentOS.sh updater_CentOS.sh ansys_python_manager_CentOS.rpm
@@ -366,8 +364,6 @@ jobs:
 
       - name: Setup and Copy Fedora files for packaging
         if: contains(matrix.os, 'fedora')
-        env:
-          ACTIONS_STEP_DEBUG : true
         run: |
           mkdir -p package_Fedora/opt
           mkdir -p package_Fedora/usr/share/applications
@@ -382,7 +378,7 @@ jobs:
           chmod +x package_Fedora/opt/ansys_python_manager/ansys_python_manager
           version=v`cat ./src/ansys/tools/installer/VERSION`
           echo "APPLICATION_VERSION=$version" >> $GITHUB_ENV
-          fpm -v $version --fpm-options-file linux/non-debian/fpm-options-fedora
+          fpm -v $version --fpm-options-file linux/non-debian/fpm-options-fedora --verbose
           cp ./linux/non-debian/installer_CentOS.sh installer_Fedora.sh
           cp ./linux/non-debian/updater_CentOS.sh updater_Fedora.sh
           chmod +x installer_Fedora.sh updater_Fedora.sh ansys_python_manager_Fedora.rpm
