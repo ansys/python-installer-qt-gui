@@ -162,7 +162,7 @@ Installing the ``Ansys Python Manager``
            .. code:: shell
 
              sudo yum update -y;
-             sudo yum groupinstall 'Development Tools' -y;
+             sudo yum group install 'Development Tools' -y;
              sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
 
         #. Install **zlib** package using **wget**
