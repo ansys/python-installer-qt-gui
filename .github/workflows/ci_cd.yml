@@ -366,6 +366,8 @@ jobs:
 
       - name: Setup and Copy Fedora files for packaging
         if: contains(matrix.os, 'fedora')
+        env:
+          ACTIONS_STEP_DEBUG : true
         run: |
           mkdir -p package_Fedora/opt
           mkdir -p package_Fedora/usr/share/applications
