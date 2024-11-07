@@ -340,6 +340,8 @@ jobs:
 
       - name: Setup and Copy CentOS/RHEL files for packaging
         if: contains(matrix.os, 'centos')
+        env:
+          ACTIONS_STEP_DEBUG : true
         run: |
           yum install xorg-x11-utils -y
           mkdir -p package_CentOS/opt
