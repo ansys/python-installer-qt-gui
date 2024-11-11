@@ -1,0 +1,26 @@
+name: 🐞 Bug, problem, error
+description: Issue reporting template
+title: "[BUG] Problem found in..."
+labels: ["bug"]
+assignees: [""]
+
+body:
+
+  - type: checkboxes
+    id: opt-out-checklist
+    attributes:
+      label: '🔍 Before submitting the issue'
+      description: Please, make sure the following conditions are met
+      options:
+      - label: I have tried the latest Ansys Python Installer version
+        required: true
+      - label: I have adapted properly the title of the issue
+        required: true
+
+  - type: textarea
+    id: information
+    attributes:
+      label: 'Description'
+      placeholder: Please add the required information to reproduce your problem (logs, screenshots, description...)
+    validations:
+      required: true
