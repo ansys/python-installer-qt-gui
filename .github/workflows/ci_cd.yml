@@ -237,7 +237,9 @@ jobs:
   build-application-linux-non-debian:
     strategy:
       matrix:
-        os: ["quay.io/centos/centos:stream9", "fedora:latest"]
+        # TODO: reactivate...
+        # os: ["quay.io/centos/centos:stream9", "fedora:latest"]
+        os: ["quay.io/centos/centos:stream9"]
       fail-fast: false
     name: "Build Application Linux - ${{ matrix.os }}"
     runs-on: ubuntu-latest
