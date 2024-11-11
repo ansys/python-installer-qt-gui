@@ -461,10 +461,11 @@ jobs:
           name: Python-Installer-centos_stream9
           path: installer
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: Python-Installer-fedora_latest
-          path: installer
+      # TODO: reactivate...
+      # - uses: actions/download-artifact@v4
+      #   with:
+      #     name: Python-Installer-fedora_latest
+      #     path: installer
 
       - name: Display structure of downloaded files
         run: ls -R
