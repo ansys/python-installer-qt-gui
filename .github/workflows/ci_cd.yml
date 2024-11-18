@@ -263,7 +263,7 @@ jobs:
 
       - name: Install CentOS/Fedora Dependencies
         if: contains(matrix.os, 'centos') || contains(matrix.os, 'fedora')
-        run: |          
+        run: |
           yum install python3 \
             python3-pip \
             wget \
