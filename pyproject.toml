@@ -44,7 +44,7 @@ tests = [
     "pytest==8.3.3",
     "pytest-cov==6.0.0",
     "pytest-qt==4.4.0",
-    "setuptools==75.3.0",
+    "setuptools==75.5.0",
 ]
 doc = [
     "Sphinx==8.1.3",
