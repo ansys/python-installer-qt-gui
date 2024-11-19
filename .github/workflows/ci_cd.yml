@@ -472,7 +472,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: Python-Installer-fedora_latest
+          name: Python-Installer-fedora_40
           path: installer
 
       - name: Display structure of downloaded files
