@@ -423,12 +423,13 @@ jobs:
         run: |
           $filename = (get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}).Name
           $jobname = $filename -replace ".{4}$"
-          dotnet signclient.dll sign `
-            -r ansyssigning@ansys.com `
+          .\Ansys.SignClient.exe sign `
+            --signUrl https://csign.ansys.com `
+            -r gh_signtool_account `
             -s '${{ secrets.SIGNTOOL_PWD }}' `
-            -c AppSettings.json `
             -n $jobname `
-            -i installer/$filename
+            -i installer/$filename `
+            -o installer/$filename
 
       - uses: actions/upload-artifact@v4
         with:
