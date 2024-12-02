@@ -44,7 +44,7 @@ jobs:
         run: sudo apt install libegl1
 
       - name: Setup headless display
-        uses: pyvista/setup-headless-display-action@v2
+        uses: pyvista/setup-headless-display-action@v3
 
       - uses: ansys/actions/tests-pytest@v8
         with:
