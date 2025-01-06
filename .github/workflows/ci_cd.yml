@@ -237,7 +237,7 @@ jobs:
   build-application-linux-non-debian:
     strategy:
       matrix:
-        os: ["quay.io/centos/centos:stream10", "fedora:40"]
+        os: ["quay.io/centos/centos:stream9", "fedora:40"]
       fail-fast: false
     name: "Build Application Linux - ${{ matrix.os }}"
     runs-on: ubuntu-latest
@@ -260,11 +260,16 @@ jobs:
         run: |
           yum update -y
           yum groupinstall "Development Tools" -y
+          yum install python3.12 -y
+          update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
+          update-alternatives --set python3 /usr/bin/python3.12
+
 
       - name: Install CentOS/Fedora Dependencies
         if: contains(matrix.os, 'centos') || contains(matrix.os, 'fedora')
         run: |
-          yum install wget \
+          yum install python3-pip \
+            wget \
             binutils \
             ruby-devel \
             rubygems \
