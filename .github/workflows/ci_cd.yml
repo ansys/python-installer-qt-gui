@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  MAIN_PYTHON_VERSION: '3.11'
+  MAIN_PYTHON_VERSION: '3.12'
   PRECOMPILE_PYTHON_VERSION: '3.11.9'
   DOCUMENTATION_CNAME: 'installer.docs.pyansys.com'
   LIBRARY_NAME: 'ansys-tools-installer'
