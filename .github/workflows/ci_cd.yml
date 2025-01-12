@@ -90,11 +90,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          set UV_PROJECT_ENVIRONMENT=${{ env.pythonLocation }}
           uv sync --extra freeze
 
       - name: Freeze application
-        run: pyinstaller frozen.spec
+        run: uv run pyinstaller frozen.spec
 
       - name: Install NSIS
         run: choco install nsis -y
@@ -204,13 +203,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
           uv sync --extra freeze
 
       - name: Freeze application
         env:
           ADD_PYTHON_BINARIES: true
-        run: pyinstaller frozen.spec
+        run: uv run pyinstaller frozen.spec
 
       - name: Setup and Copy Linux files for packaging
         run: |
@@ -358,14 +356,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          export pythonLocation="/usr/bin/python-${{ env.PRECOMPILE_PYTHON_VERSION }}"
-          export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
           uv sync --extra freeze
 
       - name: Freeze application
         env:
           ADD_PYTHON_BINARIES: false
-        run: PyInstaller frozen.spec
+        run: uv run PyInstaller frozen.spec
 
       - name: Setup and Copy CentOS/RHEL files for packaging
         if: contains(matrix.os, 'centos')
