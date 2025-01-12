@@ -91,7 +91,7 @@ jobs:
           enable-cache: true
 
       - name: Install Dependencies
-        run: uv install --editable .[freeze]
+        run: uv sync --extra freeze --no-venv
 
       - name: Freeze application
         run: pyinstaller frozen.spec
@@ -205,7 +205,7 @@ jobs:
           ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
 
       - name: Install Dependencies
-        run: uv install --editable .[freeze]
+        run: uv sync --extra freeze --no-venv
 
       - name: Freeze application
         env:
@@ -358,9 +358,9 @@ jobs:
       #     python3 --version
       #     python3 -m pip install pip -U
 
-      - name: Install uv Dependencies
+      - name: Install Dependencies
         run: |
-          uv install --editable .[freeze]
+          python3 -m uv sync --extra freeze --no-venv
 
       - name: Freeze application
         env:
