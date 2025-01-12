@@ -2,29 +2,39 @@
 .PHONY: install tests doc build clean fresh-build
 
 install:
+	@echo "Installing uv..."
+    pip install uv
 	@echo "Installing..."
-	pip install -e .[freeze]
+	uv pip install -e .[freeze]
 	@echo "Installation complete."
 
 tests:
+	@echo "Installing uv..."
+    pip install uv
 	@echo "Installing test dependencies..."
-	pip install -e .[tests]
+	uv pip install -e .[tests]
 	@echo "Running tests..."
-	pytest
+	uv run pytest
 	@echo "Tests complete."
 
 doc:
+	@echo "Installing uv..."
+    pip install uv
 	@echo "Installing documentation dependencies..."
-	pip install -e .[doc]
+	uv pip install -e .[doc]
 	@echo "Building documentation..."
 	cd doc && make clean && make html && cd ..
 	@echo "Documentation complete."
 
 build:
+	@echo "Installing uv..."
+    pip install uv
 	@echo "Freezing using pyinstaller"
-	pyinstaller frozen.spec
+	uv run pyinstaller frozen.spec
 
 clean:
+	@echo "Installing uv..."
+    pip install uv
 	@echo "Cleaning up build files..."
 	rm -rf build dist
 

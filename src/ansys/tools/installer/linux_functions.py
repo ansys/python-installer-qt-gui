@@ -246,7 +246,7 @@ def run_linux_command(pypath, extra, venv=False):
 
     Examples
     --------
-    >>> run_linux_command("/home/sha/.local/ansys/python-3.8.10/bin/python3", "pip list")
+    >>> run_linux_command("/home/sha/.local/ansys/python-3.8.10/bin/python3", "uv pip list")
 
     """
     prefix = f"{pypath}"
@@ -263,7 +263,7 @@ def run_linux_command(pypath, extra, venv=False):
         prefix = f". {pypath}/bin/activate; "
     else:
         prefix = "/".join(prefix.split("/")[:-1]) + "/"
-        extra = extra.replace("pip", f"pip{major_version}")
+        #extra = extra.replace("pip", f"pip{major_version}")
     execute_linux_command(f"cd ~ ; {prefix}{extra}", wait=False)
 
 
@@ -273,13 +273,13 @@ def run_linux_command_conda(pypath, extra, venv=False):
 
     Examples
     --------
-    >>> run_linux_command_conda("/home/sha/.local/ansys/python-3.8.10/bin/python3", "pip list")
+    >>> run_linux_command_conda("/home/sha/.local/ansys/python-3.8.10/bin/python3", "uv pip list")
 
     """
     venvParam = ""
     extra = extra.replace("timeout", "sleep")
     extra = extra.replace("conda install --yes", "mamba install --yes")
-    # extra = extra.replace("conda update conda --yes", "python -m pip install -U pip")
+    # extra = extra.replace("conda update conda --yes", "python -m pip install -U pip uv")
     extra = extra.replace(
         "conda update conda --yes", "mamba update -n base mamba --yes"
     )
@@ -302,7 +302,8 @@ def run_linux_command_conda(pypath, extra, venv=False):
                     break
         venvParam = f"; . {miniforge_path}; . {miniforge_path.replace('conda.sh', 'mamba.sh')} ;mamba activate {pypath}"
     else:
-        extra = extra.replace(" pip", f" {pypath}/bin/pip")
+        pass
+        #extra = extra.replace(" pip", f" {pypath}/bin/pip")
     execute_linux_command(f"cd ~ {venvParam} ; {conda_path}{extra} ", wait=False)
 
 
