@@ -361,7 +361,7 @@ jobs:
       - name: Freeze application
         env:
           ADD_PYTHON_BINARIES: false
-        run: uv run PyInstaller frozen.spec
+        run: uv run pyinstaller frozen.spec
 
       - name: Setup and Copy CentOS/RHEL files for packaging
         if: contains(matrix.os, 'centos')
