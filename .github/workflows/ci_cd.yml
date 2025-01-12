@@ -86,12 +86,12 @@ jobs:
 
       - name: Install uv
         run: |
-          python3 -m pip install uv
+          pip install uv
 
       - name: Install Dependencies
         run: |
           set UV_PROJECT_ENVIRONMENT=${{ env.pythonLocation }}
-          python3 -m uv sync --extra freeze
+          uv sync --extra freeze
 
       - name: Freeze application
         run: pyinstaller frozen.spec
@@ -200,12 +200,12 @@ jobs:
 
       - name: Install uv
         run: |
-          python3 -m pip install uv
+          pip install uv
 
       - name: Install Dependencies
         run: |
           export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
-          python3 -m uv sync --extra freeze
+          uv sync --extra freeze
 
       - name: Freeze application
         env:
@@ -349,7 +349,7 @@ jobs:
 
       - name: Install uv
         run: |
-          python3 -m pip install uv
+          pip install uv
 
       # - name: Update pip
       #   run: |
@@ -358,13 +358,14 @@ jobs:
 
       - name: Install Dependencies
         run: |
+          export pythonLocation="/usr/bin/python-${{ env.PRECOMPILE_PYTHON_VERSION }}"
           export UV_PROJECT_ENVIRONMENT="${pythonLocation}"
-          python3 -m uv sync --extra freeze
+          uv sync --extra freeze
 
       - name: Freeze application
         env:
           ADD_PYTHON_BINARIES: false
-        run: python3 -m PyInstaller frozen.spec
+        run: PyInstaller frozen.spec
 
       - name: Setup and Copy CentOS/RHEL files for packaging
         if: contains(matrix.os, 'centos')
