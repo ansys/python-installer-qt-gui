@@ -90,7 +90,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          uv pip install -e .[freeze]
+          uv sync --extra freeze
 
       - name: Freeze application
         run: uv run pyinstaller frozen.spec
@@ -203,7 +203,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          uv pip install -e .[freeze]
+          uv sync --extra freeze
 
       - name: Freeze application
         env:
@@ -351,7 +351,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          uv pip install -e .[freeze]
+          uv sync --extra freeze
 
       - name: Freeze application
         env:
