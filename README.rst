@@ -116,7 +116,7 @@ This project uses `pre-commit <https://pre-commit.com/>`_. Install with:
 .. code::
 
    uv pip install pre-commit
-   uv pre-commit install
+   uv run pre-commit install
 
 This will now run ``pre-commit`` for each commit to ensure you follow project
 style guidelines. For example:
