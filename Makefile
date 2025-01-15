@@ -28,7 +28,7 @@ doc:
 
 build:
 	@echo "Installing uv..."
-    pip install uv
+	pip install uv
 	@echo "Freezing using pyinstaller"
 	uv run pyinstaller frozen.spec
 
