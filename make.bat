@@ -11,15 +11,20 @@ if "%1" == "build" goto build
 if "%1" == "clean" goto clean
 if "%1" == "fresh-build" goto fresh-build
 
+:setup
+Echo ^>^>^> Setting up environment...
 pip install -U pip uv
+goto :eof
 
 :install
+call :setup
 Echo ^>^>^> Installing...
 uv pip install -e .[freeze]
 Echo ^>^>^> Installation complete.
 goto end
 
 :tests
+call :setup
 Echo ^>^>^> Installing test dependencies...
 uv pip install -e .[tests]
 Echo ^>^>^> Running tests...
@@ -27,6 +32,7 @@ uv run pytest
 goto end
 
 :doc
+call :setup
 Echo ^>^>^> Installing documentation dependencies...
 uv pip install -e .[doc]
 Echo ^>^>^> Building documentation...
@@ -38,6 +44,7 @@ Echo ^>^>^> Documentation complete.
 goto end
 
 :build
+call :setup
 Echo ^>^>^> Freezing using pyinstaller
 uv run pyinstaller frozen.spec
 goto end
@@ -49,11 +56,8 @@ rmdir /s /q dist > /NUL 2>&1
 goto end
 
 :fresh-build
-Echo ^>^>^> Cleaning up build files...
-rmdir /s /q build > /NUL 2>&1
-rmdir /s /q dist > /NUL 2>&1
-Echo ^>^>^> Freezing using pyinstaller
-uv run pyinstaller frozen.spec
+call :clean
+call :build
 goto end
 
 :end
