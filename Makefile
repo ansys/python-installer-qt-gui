@@ -19,7 +19,7 @@ tests:
 
 doc:
 	@echo "Installing uv..."
-    pip install uv
+	pip install uv
 	@echo "Installing documentation dependencies..."
 	uv pip install -e .[doc]
 	@echo "Building documentation..."
