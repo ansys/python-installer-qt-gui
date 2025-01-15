@@ -10,7 +10,7 @@ install:
 
 tests:
 	@echo "Installing uv..."
-    pip install uv
+	pip install uv
 	@echo "Installing test dependencies..."
 	uv pip install -e .[tests]
 	@echo "Running tests..."
