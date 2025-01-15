@@ -34,7 +34,7 @@ build:
 
 clean:
 	@echo "Installing uv..."
-    pip install uv
+	pip install uv
 	@echo "Cleaning up build files..."
 	rm -rf build dist
 
