@@ -3,7 +3,7 @@
 
 install:
 	@echo "Installing uv..."
-    pip install uv
+	pip install uv
 	@echo "Installing..."
 	uv pip install -e .[freeze]
 	@echo "Installation complete."
