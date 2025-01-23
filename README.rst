@@ -51,13 +51,14 @@ You can be up and running with four lines of code:
    git clone https://github.com/ansys/python-installer-qt-gui
    cd python-installer-qt-gui
    pip install pip uv -U
+   uv venv
    uv pip install -e .
 
 Now you can run it with:
 
 .. code:: bash
 
-   ansys_python_installer
+   uv run ansys_python_installer
 
 **Details**
 
