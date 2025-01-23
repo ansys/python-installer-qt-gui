@@ -589,8 +589,11 @@ class InstalledTab(QtWidgets.QWidget):
                 run_linux_command(py_path, extra)
             else:
                 # Update the package managers
-                subprocess.call(f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv wheel && exit"', shell=True)
-                
+                subprocess.call(
+                    f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv wheel && exit"',
+                    shell=True,
+                )
+
                 subprocess.call(
                     f'start {min_win} cmd /K "set PATH={new_path} && cd %userprofile% {cmd}"',
                     shell=True,
