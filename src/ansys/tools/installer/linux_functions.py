@@ -203,7 +203,8 @@ def create_venv_linux(venv_dir, py_path):
     ... )
 
     """
-    execute_linux_command(f"{py_path} -m venv {venv_dir}")
+    execute_linux_command(f"{py_path} -m pip install -U pip uv")
+    execute_linux_command(f"{py_path} -m uv venv {venv_dir}")
 
 
 def create_venv_linux_conda(venv_dir, py_path):
@@ -249,6 +250,10 @@ def run_linux_command(pypath, extra, venv=False):
     >>> run_linux_command("/home/sha/.local/ansys/python-3.8.10/bin/python3", "uv pip list")
 
     """
+    
+    # Update package manager before executing commands
+    execute_linux_command(f"{pypath} -m pip install -U pip uv")
+    
     prefix = f"{pypath}"
     extra = extra.replace("timeout", "sleep")
     python_name = prefix.split("/")[-1]

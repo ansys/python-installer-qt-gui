@@ -396,7 +396,7 @@ class InstalledTab(QtWidgets.QWidget):
             if chosen_ver
             else f"{PYANSYS_LIBS[chosen_pkg]}"
         )
-        cmd = f"uv pip install {pck_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with pip install {pck_ver} --force-reinstall"
+        cmd = f"uv pip install {pck_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with uv pip install {pck_ver} --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd, always_use_pip=True)
 
@@ -588,6 +588,9 @@ class InstalledTab(QtWidgets.QWidget):
             if is_linux_os():
                 run_linux_command(py_path, extra)
             else:
+                # Update the package managers
+                subprocess.call(f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv wheel && exit"', shell=True)
+                
                 subprocess.call(
                     f'start {min_win} cmd /K "set PATH={new_path} && cd %userprofile% {cmd}"',
                     shell=True,
