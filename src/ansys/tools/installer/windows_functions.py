@@ -50,8 +50,12 @@ def create_venv_windows(venv_dir: str, py_path: str):
     new_path = f"{py_path};{scripts_path};%PATH%"
 
     # Update the package managers
-    subprocess.call(f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"', shell=True, cwd=user_profile)
-    
+    subprocess.call(
+        f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
+        shell=True,
+        cwd=user_profile,
+    )
+
     # Create venv using uv
     subprocess.call(
         f'start /w /min cmd /K "set PATH={new_path} && python -m uv venv {venv_dir} && exit"',
