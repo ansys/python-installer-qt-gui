@@ -133,7 +133,7 @@ def install_python_linux(filename):
         file = file.replace(".tar.xz", "")
         file = file.lower()
         execute_linux_command(
-            f"cd {untar_dirname};mkdir -p {ansys_linux_path}/{file};make clean;./configure --prefix={ansys_linux_path}/{file};make;make install"
+            f"cd {untar_dirname};mkdir -p {ansys_linux_path}/{file};make clean;./configure --prefix={ansys_linux_path}/{file};make;make install;cp {ansys_linux_path}/{file}/bin/python3 {ansys_linux_path}/{file}/bin/python"
         )
         os.chdir(cwd)
     return 0

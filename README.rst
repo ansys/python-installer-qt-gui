@@ -80,7 +80,7 @@ guide`_. You will need to follow these steps:
    .. code:: bash
 
       # Create a virtual environment
-      python -m venv .venv
+      python -m uv venv .venv
 
       # Activate it in a POSIX system
       source .venv/bin/activate
@@ -107,7 +107,7 @@ guide`_. You will need to follow these steps:
 
    .. code:: bash
 
-      pytest tests -v
+      uv run pytest tests -v
 
 
 Style and testing
@@ -141,7 +141,7 @@ If you need to run it again on all files and not just staged files, run:
 
 .. code::
 
-   pre-commit run --all-files
+   uv run pre-commit run --all-files
 
 
 Local build
@@ -166,7 +166,7 @@ For building documentation, you can either run the usual rules provided in the
 .. code:: bash
 
     uv pip install -e .[doc]
-    make -C doc/ html
+    uv run make -C doc/ html
 
     # subsequently open the documentation with (under Linux):
     <your_browser_name> doc/html/index.html
