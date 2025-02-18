@@ -245,7 +245,6 @@ Regarding the available Python versions, users can select among the following on
 * Python 3.10
 * Python 3.11
 * Python 3.12
-* Python 3.13
 
 .. collapse:: Linux : Python installation
 
