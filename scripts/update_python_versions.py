@@ -80,7 +80,6 @@ with open(CONSTANTS_FILE, "r") as f:
 #     "Python 3.10": "3.10.11",
 #     "Python 3.11": "3.11.6",
 #     "Python 3.12": "3.12.0",
-#     "Python 3.13": "3.13.2",
 # }
 #
 # CONDA_PYTHON_VERSION = "23.1.0-4"
