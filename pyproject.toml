@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 name = "ansys-tools-installer"
 description = "Python QT app or CLI for installing Python and PyAnsys."
 readme = "README.rst"
-requires-python = ">=3.9,<4"
+requires-python = ">=3.10,<4"
 license = { file = "LICENSE" }
 authors = [{ name = "Ansys, Inc.", email = "pyansys.core@ansys.com" }]
 maintainers = [{ name = "Ansys, Inc.", email = "pyansys.core@ansys.com" }]
@@ -25,10 +25,10 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dynamic = ["version"]
 
@@ -36,31 +36,31 @@ dynamic = ["version"]
 [project.optional-dependencies]
 tests = [
     "packaging==24.2",
-    "PyGithub==2.5.0",
+    "PyGithub==2.6.0",
     "appdirs==1.4.4",
     "requests==2.32.3",
-    "PySide6==6.8.0.2",
-    "ansys-tools-path==0.6.0",
-    "pytest==8.3.3",
+    "PySide6==6.8.2.1",
+    "ansys-tools-path==0.7.1",
+    "pytest==8.3.4",
     "pytest-cov==6.0.0",
     "pytest-qt==4.4.0",
-    "setuptools==75.5.0",
+    "setuptools==75.8.0",
 ]
 doc = [
     "Sphinx==8.1.3",
-    "ansys-sphinx-theme==1.2.1",
+    "ansys-sphinx-theme==1.3.1",
     "sphinx-copybutton==0.5.2",
     "sphinx_design==0.6.1",
-    "sphinx_toolbox==3.8.1",
+    "sphinx_toolbox==3.8.2",
 ]
 freeze = [
-    "pyinstaller==6.11.1",
+    "pyinstaller==6.12.0",
     "packaging==24.2",
-    "PyGithub==2.5.0",
+    "PyGithub==2.6.0",
     "appdirs==1.4.4",
     "requests==2.32.3",
-    "PySide6==6.8.0.2",
-    "ansys-tools-path==0.6.0",
+    "PySide6==6.8.2.1",
+    "ansys-tools-path==0.7.1",
 ]
 
 [tool.flit.module]

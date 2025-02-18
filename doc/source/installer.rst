@@ -242,11 +242,10 @@ Two Python options for installation are available:
 
 Regarding the available Python versions, users can select among the following ones:
 
-* Python 3.8
-* Python 3.9
 * Python 3.10
 * Python 3.11
 * Python 3.12
+* Python 3.13
 
 .. collapse:: Linux : Python installation
 
@@ -264,8 +263,8 @@ Regarding the available Python versions, users can select among the following on
         #. Download Python Tarball and Untar:
 
           i. The Python tar file will be downloaded from the Python FTP server (https://www.python.org/ftp/python)
-             based on the version selected from the dropdown menu. Example: For Python version 3.8.11, the download link
-             would be here(https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz).
+             based on the version selected from the dropdown menu. Example: For Python version 3.12.0, the download link
+             would be here(https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz).
 
           ii.  Decompress the downloaded file in the user’s cache directory.
 

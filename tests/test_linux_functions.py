@@ -1,4 +1,4 @@
-# Copyright (C) 2023 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2023 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -27,9 +27,9 @@ from ansys.tools.installer.linux_functions import (
 
 
 def test_get_vanilla_url_and_filename():
-    url, filename = get_vanilla_url_and_filename("3.8.11")
-    assert url == "https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz"
-    assert filename == "Python-3.8.11.tar.xz"
+    url, filename = get_vanilla_url_and_filename("3.12.0")
+    assert url == "https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz"
+    assert filename == "Python-3.12.0.tar.xz"
 
 
 def test_get_conda_url_and_filename():
