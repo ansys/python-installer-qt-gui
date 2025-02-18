@@ -221,8 +221,6 @@ VENV_SEARCH_PATH = "venv_search_path"
 #
 
 VANILLA_PYTHON_VERSIONS = {
-    "Python 3.8": "3.8.10",
-    "Python 3.9": "3.9.13",
     "Python 3.10": "3.10.11",
     "Python 3.11": "3.11.9",
     "Python 3.12": "3.12.9",
