@@ -116,7 +116,7 @@ jobs:
   build-application-linux-debian:
     strategy:
       matrix:
-        os: ["22.04", "20.04"]
+        os: ["24.04", "22.04"]
       fail-fast: false
     name: "Build Application Linux - Ubuntu ${{ matrix.os }}"
     runs-on: ubuntu-${{ matrix.os }}
@@ -159,20 +159,6 @@ jobs:
             -y
           sudo apt install ruby -y
           sudo gem install fpm
-
-      - name: Ubuntu-20.04 dependencies
-        if: matrix.os == '20.04'
-        run: |
-          sudo add-apt-repository ppa:okirby/qt6-backports -y
-          sudo apt update
-          sudo apt install qt6-base-dev -y
-
-          wget http://archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi8_3.4.2-4_amd64.deb
-          sudo apt install ./libffi8_3.4.2-4_amd64.deb
-
-          wget http://archive.ubuntu.com/ubuntu/pool/main/w/wayland/libwayland-client0_1.20.0-1_amd64.deb
-          sudo apt install ./libwayland-client0_1.20.0-1_amd64.deb
-
 
       - name: Create python-3.11 artifact
         run: |
@@ -480,7 +466,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: Python-Installer-ubuntu_20.04
+          name: Python-Installer-ubuntu_24.04
           path: installer
 
       - uses: actions/download-artifact@v4
