@@ -258,7 +258,6 @@ jobs:
           update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
           update-alternatives --set python3 /usr/bin/python3.12
 
-
       - name: Install CentOS/Fedora Dependencies
         if: contains(matrix.os, 'centos') || contains(matrix.os, 'fedora')
         run: |
@@ -327,6 +326,13 @@ jobs:
           mkdir -p ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
           mv python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
           ls -l ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
+
+      - name: Install the latest version of uv and set the python version
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          cache-dependency-glob: '**/pyproject.toml'
+          activate-environment: true
 
       - name: Install Dependencies
         run: |
