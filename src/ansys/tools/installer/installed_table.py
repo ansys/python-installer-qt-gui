@@ -545,8 +545,8 @@ class InstalledTab(QtWidgets.QWidget):
         altered_path = path.copy()
         for p in path:
             if (
-                "Ansys Python Manager\_internal" in p
-                or "ansys_python_manager\_internal" in p
+                r"Ansys Python Manager\_internal" in p
+                or r"ansys_python_manager\_internal" in p
             ):
                 altered_path.remove(p)
         myenv = ";".join(altered_path)

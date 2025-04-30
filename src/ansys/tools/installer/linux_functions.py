@@ -248,7 +248,6 @@ def run_linux_command(pypath, extra, venv=False):
     >>> run_linux_command("/home/sha/.local/ansys/python-3.12.0/bin/python3", "uv pip list")
 
     """
-
     # Update package manager before executing commands
     execute_linux_command(f"{pypath} -m pip install -U pip uv")
 
