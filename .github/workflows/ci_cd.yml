@@ -86,7 +86,7 @@ jobs:
 
       - name: Upgrade pip & uv
         run: |
-          pip install -U pip uv
+          python -m pip install -U pip uv
 
       - name: Install Dependencies
         run: |
@@ -185,7 +185,7 @@ jobs:
 
       - name: Upgrade pip & uv
         run: |
-          pip install -U pip uv
+          python -m pip install -U pip uv
 
       - name: Install Dependencies
         run: |
@@ -333,7 +333,7 @@ jobs:
 
       - name: Upgrade pip & uv
         run: |
-          pip install -U pip uv
+          python -m pip install -U pip uv
 
       - name: Install Dependencies
         run: |

@@ -13,7 +13,7 @@ if "%1" == "fresh-build" goto fresh-build
 
 :setup
 Echo ^>^>^> Setting up environment...
-pip install -U pip uv
+python -m pip install -U pip uv
 goto :eof
 
 :install

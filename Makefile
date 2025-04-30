@@ -3,7 +3,7 @@
 
 setup:
 	@echo "Installing uv..."
-	pip install -U pip uv
+	python -m pip install -U pip uv
 
 install: setup
 	@echo "Installing..."
