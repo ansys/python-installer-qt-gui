@@ -34,7 +34,7 @@ jobs:
       - name: Run the autoupdate script
         run: |
           python -m pip install --upgrade pip uv
-          uv pip install -r scripts/requirements.txt
+          uv pip install -r scripts/requirements.txt --system
           python scripts/update_python_versions.py
 
       - name: Commit changes (if any)
