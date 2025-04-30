@@ -78,11 +78,11 @@ def get_vanilla_url_and_filename(selected_version):
 
     Examples
     --------
-    >>> url, filename = get_vanilla_url_and_filename("3.8.11")
+    >>> url, filename = get_vanilla_url_and_filename("3.12.0")
     >>> url
-    'https://www.python.org/ftp/python/3.8.11/Python-3.8.11.tar.xz'
+    'https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz'
     >>> filename
-    'Python-3.8.11.tar.xz'
+    'Python-3.12.0.tar.xz'
 
     """
     url = f"https://www.python.org/ftp/python/{selected_version}/Python-{selected_version}.tar.xz"
@@ -160,9 +160,7 @@ def find_miniforge_linux(ansys_manager_installed_only=False):
     >>> installed_pythons
     {'/home/user/python/py311/bin/python': ('3.11.3', False),
      '/home/user/python/py311/bin/python3': ('3.11.3', False),
-     '/usr/bin/python3.7': ('3.7.16', True),
-     '/usr/bin/python3.8': ('3.8.16', True),
-     '/usr/bin/python3.9': ('3.9.16', True)}
+     '/usr/bin/python3.12': ('3.12.0', True),
 
     """
     paths = {}
@@ -199,7 +197,7 @@ def create_venv_linux(venv_dir, py_path):
     --------
     >>> create_venv_linux(
     ...     "/home/sha/.local/ansys/.ansys_python_venvs/myenv/bin",
-    ...     "/home/sha/.local/ansys/python-3.8.10/bin/python3",
+    ...     "/home/sha/.local/ansys/python-3.12.0/bin/python3",
     ... )
 
     """
@@ -215,7 +213,7 @@ def create_venv_linux_conda(venv_dir, py_path):
     --------
     >>> create_venv_linux_conda(
     ...     "/home/sha/.local/ansys/.ansys_python_venvs/myenv/bin",
-    ...     "/home/sha/.local/ansys/python-3.8.10/bin/python3",
+    ...     "/home/sha/.local/ansys/python-3.12.0/bin/python3",
     ... )
 
     """
@@ -234,7 +232,7 @@ def delete_venv_conda(miniforge_path, parent_path):
     --------
     >>> delete_venv_conda(
     ...     "/home/sha/.local/ansys/.ansys_python_venvs/myenv/bin",
-    ...     "/home/sha/.local/ansys/python-3.8.10/bin/python3",
+    ...     "/home/sha/.local/ansys/python-3.12.0/bin/python3",
     ... )
 
     """
@@ -247,7 +245,7 @@ def run_linux_command(pypath, extra, venv=False):
 
     Examples
     --------
-    >>> run_linux_command("/home/sha/.local/ansys/python-3.8.10/bin/python3", "uv pip list")
+    >>> run_linux_command("/home/sha/.local/ansys/python-3.12.0/bin/python3", "uv pip list")
 
     """
 
@@ -278,7 +276,7 @@ def run_linux_command_conda(pypath, extra, venv=False):
 
     Examples
     --------
-    >>> run_linux_command_conda("/home/sha/.local/ansys/python-3.8.10/bin/python3", "uv pip list")
+    >>> run_linux_command_conda("/home/sha/.local/ansys/python-3.12.0/bin/python3", "uv pip list")
 
     """
     venvParam = ""
@@ -327,9 +325,8 @@ def find_ansys_installed_python_linux():
     >>> installed_pythons
     {'/home/user/python/py311/bin/python': ('3.11.3', False),
      '/home/user/python/py311/bin/python3': ('3.11.3', False),
-     '/usr/bin/python3.7': ('3.7.16', True),
-     '/usr/bin/python3.8': ('3.8.16', True),
-     '/usr/bin/python3.9': ('3.9.16', True)}
+     '/usr/bin/python3.12.0': ('3.12.0', True),
+
 
     """
     LOG.debug(
