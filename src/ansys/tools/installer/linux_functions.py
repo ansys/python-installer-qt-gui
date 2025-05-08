@@ -265,7 +265,6 @@ def run_linux_command(pypath, extra, venv=False):
         prefix = f". {pypath}/bin/activate; "
     else:
         prefix = "/".join(prefix.split("/")[:-1]) + "/"
-        # extra = extra.replace("pip", f"pip{major_version}")
     execute_linux_command(f"cd ~ ; {prefix}{extra}", wait=False)
 
 
