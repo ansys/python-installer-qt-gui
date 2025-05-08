@@ -232,7 +232,7 @@ with open(YAML_FILE, "r") as f:
 # Get pattern to replace
 py_version = parse(list(vanilla_python_versions.values())[-2])
 py_version_search = f"{str(py_version.major)}.{str(py_version.minor)}"
-search_str = re.compile(py_version_search + "\.[\d]{1,}")
+search_str = re.compile(py_version_search + r"\.[\d]{1,}")
 
 # Replace the version
 for n, yaml_line in enumerate(yaml_contents):

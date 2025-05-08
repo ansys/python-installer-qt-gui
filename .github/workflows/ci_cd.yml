@@ -80,15 +80,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Install the latest version of uv and set the python version
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          cache-dependency-glob: '**/pyproject.toml'
+          activate-environment: true
 
       - name: Install Dependencies
-        run: pip install -e .[freeze]
+        run: |
+          uv sync --extra freeze
 
       - name: Freeze application
-        run: pyinstaller frozen.spec
+        run: uv run pyinstaller frozen.spec
 
       - name: Install NSIS
         run: choco install nsis -y
@@ -123,9 +127,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Install the latest version of uv and set the python version
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          cache-dependency-glob: '**/pyproject.toml'
+          activate-environment: true
 
       - name: Install Linux Dependencies
         run: |
@@ -179,12 +186,13 @@ jobs:
           ls -l ${RUNNER_WORKSPACE}/python-installer-qt-gui/src/ansys/tools/installer/assets/python-asset/${{ matrix.os }}
 
       - name: Install Dependencies
-        run: pip install -e .[freeze]
+        run: |
+          uv sync --extra freeze
 
       - name: Freeze application
         env:
           ADD_PYTHON_BINARIES: true
-        run: pyinstaller frozen.spec
+        run: uv run pyinstaller frozen.spec
 
       - name: Setup and Copy Linux files for packaging
         run: |
@@ -249,7 +257,6 @@ jobs:
           yum install python3.12 python3.12-pip -y
           update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
           update-alternatives --set python3 /usr/bin/python3.12
-
 
       - name: Install CentOS/Fedora Dependencies
         if: contains(matrix.os, 'centos') || contains(matrix.os, 'fedora')
@@ -320,19 +327,21 @@ jobs:
           mv python-${{ env.PRECOMPILE_PYTHON_VERSION }}.tar.gz ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
           ls -l ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
 
-      - name: Update pip
-        run: |
-          python3 --version
-          python3 -m pip install pip -U
+      - name: Install the latest version of uv and set the python version
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          cache-dependency-glob: '**/pyproject.toml'
+          activate-environment: true
 
-      - name: Install pip Dependencies
+      - name: Install Dependencies
         run: |
-          python3 -m pip install --ignore-installed -e .[freeze]
+          uv sync --extra freeze
 
       - name: Freeze application
         env:
           ADD_PYTHON_BINARIES: false
-        run: python3 -m PyInstaller frozen.spec
+        run: uv run pyinstaller frozen.spec
 
       - name: Setup and Copy CentOS/RHEL files for packaging
         if: contains(matrix.os, 'centos')
