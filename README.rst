@@ -50,7 +50,7 @@ You can be up and running with four lines of code:
 
    git clone https://github.com/ansys/python-installer-qt-gui
    cd python-installer-qt-gui
-   pip install pip uv -U
+   python -m pip install -U pip uv
    uv venv
    uv pip install -e .
 
