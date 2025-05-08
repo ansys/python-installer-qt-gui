@@ -366,7 +366,7 @@ class InstalledTab(QtWidgets.QWidget):
     def launch_jupyterlab(self):
         """Launch Jupyterlab."""
         # handle errors
-        error_msg = "uv pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with pip install jupyterlab --force-reinstall"
+        error_msg = "uv pip install jupyterlab && python -m jupyter lab || echo Failed to launch. Try reinstalling jupyterlab with: uv pip install jupyterlab --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(f"python -m jupyter lab || {error_msg}")
 
