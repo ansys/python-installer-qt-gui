@@ -396,7 +396,7 @@ class InstalledTab(QtWidgets.QWidget):
             if chosen_ver
             else f"{PYANSYS_LIBS[chosen_pkg]}"
         )
-        cmd = f"uv pip install {pck_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with uv pip install {pck_ver} --force-reinstall"
+        cmd = f"uv pip install {pck_ver} && timeout 3 && exit || echo Failed to install this PyAnsys Library. Try reinstalling it with: uv pip install {pck_ver} --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(cmd, always_use_pip=True)
 
