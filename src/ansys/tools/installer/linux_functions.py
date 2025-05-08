@@ -280,7 +280,6 @@ def run_linux_command_conda(pypath, extra, venv=False):
     venvParam = ""
     extra = extra.replace("timeout", "sleep")
     extra = extra.replace("conda install --yes", "mamba install --yes")
-    # extra = extra.replace("conda update conda --yes", "python -m pip install -U pip uv")
     extra = extra.replace(
         "conda update conda --yes", "mamba update -n base mamba --yes"
     )
