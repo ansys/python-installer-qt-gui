@@ -357,7 +357,7 @@ class InstalledTab(QtWidgets.QWidget):
     def launch_spyder(self):
         """Launch spyder IDE."""
         # handle errors
-        error_msg = "(uv pip install spyder && spyder && exit 0) || echo Failed to launch. Try reinstalling spyder with pip install spyder --force-reinstall"
+        error_msg = "(uv pip install spyder && spyder && exit 0) || echo Failed to launch. Try reinstalling spyder with: uv pip install spyder --force-reinstall"
         self._update_pck_mnger()
         self.launch_cmd(
             f'uv pip list | {"grep" if is_linux_os() else "findstr"} "spyder" && spyder && exit 0 || {error_msg}'
