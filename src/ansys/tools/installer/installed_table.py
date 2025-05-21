@@ -32,7 +32,7 @@ from PySide6 import QtCore, QtWidgets
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import QComboBox
 
-from ansys.tools.installer.common import get_pkg_versions
+from ansys.tools.installer.common import get_pkg_versions, get_targets
 from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import PYANSYS_LIBS, SELECT_VENV_MANAGE_TAB
 from ansys.tools.installer.find_python import (
@@ -300,23 +300,45 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys = QtWidgets.QHBoxLayout()
         pyansys_pkg_manage_box_layout.addLayout(hbox_install_pyansys)
 
+        package_layout = QtWidgets.QVBoxLayout()
+        package_label = QtWidgets.QLabel("Package")
         self.model = QStandardItemModel()
         self.packages_combo = QComboBox()
         self.packages_combo.setModel(self.model)
+        package_layout.addWidget(package_label)
+        package_layout.addWidget(self.packages_combo)
 
+        version_layout = QtWidgets.QVBoxLayout()
+        version_label = QtWidgets.QLabel("Version")
         self.versions_combo = QComboBox()
-        self.button_launch_cmd = QtWidgets.QPushButton("Install")
-        self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
+        version_layout.addWidget(version_label)
+        version_layout.addWidget(self.versions_combo)
 
+        target_layout = QtWidgets.QVBoxLayout()
+        target_label = QtWidgets.QLabel("Target (optional)")
+        self.version_target_combo = QComboBox()
+        target_layout.addWidget(target_label)
+        target_layout.addWidget(self.version_target_combo)
+
+        install_button_layout = QtWidgets.QVBoxLayout()
+        install_button_label = QtWidgets.QLabel(" ")
+        self.button_launch_cmd = QtWidgets.QPushButton("Install")
+        install_button_layout.addWidget(install_button_label)
+        install_button_layout.addWidget(self.button_launch_cmd)
+
+        self.button_launch_cmd.clicked.connect(self.install_pyansys_packages)
         for library in PYANSYS_LIBS:
             self.model.appendRow(QStandardItem(library))
-
         self.packages_combo.currentIndexChanged.connect(self.update_package_combo)
+        self.versions_combo.currentIndexChanged.connect(
+            self.update_package_target_combo
+        )
         self.update_package_combo(0)
 
-        hbox_install_pyansys.addWidget(self.packages_combo)
-        hbox_install_pyansys.addWidget(self.versions_combo)
-        hbox_install_pyansys.addWidget(self.button_launch_cmd)
+        hbox_install_pyansys.addLayout(package_layout)
+        hbox_install_pyansys.addLayout(version_layout)
+        hbox_install_pyansys.addLayout(target_layout)
+        hbox_install_pyansys.addLayout(install_button_layout)
         layout.addWidget(pyansys_pkg_manage_box)
 
         # ensure the table is always in focus
@@ -391,8 +413,10 @@ class InstalledTab(QtWidgets.QWidget):
         """Install PyAnsys - chosen packages."""
         chosen_pkg = self.packages_combo.currentText()
         chosen_ver = self.versions_combo.currentText()
+        chosen_target = self.version_target_combo.currentText()
+        fmt_target = "" if not chosen_target else f"[{chosen_target}]"
         pck_ver = (
-            f"{PYANSYS_LIBS[chosen_pkg]}=={chosen_ver}"
+            f"{PYANSYS_LIBS[chosen_pkg]}{fmt_target}=={chosen_ver}"
             if chosen_ver
             else f"{PYANSYS_LIBS[chosen_pkg]}"
         )
@@ -414,6 +438,24 @@ class InstalledTab(QtWidgets.QWidget):
 
         self.versions_combo.setModel(versions_model)
         self.versions_combo.setCurrentIndex(0)
+
+    def update_package_target_combo(self, index):
+        """Depending on the version chosen for a package, update the available list of targets."""
+        package_name = PYANSYS_LIBS[self.packages_combo.currentText()]
+        version = self.versions_combo.currentText()
+
+        # Clear the previous targets
+        self.version_target_combo.clear()
+
+        # Get the available targets for the selected package version
+        targets = get_targets(package_name, version)
+
+        # Populate the target combo box with the available targets
+        for target in targets:
+            self.version_target_combo.addItem(target)
+
+        # Set the first target as the current selection
+        self.version_target_combo.setCurrentIndex(0)
 
     def list_packages(self):
         """List installed Python packages."""
