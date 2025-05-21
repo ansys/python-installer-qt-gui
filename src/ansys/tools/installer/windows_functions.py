@@ -53,7 +53,7 @@ def create_venv_windows(venv_dir: str, py_path: str):
     # Update the package managers
     try:
         print("Updating package managers...")
-        print(f"New PATH: {new_path}")
+        print(f"New PATH: {new_path.split(';')[1]}")
         subprocess.call(
             f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
             shell=True,
