@@ -127,3 +127,65 @@ def get_pkg_versions(pkg_name):
     session.verify = True
 
     return all_versions
+
+
+def get_targets(pkg_name, version, exclude_tests_and_docs=True):
+    """
+    Get the available targets for a package version.
+
+    Parameters
+    ----------
+    pkg_name : str
+        Name of the package for which to fetch the available targets.
+    version : str
+        Version of the package.
+    exclude_tests_and_docs : bool, optional
+        If True, exclude test and documentation targets from the list.
+        Default is True.
+
+    Returns
+    -------
+    list
+        A sorted list of available targets for the specified package version.
+        The first element is an empty string, mimicking the behavior of
+        no target.
+
+    Examples
+    --------
+    >>> get_targets("pyansys", "0.1.0")
+    ['target1', 'target2', ...]
+    """
+    session = requests.Session()
+    session.verify = False
+    urls = [
+        f"https://pypi.python.org/pypi/{pkg_name}/{version}/json",
+        f"https://pypi.org/pypi/{pkg_name}/{version}/json",
+    ]
+    all_targets = []
+
+    for url in urls:
+        try:
+            targets = json.loads(requests.get(url, verify=certifi.where()).content)[
+                "info"
+            ]
+            # Check if targets are available
+            if targets.get("provides_extra"):
+                all_targets = targets["provides_extra"]
+            break
+        except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
+            LOG.warning(f"Cannot connect to {url}... No target listed.")
+
+    session.verify = True
+
+    # Ensure the first element is an empty string
+    all_targets.insert(0, "")
+
+    # Exclude test and documentation targets if specified
+    if exclude_tests_and_docs:
+        all_targets = [
+            target
+            for target in all_targets
+            if "tests" not in target.lower() and "doc" not in target.lower()
+        ]
+
+    return all_targets
