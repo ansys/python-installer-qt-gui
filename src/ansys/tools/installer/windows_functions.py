@@ -52,10 +52,26 @@ def create_venv_windows(venv_dir: str, py_path: str):
     
     # Update the package managers
     try:
-        print("Updating package managers...")
+        LOG.debug("Updating package managers - pip & uv...")
+        subprocess.call(
+            f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
+            shell=True,
+            cwd=user_profile,
+        )
+
+        # Create venv using uv
+        LOG.debug("Creating virtual environment using uv...")
+        subprocess.call(
+            f'start /w /min cmd /K "set PATH={new_path} && python -m uv venv {venv_dir} && exit"',
+            shell=True,
+            cwd=user_profile,
+        )
+    except Exception as e:
+        LOG.debug(f"Error creating virtual environment: {e}")
+        LOG.debug("Trying to create virtual environment using backup method...")
         
         new_path = new_path.split(";")[0] + "\python.exe"
-        print(f"New path: {new_path}")
+        
         # Backup method
         subprocess.call(
             f'"{new_path}" -m pip install --upgrade pip uv && exit',
@@ -65,33 +81,6 @@ def create_venv_windows(venv_dir: str, py_path: str):
         # Create venv using uv
         subprocess.call(
             f'"{new_path}" -m uv venv {venv_dir} && exit',
-            shell=True,
-            cwd=user_profile,
-        )
-        # subprocess.call(
-        #     f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
-        #     shell=True,
-        #     cwd=user_profile,
-        # )
-
-        # # Create venv using uv
-        # subprocess.call(
-        #     f'start /w /min cmd /K "set PATH={new_path} && python -m uv venv {venv_dir} && exit"',
-        #     shell=True,
-        #     cwd=user_profile,
-        # )
-    except Exception as e:
-        print(f"Error creating virtual environment: {e}")
-        
-        # Backup method
-        subprocess.call(
-            f'{new_path}/python.exe -m pip install --upgrade pip uv && exit',
-            shell=True,
-            cwd=user_profile,
-        )
-        # Create venv using uv
-        subprocess.call(
-            f'{new_path}/python.exe -m uv venv {venv_dir} && exit"',
             shell=True,
             cwd=user_profile,
         )
