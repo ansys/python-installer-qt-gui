@@ -46,13 +46,13 @@ def create_venv_windows(venv_dir: str, py_path: str):
 
     """
     user_profile = os.path.expanduser("~")
-    #scripts_path = os.path.join(py_path, "Scripts")
-    #new_path = f"{py_path};{scripts_path};%PATH%"
+    # scripts_path = os.path.join(py_path, "Scripts")
+    # new_path = f"{py_path};{scripts_path};%PATH%"
 
     # Update the package managers
     try:
-        #new_path = new_path.split(";")[0] + "\python.exe"
-        
+        # new_path = new_path.split(";")[0] + "\python.exe"
+
         # Update pip and uv using the new path
         LOG.debug("Updating package managers - pip & uv...")
         subprocess.call(
