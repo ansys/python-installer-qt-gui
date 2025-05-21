@@ -414,8 +414,9 @@ class InstalledTab(QtWidgets.QWidget):
         chosen_pkg = self.packages_combo.currentText()
         chosen_ver = self.versions_combo.currentText()
         chosen_target = self.version_target_combo.currentText()
+        fmt_target = "" if not chosen_target else f"[{chosen_target}]"
         pck_ver = (
-            f"{PYANSYS_LIBS[chosen_pkg]}{"" if not chosen_target else f'[{chosen_target}]'}=={chosen_ver}"
+            f"{PYANSYS_LIBS[chosen_pkg]}{fmt_target}=={chosen_ver}"
             if chosen_ver
             else f"{PYANSYS_LIBS[chosen_pkg]}"
         )
