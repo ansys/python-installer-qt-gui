@@ -54,7 +54,7 @@ def create_venv_windows(venv_dir: str, py_path: str):
     try:
         print("Updating package managers...")
         
-        new_path = new_path.split(";")[0].replace(" ", "` ") + "\python.exe"
+        new_path = new_path.split(";")[0] + "\python.exe"
         print(f"New path: {new_path}")
         # Backup method
         subprocess.call(
