@@ -315,7 +315,7 @@ class InstalledTab(QtWidgets.QWidget):
         version_layout.addWidget(self.versions_combo)
 
         target_layout = QtWidgets.QVBoxLayout()
-        target_label = QtWidgets.QLabel("Target")
+        target_label = QtWidgets.QLabel("Target (optional)")
         self.version_target_combo = QComboBox()
         target_layout.addWidget(target_label)
         target_layout.addWidget(self.version_target_combo)
