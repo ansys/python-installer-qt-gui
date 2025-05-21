@@ -56,13 +56,13 @@ def create_venv_windows(venv_dir: str, py_path: str):
         print(f"New PATH: {new_path.split(';')[1]}")
         # Backup method
         subprocess.call(
-            f'{new_path.split(";")[1]}\python.exe -m pip install --upgrade pip uv && exit',
+            f'"{new_path.split(";")[1]}\python.exe" -m pip install --upgrade pip uv && exit',
             shell=True,
             cwd=user_profile,
         )
         # Create venv using uv
         subprocess.call(
-            f'{new_path.split(";")[1]}\python.exe -m uv venv {venv_dir} && exit"',
+            f'"{new_path.split(";")[1]}\python.exe" -m uv venv {venv_dir} && exit"',
             shell=True,
             cwd=user_profile,
         )
