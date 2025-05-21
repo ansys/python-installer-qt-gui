@@ -49,19 +49,36 @@ def create_venv_windows(venv_dir: str, py_path: str):
     scripts_path = os.path.join(py_path, "Scripts")
     new_path = f"{py_path};{scripts_path};%PATH%"
 
+    
     # Update the package managers
-    subprocess.call(
-        f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
-        shell=True,
-        cwd=user_profile,
-    )
+    try:
+        subprocess.call(
+            f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
+            shell=True,
+            cwd=user_profile,
+        )
 
-    # Create venv using uv
-    subprocess.call(
-        f'start /w /min cmd /K "set PATH={new_path} && python -m uv venv {venv_dir} && exit"',
-        shell=True,
-        cwd=user_profile,
-    )
+        # Create venv using uv
+        subprocess.call(
+            f'start /w /min cmd /K "set PATH={new_path} && python -m uv venv {venv_dir} && exit"',
+            shell=True,
+            cwd=user_profile,
+        )
+    except Exception as e:
+        print(f"Error creating virtual environment: {e}")
+        
+        # Backup method
+        subprocess.call(
+            f'{new_path}/python.exe -m pip install --upgrade pip uv && exit',
+            shell=True,
+            cwd=user_profile,
+        )
+        # Create venv using uv
+        subprocess.call(
+            f'{new_path}/python.exe -m uv venv {venv_dir} && exit"',
+            shell=True,
+            cwd=user_profile,
+        )
 
 
 def create_venv_windows_conda(venv_dir: str, py_path: str):
