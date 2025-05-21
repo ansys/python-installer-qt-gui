@@ -48,3 +48,4 @@ jobs:
           branch: feat/update-python-version
           base: main
           delete-branch: true
+          add-paths: src/ansys/tools/installer/constants.py
