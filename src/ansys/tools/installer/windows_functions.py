@@ -54,18 +54,30 @@ def create_venv_windows(venv_dir: str, py_path: str):
     try:
         print("Updating package managers...")
         print(f"New PATH: {new_path.split(';')[1]}")
+        # Backup method
         subprocess.call(
-            f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
+            f'{new_path.split(";")[1]}\python.exe -m pip install --upgrade pip uv && exit',
             shell=True,
             cwd=user_profile,
         )
-
         # Create venv using uv
         subprocess.call(
-            f'start /w /min cmd /K "set PATH={new_path} && python -m uv venv {venv_dir} && exit"',
+            f'{new_path.split(";")[1]}\python.exe -m uv venv {venv_dir} && exit"',
             shell=True,
             cwd=user_profile,
         )
+        # subprocess.call(
+        #     f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
+        #     shell=True,
+        #     cwd=user_profile,
+        # )
+
+        # # Create venv using uv
+        # subprocess.call(
+        #     f'start /w /min cmd /K "set PATH={new_path} && python -m uv venv {venv_dir} && exit"',
+        #     shell=True,
+        #     cwd=user_profile,
+        # )
     except Exception as e:
         print(f"Error creating virtual environment: {e}")
         
