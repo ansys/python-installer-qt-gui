@@ -46,18 +46,18 @@ def create_venv_windows(venv_dir: str, py_path: str):
 
     """
     user_profile = os.path.expanduser("~")
-    scripts_path = os.path.join(py_path, "Scripts")
-    new_path = f"{py_path};{scripts_path};%PATH%"
+    #scripts_path = os.path.join(py_path, "Scripts")
+    #new_path = f"{py_path};{scripts_path};%PATH%"
 
     
     # Update the package managers
     try:
-        new_path = new_path.split(";")[0] + "\python.exe"
+        #new_path = new_path.split(";")[0] + "\python.exe"
         
         # Update pip and uv using the new path
         LOG.debug("Updating package managers - pip & uv...")
         subprocess.call(
-            f'"{new_path}" -m pip install --upgrade pip uv && exit',
+            f'start /w /min cmd /K "{py_path}\python.exe -m pip install --upgrade pip uv && exit"',
             shell=True,
             cwd=user_profile,
         )
@@ -65,7 +65,7 @@ def create_venv_windows(venv_dir: str, py_path: str):
         # Create venv using uv
         LOG.debug("Creating virtual environment using uv...")
         subprocess.call(
-            f'"{new_path}" -m uv venv {venv_dir} && exit',
+            f'start /w /min cmd /K "{py_path}\python.exe -m uv venv {venv_dir} && exit"',
             shell=True,
             cwd=user_profile,
         )
