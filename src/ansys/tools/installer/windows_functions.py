@@ -53,16 +53,18 @@ def create_venv_windows(venv_dir: str, py_path: str):
     # Update the package managers
     try:
         print("Updating package managers...")
-        print(f"New PATH: {new_path.split(';')[0]}")
+        
+        new_path = new_path.split(";")[0].replace(" ", "` ") + "\python.exe"
+        print(f"New path: {new_path}")
         # Backup method
         subprocess.call(
-            f'"{new_path.split(";")[0].replace(" ", "` ")}\python.exe" -m pip install --upgrade pip uv && exit',
+            f'{new_path} -m pip install --upgrade pip uv && exit',
             shell=True,
             cwd=user_profile,
         )
         # Create venv using uv
         subprocess.call(
-            f'"{new_path.split(";")[0].replace(" ", "` ")}\python.exe" -m uv venv {venv_dir} && exit',
+            f'{new_path} -m uv venv {venv_dir} && exit',
             shell=True,
             cwd=user_profile,
         )
