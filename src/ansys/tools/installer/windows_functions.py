@@ -52,7 +52,7 @@ def create_venv_windows(venv_dir: str, py_path: str):
         # Install pip and uv using the py_path
         LOG.debug("Updating package managers - pip & uv...")
         subprocess.call(
-            f'start /w /min cmd /K ""{py_path}\\python.exe" -m pip install --upgrade pip uv && exit"',
+            f'start /w /min cmd /K ""{py_path}\\python.exe" -m pip install -U pip uv && exit"',
             shell=True,
             cwd=user_profile,
         )
