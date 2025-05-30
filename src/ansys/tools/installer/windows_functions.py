@@ -49,10 +49,10 @@ def create_venv_windows(venv_dir: str, py_path: str):
 
     # Update the package managers
     try:
-        # Install pip and uv using the py_path
+        # Update pip and uv using the py_path
         LOG.debug("Updating package managers - pip & uv...")
         subprocess.call(
-            f'start /w /min cmd /K ""{py_path}\\python.exe" -m pip install -U pip uv && exit"',
+            f'start /w /min cmd /K ""{py_path}\\python.exe" -m pip install --upgrade pip uv && exit"',
             shell=True,
             cwd=user_profile,
         )
@@ -69,7 +69,7 @@ def create_venv_windows(venv_dir: str, py_path: str):
         LOG.debug("Updating virtual environment packages...")
         venv_python = os.path.join(venv_dir, "Scripts", "python.exe")
         subprocess.call(
-            f'start /w /min cmd /K "{venv_python} -m pip install -U pip uv && exit"',
+            f'start /w /min cmd /K "{venv_python} -m pip install --upgrade pip uv && exit"',
             shell=True,
             cwd=user_profile,
         )
