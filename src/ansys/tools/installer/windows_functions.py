@@ -64,7 +64,7 @@ def create_venv_windows(venv_dir: str, py_path: str):
             shell=True,
             cwd=user_profile,
         )
-        
+
         # Check & Update default venv packages
         LOG.debug("Updating virtual environment packages...")
         venv_python = os.path.join(venv_dir, "Scripts", "python.exe")
