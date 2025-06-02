@@ -60,7 +60,16 @@ def create_venv_windows(venv_dir: str, py_path: str):
         # Create venv using uv
         LOG.debug("Creating virtual environment using uv...")
         subprocess.call(
-            f'start /w /min cmd /K ""{py_path}\\python.exe" -m uv venv {venv_dir} && exit"',
+            f'start /w /min cmd /K ""{py_path}\\python.exe" -m uv venv --seed {venv_dir} && exit"',
+            shell=True,
+            cwd=user_profile,
+        )
+
+        # Check & Update default venv packages
+        LOG.debug("Updating virtual environment packages...")
+        venv_python = os.path.join(venv_dir, "Scripts", "python.exe")
+        subprocess.call(
+            f'start /w /min cmd /K "{venv_python} -m pip install --upgrade pip uv && exit"',
             shell=True,
             cwd=user_profile,
         )
