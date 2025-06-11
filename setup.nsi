@@ -37,19 +37,33 @@ FunctionEnd
 
 Function .onInit
   !insertmacro MULTIUSER_INIT
+  ${If} $MULTIUSER_INSTALLMODE == "currentuser"
+    StrCpy $INSTDIR "$LOCALAPPDATA\ANSYS Inc\Ansys Python Manager"
+    StrCpy $REGISTRY_ROOT "HKCU"
+  ${Else}
+    StrCpy $INSTDIR "$PROGRAMFILES64\ANSYS Inc\Ansys Python Manager"
+    StrCpy $REGISTRY_ROOT "HKLM"
+  ${EndIf}
 FunctionEnd
 
 Function un.onInit
   !insertmacro MULTIUSER_UNINIT
+  ${If} $MULTIUSER_INSTALLMODE == "currentuser"
+    StrCpy $REGISTRY_ROOT "HKCU"
+  ${Else}
+    StrCpy $REGISTRY_ROOT "HKLM"
+  ${EndIf}
+
+  ; Retrieve the installation directory from the registry
+  ReadRegStr $INSTDIR $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "InstallLocation"
 FunctionEnd
 
 ; Define the installer sections
 Section "Ansys Python Manager" SEC01
-  ; Set the installation directory to the program files directory
-  SetOutPath "$PROGRAMFILES64\ANSYS Inc\Ansys Python Manager"
+  ; Set the installation directory dynamically based on user mode
+  SetOutPath "$INSTDIR"
 
   ; Copy the files from the dist\ansys_python_manager directory
-  ; File /r /oname=ignore "dist\ansys_python_manager\*"
   File /r "dist\ansys_python_manager\*"
 
   ; Create the start menu directory
@@ -59,12 +73,12 @@ Section "Ansys Python Manager" SEC01
   CreateShortCut "$SMPROGRAMS\Ansys Python Manager\Ansys Python Manager.lnk" "$INSTDIR\Ansys Python Manager.exe"
 
   ; Add the program to the installed programs list
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayName" "${PRODUCT_NAME}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayIcon" "$\"$INSTDIR\Ansys Python Manager.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "Publisher" "ANSYS Inc"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "Version" "${PRODUCT_VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayName" "${PRODUCT_NAME}"
+  WriteRegStr $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString" "$INSTDIR\uninstall.exe"
+  WriteRegStr $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayIcon" "$INSTDIR\Ansys Python Manager.exe"
+  WriteRegStr $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "Publisher" "ANSYS Inc"
+  WriteRegStr $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "Version" "${PRODUCT_VERSION}"
+  WriteRegStr $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
@@ -73,12 +87,20 @@ SectionEnd
 ; Define the uninstaller section
 Section "Uninstall" SEC02
 
-  Delete "$PROGRAMFILES64\Ansys Python Manager\*.*"
-  RMDir "$PROGRAMFILES64\Ansys Python Manager"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+  ; Delete installed files
+  Delete "$INSTDIR\*.*"
+  RMDir "$INSTDIR"
+
+  ; Remove the registry keys dynamically based on installation mode
+  DeleteRegKey $REGISTRY_ROOT "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+
+  ; Remove the start menu shortcut and directory
   Delete "$SMPROGRAMS\Ansys Python Manager\Ansys Python Manager.lnk"
   RMDir "$SMPROGRAMS\Ansys Python Manager"
+
+  ; Remove the desktop shortcut
   Delete "$desktop\Ansys Python Manager.lnk"
+
 SectionEnd
 
 Icon "dist\ansys_python_manager\_internal\assets\pyansys_icon.ico"
