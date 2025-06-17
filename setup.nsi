@@ -11,9 +11,14 @@ Name "${PRODUCT_NAME}"
 VIProductVersion "${PRODUCT_VERSION}"
 OutFile "dist\${OUTFILE_NAME}"
 
+!define UNINSTKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)"
+!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${UNINSTKEY}"
+!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "CurrentUser"
+!define MULTIUSER_INSTALLMODE_INSTDIR "ANSYS Inc\$(^Name)"
+!define MULTIUSER_INSTALLMODE_COMMANDLINE
 !define MULTIUSER_EXECUTIONLEVEL Highest
 !define MULTIUSER_MUI
-!define MULTIUSER_INSTALLMODE_COMMANDLINE
+
 !include MultiUser.nsh
 !include MUI2.nsh
 !include InstallOptions.nsh
@@ -45,11 +50,10 @@ FunctionEnd
 
 ; Define the installer sections
 Section "Ansys Python Manager" SEC01
-  ; Set the installation directory to the program files directory
-  SetOutPath "$PROGRAMFILES64\ANSYS Inc\Ansys Python Manager"
+  ; Set the installation directory dynamically based on user mode
+  SetOutPath "$INSTDIR"
 
   ; Copy the files from the dist\ansys_python_manager directory
-  ; File /r /oname=ignore "dist\ansys_python_manager\*"
   File /r "dist\ansys_python_manager\*"
 
   ; Create the start menu directory
@@ -59,36 +63,24 @@ Section "Ansys Python Manager" SEC01
   CreateShortCut "$SMPROGRAMS\Ansys Python Manager\Ansys Python Manager.lnk" "$INSTDIR\Ansys Python Manager.exe"
 
   ; Add the program to the installed programs list
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayName" "${PRODUCT_NAME}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayIcon" "$\"$INSTDIR\Ansys Python Manager.exe$\""
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "Publisher" "ANSYS Inc"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "Version" "${PRODUCT_VERSION}"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr SHCTX "${UNINSTKEY}" "DisplayName" "${PRODUCT_NAME}"
+  WriteRegStr SHCTX "${UNINSTKEY}" "UninstallString" "$INSTDIR\uninstall.exe"
+  WriteRegStr SHCTX "${UNINSTKEY}" "DisplayIcon" "$INSTDIR\Ansys Python Manager.exe"
+  WriteRegStr SHCTX "${UNINSTKEY}" "Publisher" "ANSYS Inc"
+  WriteRegStr SHCTX "${UNINSTKEY}" "Version" "${PRODUCT_VERSION}"
+  WriteRegStr SHCTX "${UNINSTKEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr ShCtx "${UNINSTKEY}" $MultiUser.InstallMode 1
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
 SectionEnd
 
-; Define the uninstaller section
-Section "Uninstall" SEC02
-
-  Delete "$PROGRAMFILES64\Ansys Python Manager\*.*"
-  RMDir "$PROGRAMFILES64\Ansys Python Manager"
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-  Delete "$SMPROGRAMS\Ansys Python Manager\Ansys Python Manager.lnk"
-  RMDir "$SMPROGRAMS\Ansys Python Manager"
-  Delete "$desktop\Ansys Python Manager.lnk"
-SectionEnd
-
 Icon "dist\ansys_python_manager\_internal\assets\pyansys_icon.ico"
-InstallDir "$PROGRAMFILES64\ANSYS Inc\Ansys Python Manager"
 
 ; Define the custom functions for the MUI2 OneClick plugin
 InstProgressFlags smooth
 Function oneclickpre
   !insertmacro MUI_HEADER_TEXT "Installing ${PRODUCT_NAME}" "Please wait while the installation completes."
-  ; !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
   HideWindow
 FunctionEnd
 

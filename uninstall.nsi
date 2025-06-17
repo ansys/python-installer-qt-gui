@@ -7,11 +7,6 @@ Var DeleteConfiguration
 
 ; Define the uninstaller section
 Section "Uninstall"
-  ; Prompt the user to confirm uninstallation
-  MessageBox MB_YESNO|MB_ICONQUESTION "Are you sure you want to uninstall ${PRODUCT_NAME} ${PRODUCT_VERSION}?" IDYES checkDeleteVenvPath
-  Abort
-
-checkDeleteVenvPath:
   MessageBox MB_YESNO|MB_ICONQUESTION "Do you want to delete the contents in the default virtual environment path location?" IDYES deleteVenvPath
   StrCpy $DeleteDefaultVenvPath 0
   Goto checkDeleteConfiguration
@@ -30,7 +25,7 @@ deleteConfiguration:
   Goto doneAsking
 
 doneAsking:
-
+  !include LogicLib.nsh
   ; Echo the values of $DeleteConfiguration and $DeleteDefaultVenvPath
   DetailPrint "User home: $PROFILE"
   DetailPrint "DeleteConfiguration: $DeleteConfiguration"
@@ -50,11 +45,15 @@ doneAsking:
   RMDir /r /REBOOTOK "$INSTDIR"
 
   ; Remove the registry keys
-  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+  DetailPrint "${UNINSTKEY}"
+  DeleteRegKey SHCTX "${UNINSTKEY}"
 
   ; Remove the start menu shortcut and directory
   Delete "$SMPROGRAMS\Ansys Python Manager\Ansys Python Manager.lnk"
   RMDir /r /REBOOTOK "$SMPROGRAMS\Ansys Python Manager"
+
+  ; Remove the desktop shortcut
+  Delete "$desktop\Ansys Python Manager.lnk"
 
   ; Display the uninstallation complete message
   MessageBox MB_OK|MB_ICONINFORMATION "${PRODUCT_NAME} ${PRODUCT_VERSION} has been successfully uninstalled."
