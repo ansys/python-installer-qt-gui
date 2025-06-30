@@ -20,7 +20,7 @@ repos:
       - --line-length=88
 
 - repo: https://github.com/keewis/blackdoc
-  rev: v0.4.0
+  rev: v0.4.1
   hooks:
   - id: blackdoc
     files: '\.py$'
