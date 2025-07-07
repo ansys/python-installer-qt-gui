@@ -42,7 +42,7 @@ tests = [
     "ansys-tools-path==0.7.3",
     "pytest==8.3.5",
     "pytest-cov==6.2.1",
-    "pytest-qt==4.4.0",
+    "pytest-qt==4.5.0",
     "setuptools==80.9.0",
 ]
 doc = [
