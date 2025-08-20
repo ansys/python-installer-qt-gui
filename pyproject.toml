@@ -35,27 +35,27 @@ dynamic = ["version"]
 [project.optional-dependencies]
 tests = [
     "packaging==25.0",
-    "PyGithub==2.6.1",
+    "PyGithub==2.7.0",
     "appdirs==1.4.4",
     "requests==2.32.4",
     "PySide6==6.9.1",
     "ansys-tools-path==0.7.3",
     "pytest==8.3.5",
     "pytest-cov==6.2.1",
-    "pytest-qt==4.4.0",
+    "pytest-qt==4.5.0",
     "setuptools==80.9.0",
 ]
 doc = [
     "Sphinx==8.1.3",
-    "ansys-sphinx-theme==1.5.2",
+    "ansys-sphinx-theme==1.5.3",
     "sphinx-copybutton==0.5.2",
     "sphinx_design==0.6.1",
     "sphinx_toolbox==4.0.0",
 ]
 freeze = [
-    "pyinstaller==6.14.1",
+    "pyinstaller==6.15.0",
     "packaging==25.0",
-    "PyGithub==2.6.1",
+    "PyGithub==2.7.0",
     "appdirs==1.4.4",
     "requests==2.32.4",
     "PySide6==6.9.1",
