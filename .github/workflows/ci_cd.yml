@@ -95,7 +95,11 @@ jobs:
         run: uv run pyinstaller frozen.spec
 
       - name: Install NSIS
-        run: choco install nsis -y
+        run: |
+          choco install nsis -y
+          ls C:\ProgramData\chocolatey\bin
+          $Env:PATH += ";C:\ProgramData\chocolatey\bin"
+          echo "C:\ProgramData\chocolatey\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Print NSIS version
         run: makensis -VERSION
