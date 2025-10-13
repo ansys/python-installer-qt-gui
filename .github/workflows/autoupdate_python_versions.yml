@@ -27,7 +27,7 @@ jobs:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
 
       - name: Install the latest version of uv and set the python version
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           cache-dependency-glob: '**/pyproject.toml'
