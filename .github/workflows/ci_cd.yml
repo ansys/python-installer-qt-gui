@@ -78,7 +78,7 @@ jobs:
     name: "Build Application"
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install the latest version of uv and set the python version
         uses: astral-sh/setup-uv@v7
@@ -130,7 +130,7 @@ jobs:
     name: "Build Application Linux - Ubuntu ${{ matrix.os }}"
     runs-on: ubuntu-${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Install the latest version of uv and set the python version
         uses: astral-sh/setup-uv@v7
@@ -246,7 +246,7 @@ jobs:
         DEBIAN_FRONTEND: 'noninteractive'
         TZ: 'Etc/UTC'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Update and Install development tools - Fedora
         if: contains(matrix.os, 'fedora')
@@ -409,7 +409,7 @@ jobs:
       labels: [self-hosted, Windows, signtool]
     steps:
       - name: Checkout the SignTool
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: ansys-internal/signtool-ansys-apps
           token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
