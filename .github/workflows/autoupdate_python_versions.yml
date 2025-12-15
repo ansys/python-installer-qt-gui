@@ -39,7 +39,7 @@ jobs:
           uv run scripts/update_python_versions.py
 
       - name: Commit changes (if any)
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: 'chore: update Python versions'
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
