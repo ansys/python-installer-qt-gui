@@ -414,7 +414,7 @@ jobs:
           repository: ansys-internal/signtool-ansys-apps
           token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Python-Installer-windows
           path: signtool/installer
@@ -468,32 +468,32 @@ jobs:
       - build-application-linux-non-debian
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Python-Installer-windows-signed
           path: installer-signed
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Python-Installer-windows
           path: installer
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Python-Installer-ubuntu_24.04
           path: installer
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Python-Installer-ubuntu_22.04
           path: installer
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Python-Installer-centos_stream9
           path: installer
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: Python-Installer-fedora_40
           path: installer
