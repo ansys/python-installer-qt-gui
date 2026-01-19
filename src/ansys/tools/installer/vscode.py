@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """VS code launch window."""
+
 import os
 
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -119,11 +120,9 @@ class VSCode(QtWidgets.QWidget):
             self.vscode_warning_text.setText(
                 f"""{path} does not exist. Provide a valid path."""
             )
-            self.vscode_warning_text.setStyleSheet(
-                """
+            self.vscode_warning_text.setStyleSheet("""
                     color: rgb(255, 0, 0);
-            """
-            )
+            """)
 
     def _close_all(self):
         """Close all the pop-up window."""
