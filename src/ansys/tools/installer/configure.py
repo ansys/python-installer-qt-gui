@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Configure window."""
+
 import os
 
 from PySide6 import QtCore, QtGui, QtWidgets

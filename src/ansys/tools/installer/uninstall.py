@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 """Uninstall application."""
+
 import os
 import shutil
 

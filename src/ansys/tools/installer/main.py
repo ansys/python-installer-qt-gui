@@ -22,7 +22,6 @@
 
 """Main installer window."""
 
-
 from math import floor
 import os
 import sys
@@ -307,9 +306,9 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         LOG.debug("Checking for updates")
         try:
             if is_linux_os():
-                (ver, url) = query_gh_latest_release_linux()
+                ver, url = query_gh_latest_release_linux()
             else:
-                (ver, url) = query_gh_latest_release()
+                ver, url = query_gh_latest_release()
         except (requests.exceptions.SSLError, requests.exceptions.ConnectionError):
             LOG.info("Problem requesting version... ")
             ver = None
