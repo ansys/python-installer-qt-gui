@@ -148,13 +148,10 @@ PYANSYS_DOCS_SITES = {
     "PyWorkbench": "https://workbench.docs.pyansys.com",
     # TOOLS
     "Ansys FileTransfer Tool": "https://filetransfer.tools.docs.pyansys.com",
-    "Ansys Local Product Launcher": "https://local-product-launcher.tools.docs.pyansys.com",
-    "Ansys Tools Path": "https://path.tools.docs.pyansys.com",
+    "Ansys Tools Common": "https://tools.docs.pyansys.com",
     "Ansys Tools Protobuf Compilation Helper": "https://ansys.github.io/ansys-tools-protoc-helper",
     "Ansys Tools Visualization Interface": "https://visualization-interface.tools.docs.pyansys.com",
-    "PyAnsys Tools Report": "https://report.tools.docs.pyansys.com",
     "PyAnsys Tools Variable Interop": "https://variableinterop.docs.pyansys.com",
-    "PyAnsys Tools Versioning": "https://versioning.tools.docs.pyansys.com",
     "PyAnsys Units": "http://units.docs.pyansys.com",
     "PyMaterials Manager": "https://manager.materials.docs.pyansys.com",
 }
@@ -206,13 +203,10 @@ PYANSYS_LIBS = {
     "Shared Components": "ansys-openapi-common",
     # TOOLS
     "Ansys FileTransfer Tool": "ansys-tools-filetransfer",
-    "Ansys Local Product Launcher": "ansys-tools-local-product-launcher",
-    "Ansys Tools Path": "ansys-tools-path",
+    "Ansys Tools Common": "ansys-tools-common",
     "Ansys Tools Protobuf Compilation Helper": "ansys-tools-protoc-helper",
     "Ansys Tools Visualization Interface": "ansys-tools-visualization-interface",
-    "PyAnsys Tools Report": "pyansys-tools-report",
     "PyAnsys Tools Variable Interop": "pyansys-tools-variableinterop",
-    "PyAnsys Tools Versioning": "pyansys-tools-versioning",
     "PyAnsys Units": "ansys-units",
     "PyMaterials Manager": "ansys-materials-manager",
 }
