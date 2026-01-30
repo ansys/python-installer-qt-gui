@@ -29,7 +29,6 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from ansys.tools.path.misc import is_linux
 from github import Github
 from packaging import version
 
@@ -60,12 +59,7 @@ def is_linux_os():
     >>> is_linux_os
     True
     """
-    try:
-        if is_linux():
-            return is_linux()
-        return False
-    except:
-        return False
+    return os.name == "posix"
 
 
 def get_vanilla_url_and_filename(selected_version):
