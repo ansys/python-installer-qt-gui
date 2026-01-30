@@ -26,7 +26,7 @@ import logging
 import os
 import subprocess
 
-from ansys.tools.path import get_available_ansys_installations
+from ansys.tools.common.path import get_available_ansys_installations
 
 from ansys.tools.installer.configure_json import ConfigureJson
 from ansys.tools.installer.constants import ANSYS_SUPPORTED_PYTHON_VERSIONS

@@ -26,8 +26,6 @@ import logging
 import os
 import sys
 
-from ansys.tools.path.misc import is_linux
-
 from ansys.tools.installer import __version__
 
 LOG = logging.getLogger(__name__)
@@ -78,13 +76,13 @@ Please select the Python version from the table below to create its respective v
 
 NAME_FOR_VENV = f"""Provide the name for your virtual environment.
 
-<br><br>Virtual environments are created under user directory /<i>{ANSYS_LINUX_PATH + "/" + ANSYS_VENVS if is_linux() else ANSYS_VENVS}</i> by default. To configure the default path, go to File >> Configure (Ctrl + D) and provide your preferred path.
+<br><br>Virtual environments are created under user directory /<i>{ANSYS_LINUX_PATH + "/" + ANSYS_VENVS if os.name == "posix" else ANSYS_VENVS}</i> by default. To configure the default path, go to File >> Configure (Ctrl + D) and provide your preferred path.
 
 If the name provided already exists for another virtual environment, it will not be created. Users will receive a warning informing of the situation. For more details, refer <a href='https://installer.docs.pyansys.com/version/dev/installer.html#create-python-virtual-environment'>here</a>."""
 
 SELECT_VENV_MANAGE_TAB = f"""Choose a virtual environment to manage.
 
-It is recommended to use virtual environments for package management and launching options. Environments which are available under the user directory /<i>{ANSYS_LINUX_PATH + "/" + ANSYS_VENVS if is_linux() else ANSYS_VENVS}</i> are listed by default. To configure this default directory, refer <a href='https://installer.docs.pyansys.com/version/dev/installer.html#managing-python-environments'>here</a>."""
+It is recommended to use virtual environments for package management and launching options. Environments which are available under the user directory /<i>{ANSYS_LINUX_PATH + "/" + ANSYS_VENVS if os.name == "posix" else ANSYS_VENVS}</i> are listed by default. To configure this default directory, refer <a href='https://installer.docs.pyansys.com/version/dev/installer.html#managing-python-environments'>here</a>."""
 
 if getattr(sys, "frozen", False):
     # If the application is run as a bundle, the PyInstaller bootloader
@@ -148,13 +146,10 @@ PYANSYS_DOCS_SITES = {
     "PyWorkbench": "https://workbench.docs.pyansys.com",
     # TOOLS
     "Ansys FileTransfer Tool": "https://filetransfer.tools.docs.pyansys.com",
-    "Ansys Local Product Launcher": "https://local-product-launcher.tools.docs.pyansys.com",
-    "Ansys Tools Path": "https://path.tools.docs.pyansys.com",
+    "Ansys Tools Common": "https://tools.docs.pyansys.com",
     "Ansys Tools Protobuf Compilation Helper": "https://ansys.github.io/ansys-tools-protoc-helper",
     "Ansys Tools Visualization Interface": "https://visualization-interface.tools.docs.pyansys.com",
-    "PyAnsys Tools Report": "https://report.tools.docs.pyansys.com",
     "PyAnsys Tools Variable Interop": "https://variableinterop.docs.pyansys.com",
-    "PyAnsys Tools Versioning": "https://versioning.tools.docs.pyansys.com",
     "PyAnsys Units": "http://units.docs.pyansys.com",
     "PyMaterials Manager": "https://manager.materials.docs.pyansys.com",
 }
@@ -206,13 +201,10 @@ PYANSYS_LIBS = {
     "Shared Components": "ansys-openapi-common",
     # TOOLS
     "Ansys FileTransfer Tool": "ansys-tools-filetransfer",
-    "Ansys Local Product Launcher": "ansys-tools-local-product-launcher",
-    "Ansys Tools Path": "ansys-tools-path",
+    "Ansys Tools Common": "ansys-tools-common",
     "Ansys Tools Protobuf Compilation Helper": "ansys-tools-protoc-helper",
     "Ansys Tools Visualization Interface": "ansys-tools-visualization-interface",
-    "PyAnsys Tools Report": "pyansys-tools-report",
     "PyAnsys Tools Variable Interop": "pyansys-tools-variableinterop",
-    "PyAnsys Tools Versioning": "pyansys-tools-versioning",
     "PyAnsys Units": "ansys-units",
     "PyMaterials Manager": "ansys-materials-manager",
 }
