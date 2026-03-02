@@ -116,7 +116,7 @@ jobs:
       - name: List output
         run: ls -R dist
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: Python-Installer-windows
           path: dist/*Setup*.exe
@@ -226,7 +226,7 @@ jobs:
           echo "OS_VERSION_PROCESSED=$os_version_processed" >> $GITHUB_ENV
           zip -r Ansys-Python-Manager_linux_${os_version_processed}_${{ env.APPLICATION_VERSION }}.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: Python-Installer-ubuntu_${{ matrix.os }}
           path: |
@@ -395,7 +395,7 @@ jobs:
           zip -r ${{ env.GITHUB_WORKSPACE }}/Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${version}.zip ansys_python_manager_Fedora.rpm installer_Fedora.sh updater_Fedora.sh
           ls -l ${{ env.GITHUB_WORKSPACE }}
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: Python-Installer-${{ env.OS_VERSION_PROCESSED }}
           path: |
@@ -435,7 +435,7 @@ jobs:
             -i installer/$filename `
             -o installer/$filename
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: Python-Installer-windows-signed
           path: signtool/installer/*Setup*.exe
