@@ -30,7 +30,7 @@ from threading import Thread
 import traceback
 
 import certifi
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 import requests
 
 LOG = logging.getLogger(__name__)
