@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
+requires = ["flit_core >=3.12.0,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -37,8 +37,8 @@ tests = [
     "packaging==26.0",
     "PyGithub==2.9.0",
     "appdirs==1.4.4",
-    "requests==2.32.5",
-    "PySide6==6.10.2",
+    "requests==2.33.1",
+    "PySide6==6.11.0",
     "ansys-tools-common==0.5.0",
     "pytest==8.3.5",
     "pytest-cov==7.1.0",
@@ -57,8 +57,8 @@ freeze = [
     "packaging==26.0",
     "PyGithub==2.9.0",
     "appdirs==1.4.4",
-    "requests==2.32.5",
-    "PySide6==6.10.2",
+    "requests==2.33.1",
+    "PySide6==6.11.0",
     "ansys-tools-common==0.5.0",
 ]
 
