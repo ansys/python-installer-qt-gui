@@ -197,6 +197,9 @@ def create_venv_linux(venv_dir, py_path):
     """
     execute_linux_command(f"{py_path} -m pip install -U pip uv")
     execute_linux_command(f"{py_path} -m uv venv {venv_dir}")
+    venv_python = os.path.join(venv_dir, "bin", "python3")
+    execute_linux_command(f"{venv_python} -m ensurepip --upgrade")
+    execute_linux_command(f"{venv_python} -m pip install -U pip uv")
 
 
 def create_venv_linux_conda(venv_dir, py_path):
@@ -410,7 +413,43 @@ def execute_linux_command(command, wait=True):
     if wait:
         wait_command = "--wait"
     LOG.debug(f"gnome-terminal {wait_command} -- sh -c '{command}'")
-    os.system(f"gnome-terminal {wait_command} -- sh -c '{command}'")
+
+    # Build a clean environment for gnome-terminal.
+    # PyInstaller's bootloader sets LD_LIBRARY_PATH to its bundled libs
+    # directory, which causes gnome-terminal (a Python script using system
+    # python3) to load incompatible .so files and crash with:
+    #   ImportError: .../libgirepository-1.0.so.1: undefined symbol: g_once_init_leave_pointer
+    # Instead of blacklisting PyInstaller vars, we whitelist only what
+    # gnome-terminal needs.
+    passthrough_keys = [
+        "HOME", "USER", "LOGNAME", "SHELL", "TERM",
+        "DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR",
+        "DBUS_SESSION_BUS_ADDRESS", "XDG_SESSION_TYPE",
+        "LANG", "LC_ALL", "LC_CTYPE",
+        "SSH_AUTH_SOCK", "XAUTHORITY",
+    ]
+    env = {}
+    for key in passthrough_keys:
+        val = os.environ.get(key)
+        if val:
+            env[key] = val
+    # Use a clean system PATH (not PyInstaller's modified one)
+    env["PATH"] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    # Restore the original LD_LIBRARY_PATH only if it existed before PyInstaller
+    orig_ld = os.environ.get("LD_LIBRARY_PATH_ORIG", "")
+    if orig_ld:
+        env["LD_LIBRARY_PATH"] = orig_ld
+
+    LOG.debug(f"Clean env PATH: {env.get('PATH')}")
+    LOG.debug(f"Clean env LD_LIBRARY_PATH: {env.get('LD_LIBRARY_PATH', '<not set>')}")
+
+    proc = subprocess.Popen(
+        f"gnome-terminal {wait_command} -- sh -c '{command}'",
+        shell=True,
+        env=env,
+    )
+    if wait:
+        proc.wait()
 
 
 def get_os_version():
