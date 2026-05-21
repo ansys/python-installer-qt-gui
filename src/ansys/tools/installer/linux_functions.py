@@ -402,19 +402,14 @@ def query_gh_latest_release_linux(token=None):
 
 def execute_linux_command(command, wait=True):
     """
-    Run linux command on gnome terminal.
+    Run a Linux command.
 
     Examples
     --------
     >>> execute_linux_command("ls")
 
     """
-    wait_command = ""
-    if wait:
-        wait_command = "--wait"
-    LOG.debug(f"gnome-terminal {wait_command} -- sh -c '{command}'")
-
-    # Build a clean environment for gnome-terminal.
+    # Build a clean environment for subprocess execution.
     # PyInstaller's bootloader sets LD_LIBRARY_PATH to its bundled libs
     # directory, which causes gnome-terminal (a Python script using system
     # python3) to load incompatible .so files and crash with:
@@ -443,11 +438,23 @@ def execute_linux_command(command, wait=True):
     LOG.debug(f"Clean env PATH: {env.get('PATH')}")
     LOG.debug(f"Clean env LD_LIBRARY_PATH: {env.get('LD_LIBRARY_PATH', '<not set>')}")
 
-    proc = subprocess.Popen(
-        f"gnome-terminal {wait_command} -- sh -c '{command}'",
-        shell=True,
-        env=env,
-    )
+    gnome_terminal = shutil.which("gnome-terminal")
+    in_wsl = "WSL_DISTRO_NAME" in os.environ
+    has_display = bool(env.get("DISPLAY") or env.get("WAYLAND_DISPLAY"))
+
+    # Prefer a direct shell in WSL/headless environments or if gnome-terminal is unavailable.
+    if gnome_terminal and not in_wsl and has_display:
+        wait_command = "--wait" if wait else ""
+        LOG.debug(f"{gnome_terminal} {wait_command} -- sh -c '{command}'")
+        proc = subprocess.Popen(
+            f"{gnome_terminal} {wait_command} -- sh -c '{command}'",
+            shell=True,
+            env=env,
+        )
+    else:
+        LOG.debug(f"Executing command directly with sh -c: {command}")
+        proc = subprocess.Popen(["sh", "-c", command], env=env)
+
     if wait:
         proc.wait()
 
