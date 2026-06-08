@@ -22,23 +22,18 @@
 
 from PySide6 import QtWidgets
 import pytest
-from pytestqt.qtbot import QtBot
 
 from ansys.tools.installer.main import AnsysPythonInstaller
 
 
-@pytest.fixture(scope="session")
-def qtbot_session(qapp, request):
-    result = QtBot(qapp)
-    yield result
-
-
-@pytest.fixture(scope="session")
-def gui(qtbot_session):
+@pytest.fixture
+def gui(qtbot):
     installer = AnsysPythonInstaller(show=False)
+    qtbot.addWidget(installer)
     yield installer
-    # qtbot_session.wait(1000)
-    # installer.close()
+    installer.close()
+    installer.deleteLater()
+    qtbot.wait(1)
 
 
 def test_main_window_header(gui):
