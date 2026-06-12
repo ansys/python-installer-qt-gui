@@ -191,6 +191,7 @@ class InstalledTab(QtWidgets.QWidget):
         # Group 1: Available Virtual Environments
         self.available_venv_box = QtWidgets.QGroupBox("Available virtual environments")
         available_venv_box_layout = QtWidgets.QVBoxLayout()
+        available_venv_box_layout.setContentsMargins(10, 20, 10, 10)
         self.available_venv_box.setLayout(available_venv_box_layout)
 
         # --> Add text for available virtual environments
@@ -199,18 +200,18 @@ class InstalledTab(QtWidgets.QWidget):
         available_venv_box_text.setOpenExternalLinks(True)
         available_venv_box_text.setTextFormat(QtCore.Qt.TextFormat.RichText)
         available_venv_box_text.setWordWrap(True)
-        available_venv_box_layout.addWidget(available_venv_box_text)
+        available_venv_box_layout.addWidget(available_venv_box_text, 0)
 
         # --> Add the virtual environment table
         self.venv_table = DataTable(created_venv=True)
         self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
 
-        available_venv_box_layout.addWidget(self.venv_table)
+        available_venv_box_layout.addWidget(self.venv_table, 1)
         self.venv_table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.venv_table.customContextMenuRequested.connect(
             self.delete_virtual_environment
         )
-        layout.addWidget(self.available_venv_box)
+        layout.addWidget(self.available_venv_box, 1)
 
         # EXTRA Group: Available Python installation
         self.available_python_install_box = QtWidgets.QGroupBox(
@@ -248,34 +249,35 @@ class InstalledTab(QtWidgets.QWidget):
 
         hbox = QtWidgets.QHBoxLayout()
         launching_options_box_layout.addLayout(hbox)
-        self.button_launch_cmd = QtWidgets.QPushButton("Launch console")
+        self.button_launch_cmd = QtWidgets.QPushButton("Console")
         self.button_launch_cmd.clicked.connect(self.launch_cmd)
         hbox.addWidget(self.button_launch_cmd)
 
-        self.button_launch_cmd = QtWidgets.QPushButton("Launch VSCode")
+        self.button_launch_cmd = QtWidgets.QPushButton("VSCode")
         self.button_launch_cmd.clicked.connect(self.launch_vscode)
         hbox.addWidget(self.button_launch_cmd)
 
-        self.button_launch_lab = QtWidgets.QPushButton("Launch Jupyterlab")
+        self.button_launch_lab = QtWidgets.QPushButton("Jupyterlab")
         self.button_launch_lab.clicked.connect(self.launch_jupyterlab)
         hbox.addWidget(self.button_launch_lab)
 
-        self.button_launch_notebook = QtWidgets.QPushButton("Launch Jupyter Notebook")
+        self.button_launch_notebook = QtWidgets.QPushButton("Jupyter Notebook")
         self.button_launch_notebook.clicked.connect(self.launch_jupyter_notebook)
         hbox.addWidget(self.button_launch_notebook)
 
-        self.button_launch_spyder = QtWidgets.QPushButton("Launch Spyder")
+        self.button_launch_spyder = QtWidgets.QPushButton("Spyder")
         self.button_launch_spyder.clicked.connect(self.launch_spyder)
         hbox.addWidget(self.button_launch_spyder)
 
         layout.addWidget(launching_options_box)
 
-        # Group 3: Package Management
-        pkg_manage_box = QtWidgets.QGroupBox("General package management")
+        # Group 3: Package Management (general + PyAnsys combined)
+        pkg_manage_box = QtWidgets.QGroupBox("Package management")
         pkg_manage_box_layout = QtWidgets.QVBoxLayout()
         pkg_manage_box_layout.setContentsMargins(10, 20, 10, 20)
         pkg_manage_box.setLayout(pkg_manage_box_layout)
 
+        # Row 1: general package buttons
         hbox_install = QtWidgets.QHBoxLayout()
         pkg_manage_box_layout.addLayout(hbox_install)
 
@@ -289,19 +291,14 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_list_packages.clicked.connect(self.list_packages)
         hbox_install.addWidget(self.button_list_packages)
 
-        layout.addWidget(pkg_manage_box)
+        hbox_install.addStretch()
 
-        # Group 4: PyAnsys Package Management
-        pyansys_pkg_manage_box = QtWidgets.QGroupBox("PyAnsys package management")
-        pyansys_pkg_manage_box_layout = QtWidgets.QVBoxLayout()
-        pyansys_pkg_manage_box_layout.setContentsMargins(10, 20, 10, 20)
-        pyansys_pkg_manage_box.setLayout(pyansys_pkg_manage_box_layout)
-
+        # Row 2: PyAnsys package controls
         hbox_install_pyansys = QtWidgets.QHBoxLayout()
-        pyansys_pkg_manage_box_layout.addLayout(hbox_install_pyansys)
+        pkg_manage_box_layout.addLayout(hbox_install_pyansys)
 
         package_layout = QtWidgets.QVBoxLayout()
-        package_label = QtWidgets.QLabel("Package")
+        package_label = QtWidgets.QLabel("PyAnsys package")
         self.model = QStandardItemModel()
         self.packages_combo = QComboBox()
         self.packages_combo.setModel(self.model)
@@ -339,7 +336,8 @@ class InstalledTab(QtWidgets.QWidget):
         hbox_install_pyansys.addLayout(version_layout)
         hbox_install_pyansys.addLayout(target_layout)
         hbox_install_pyansys.addLayout(install_button_layout)
-        layout.addWidget(pyansys_pkg_manage_box)
+        hbox_install_pyansys.addStretch()
+        layout.addWidget(pkg_manage_box)
 
         # ensure the table is always in focus
         self.installEventFilter(self)
