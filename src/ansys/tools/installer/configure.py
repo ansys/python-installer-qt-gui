@@ -227,21 +227,22 @@ class Configure(QtWidgets.QWidget):
     def _save_configuration(self):
         """Save the configuration."""
         self.configure_json.rewrite_config(
-            VENV_DEFAULT_PATH, self.configure_window_create_venv_edit.text().strip("\\")
+            VENV_DEFAULT_PATH,
+            os.path.normpath(self.configure_window_create_venv_edit.text()),
         )
         i = 0
         venv_search_paths = []
         while self.configure_window_search_venv_model.item(i):
             venv_search_paths.append(
-                self.configure_window_search_venv_model.item(i).text().strip("\\")
+                os.path.normpath(self.configure_window_search_venv_model.item(i).text())
             )
             i += 1
         if (
-            self.configure_window_create_venv_edit.text().strip("\\")
+            os.path.normpath(self.configure_window_create_venv_edit.text())
             not in venv_search_paths
         ):
             venv_search_paths.append(
-                self.configure_window_create_venv_edit.text().strip("\\")
+                os.path.normpath(self.configure_window_create_venv_edit.text())
             )
         self.configure_json.rewrite_config(VENV_SEARCH_PATH, venv_search_paths)
         i = 0

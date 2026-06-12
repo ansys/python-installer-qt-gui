@@ -153,11 +153,20 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         header_layout.setContentsMargins(0, 0, 0, 0)
         header_widget = QtWidgets.QWidget()
         header_widget.setLayout(header_layout)
+        header_widget.setAutoFillBackground(True)
+        header_widget.setFixedHeight(76)
+        palette = header_widget.palette()
+        palette.setColor(QtGui.QPalette.ColorRole.Window, QtGui.QColor("white"))
+        header_widget.setPalette(palette)
 
         # Header icon
         self.menu_heading = ImageWidget()
+        self.menu_heading.setScaledContents(False)
+        self.menu_heading.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         pixmap = QtGui.QPixmap(os.path.join(ASSETS_PATH, "pyansys-light.png"))
-        self.menu_heading.setPixmap(pixmap)
+        self.menu_heading.setPixmap(
+            pixmap.scaledToHeight(60, QtCore.Qt.TransformationMode.SmoothTransformation)
+        )
         header_layout.addWidget(self.menu_heading)
 
         # Main content
@@ -259,13 +268,12 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         # Add menu and tab widget to main layout
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetNoConstraint)
         main_layout.addWidget(header_widget)
-        main_layout.addWidget(self.tab_widget)
+        main_layout.addWidget(self.tab_widget, 1)
 
         # create central widget
         central_widget = QtWidgets.QWidget()
-        self.setMaximumWidth(900)
-        self.setMaximumHeight(900)
 
         central_widget.setLayout(main_layout)
         self.setCentralWidget(central_widget)
