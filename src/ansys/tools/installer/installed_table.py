@@ -175,10 +175,6 @@ class DataComboBox(QtWidgets.QComboBox):
         return data["path"] if data else ""
 
 
-# Backward-compatible alias
-DataTable = DataComboBox
-
-
 class InstalledTab(QtWidgets.QWidget):
     """Installed Python versions tab."""
 
