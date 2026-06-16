@@ -599,10 +599,8 @@ class InstalledTab(QtWidgets.QWidget):
                 if is_linux_os():
                     delete_venv_conda(miniforge_path, parent_path)
                 else:
-                    subprocess.call(
-                        f'start /w /min cmd /K "{miniforge_path}\\Scripts\\activate.bat && conda env remove --prefix {parent_path} --yes && exit"',
-                        shell=True,
-                    )
+                    shell_cmd = f"{miniforge_path}\\Scripts\\activate.bat && conda env remove --prefix {parent_path} --yes && exit"
+                    subprocess.call(f'start /w /min cmd /K "{shell_cmd}"', shell=True)
                 if os.path.exists(parent_path):
                     shutil.rmtree(parent_path)
             except:
@@ -685,15 +683,11 @@ class InstalledTab(QtWidgets.QWidget):
                 run_linux_command(py_path, extra, working_dir=working_dir)
             else:
                 # Update the package managers
-                subprocess.call(
-                    f'start /w /min cmd /K "set PATH={new_path} && python -m pip install --upgrade pip uv && exit"',
-                    shell=True,
-                )
+                shell_cmd = f"set PATH={new_path} && python -m pip install --upgrade pip uv && exit"
+                subprocess.call(f'start /w /min cmd /K "{shell_cmd}"', shell=True)
 
-                subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={new_path} && cd /d "{working_dir}" {cmd}"',
-                    shell=True,
-                )
+                shell_cmd = f'set PATH={new_path} && cd /d ""{working_dir}"" {cmd}'
+                subprocess.call(f'start {min_win} cmd /K "{shell_cmd}"', shell=True)
         elif is_vanilla_python and is_venv:
             # Launch with active python virtual environment
             if extra:
@@ -703,10 +697,8 @@ class InstalledTab(QtWidgets.QWidget):
             if is_linux_os():
                 run_linux_command(py_path, extra, True, working_dir=working_dir)
             else:
-                subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={myenv} && {py_path}\\Scripts\\activate.bat && cd /d "{working_dir}" {cmd}"',
-                    shell=True,
-                )
+                shell_cmd = f'set PATH={myenv} && {py_path}\\Scripts\\activate.bat && cd /d ""{working_dir}"" {cmd}'
+                subprocess.call(f'start {min_win} cmd /K "{shell_cmd}"', shell=True)
         elif not is_vanilla_python and is_venv:
             # Launch with active conda virtual environment
             if extra:
@@ -720,10 +712,8 @@ class InstalledTab(QtWidgets.QWidget):
             if is_linux_os():
                 run_linux_command_conda(py_path, extra, True, working_dir=working_dir)
             else:
-                subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d "{working_dir}" {cmd}"',
-                    shell=True,
-                )
+                shell_cmd = f'set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d ""{working_dir}"" {cmd}'
+                subprocess.call(f'start {min_win} cmd /K "{shell_cmd}"', shell=True)
         else:
             # not is_vanilla_python and not is_venv
             if extra:
@@ -737,7 +727,5 @@ class InstalledTab(QtWidgets.QWidget):
             if is_linux_os():
                 run_linux_command_conda(py_path, extra, False, working_dir=working_dir)
             else:
-                subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d "{working_dir}" {cmd}"',
-                    shell=True,
-                )
+                shell_cmd = f'set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d ""{working_dir}"" {cmd}'
+                subprocess.call(f'start {min_win} cmd /K "{shell_cmd}"', shell=True)
