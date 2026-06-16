@@ -233,7 +233,7 @@ def delete_venv_conda(miniforge_path, parent_path):
     execute_linux_command(f"{miniforge_path} env remove --prefix {parent_path} --yes")
 
 
-def run_linux_command(pypath, extra, venv=False):
+def run_linux_command(pypath, extra, venv=False, working_dir=None):
     """
     Run pip command on Linux terminal.
 
@@ -259,10 +259,11 @@ def run_linux_command(pypath, extra, venv=False):
         prefix = f". {pypath}/bin/activate; "
     else:
         prefix = "/".join(prefix.split("/")[:-1]) + "/"
-    execute_linux_command(f"cd ~ ; {prefix}{extra}", wait=False)
+    cd_cmd = f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
+    execute_linux_command(f"{cd_cmd} ; {prefix}{extra}", wait=False)
 
 
-def run_linux_command_conda(pypath, extra, venv=False):
+def run_linux_command_conda(pypath, extra, venv=False, working_dir=None):
     """
     Run conda command on Linux terminal.
 
@@ -297,7 +298,8 @@ def run_linux_command_conda(pypath, extra, venv=False):
         venvParam = f"; . {miniforge_path}; . {miniforge_path.replace('conda.sh', 'mamba.sh')} ;mamba activate {pypath}"
     else:
         extra = extra.replace(" uv pip", f" {pypath}/bin/pip")
-    execute_linux_command(f"cd ~ {venvParam} ; {conda_path}{extra} ", wait=False)
+    cd_cmd = f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
+    execute_linux_command(f"{cd_cmd} {venvParam} ; {conda_path}{extra} ", wait=False)
 
 
 def find_ansys_installed_python_linux():

@@ -32,7 +32,7 @@ from ansys.tools.installer.constants import ANSYS_FAVICON, USER_PATH
 class VSCode(QtWidgets.QWidget):
     """VS code launch window."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, initial_dir=None):
         """Initialize this class."""
         try:
             super().__init__()
@@ -60,7 +60,9 @@ class VSCode(QtWidgets.QWidget):
 
                 # ---> Add box
                 self.vscode_window_path_config_edit = QtWidgets.QLineEdit()
-                self.vscode_window_path_config_edit.setText(USER_PATH)
+                self.vscode_window_path_config_edit.setText(
+                    initial_dir if initial_dir and os.path.isdir(initial_dir) else USER_PATH
+                )
                 vscode_window_path_config_layout.addWidget(
                     self.vscode_window_path_config_edit
                 )
