@@ -57,8 +57,8 @@ LOG = logging.getLogger(__name__)
 LOG.setLevel("DEBUG")
 
 
-class DataTable(QtWidgets.QTableWidget):
-    """Common Table of locally installed Python environments/Virtual Environments."""
+class DataComboBox(QtWidgets.QComboBox):
+    """Dropdown list of locally installed Python environments/Virtual Environments."""
 
     signal_update = QtCore.Signal()
 
@@ -69,8 +69,8 @@ class DataTable(QtWidgets.QTableWidget):
         installed_forge=False,
         created_venv=False,
     ):
-        """Initialize the table by populating it."""
-        super().__init__(1, 1, parent)
+        """Initialize the dropdown by populating it."""
+        super().__init__(parent)
 
         self.installed_python = installed_python
         self.installed_forge = installed_forge
@@ -82,9 +82,9 @@ class DataTable(QtWidgets.QTableWidget):
         self.signal_update.connect(self.populate)
 
     def update(self, timeout=1.0):
-        """Update this table.
+        """Update this dropdown.
 
-        Respects a lock to ensure no race conditions or multiple calls on the table.
+        Respects a lock to ensure no race conditions or multiple calls on the widget.
 
         """
         tstart = time.time()
@@ -96,7 +96,7 @@ class DataTable(QtWidgets.QTableWidget):
         self.signal_update.emit()
 
     def populate(self):
-        """Populate the table."""
+        """Populate the dropdown."""
         self._locked = True
         self.clear()
 
@@ -105,57 +105,49 @@ class DataTable(QtWidgets.QTableWidget):
 
         # Check for python & conda forge versions
         if self.installed_python or self.installed_forge:
-            LOG.debug("Populating the table with python and conda forge versions.")
+            LOG.debug("Populating the dropdown with python and conda forge versions.")
             python_lst = find_all_python()
             conda_lst = find_miniforge()
 
-            tot = len(python_lst) + len(conda_lst)
-            self.setRowCount(tot)
-            self.setColumnCount(3)
-            self.setHorizontalHeaderLabels(["Version", "Admin", "Path"])
-            self.verticalHeader().setVisible(False)
-            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-
-            row = 0
             for path, (version, admin) in python_lst.items():
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Python {version}"))
-                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-                row += 1
+                admin_badge = "  [admin]" if admin else ""
+                label = f"Python {version}{admin_badge}  —  {path}"
+                self.addItem(label)
+                idx = self.count() - 1
+                self.setItemData(
+                    idx,
+                    {"version": f"Python {version}", "admin": str(admin), "path": path},
+                )
+                self.setItemData(idx, path, QtCore.Qt.ItemDataRole.ToolTipRole)
 
             for path, (version, admin) in conda_lst.items():
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"Conda {version}"))
-                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-                row += 1
+                admin_badge = "  [admin]" if admin else ""
+                label = f"Conda {version}{admin_badge}  —  {path}"
+                self.addItem(label)
+                idx = self.count() - 1
+                self.setItemData(
+                    idx,
+                    {"version": f"Conda {version}", "admin": str(admin), "path": path},
+                )
+                self.setItemData(idx, path, QtCore.Qt.ItemDataRole.ToolTipRole)
 
         elif self.created_venv:
-            LOG.debug("Populating the table with virtual environments.")
-            # Check for virtual environments
+            LOG.debug("Populating the dropdown with virtual environments.")
             venv_lst = get_all_python_venv()
-            tot = len(venv_lst)
-            if tot == 0:
-                venv_lst["None"] = (None, None)
-                tot = 1
-            self.setRowCount(tot)
-            self.setColumnCount(3)
-            self.setHorizontalHeaderLabels(["Virtual environment", "Admin", "Path"])
-            self.verticalHeader().setVisible(False)
-            self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-
-            row = 0
-            for path, (version, admin) in venv_lst.items():
-                self.setItem(row, 0, QtWidgets.QTableWidgetItem(f"{version}"))
-                self.setItem(row, 1, QtWidgets.QTableWidgetItem(str(admin)))
-                self.setItem(row, 2, QtWidgets.QTableWidgetItem(path))
-                row += 1
-
-        self.resizeColumnsToContents()
-        self.selectRow(0)
-        self.horizontalHeader().setStretchLastSection(True)
-        self.horizontalHeader().setSectionResizeMode(
-            QtWidgets.QHeaderView.ResizeMode.Fixed
-        )
+            if not venv_lst:
+                self.addItem("None")
+                self.setItemData(
+                    0, {"version": "None", "admin": "None", "path": "None"}
+                )
+            else:
+                for path, (version, admin) in venv_lst.items():
+                    label = f"{version}  —  {path}"
+                    self.addItem(label)
+                    idx = self.count() - 1
+                    self.setItemData(
+                        idx, {"version": version, "admin": str(admin), "path": path}
+                    )
+                    self.setItemData(idx, path, QtCore.Qt.ItemDataRole.ToolTipRole)
 
         self.destroyed.connect(self.stop)
         self._locked = False
@@ -166,18 +158,25 @@ class DataTable(QtWidgets.QTableWidget):
 
     @property
     def active_version(self):
-        """Version of the active row."""
-        return self.item(self.currentRow(), 0).text()
+        """Version of the active selection."""
+        data = self.currentData()
+        return data["version"] if data else ""
 
     @property
     def active_admin(self):
-        """Version of the active row."""
-        return self.item(self.currentRow(), 1).text()
+        """Admin status of the active selection."""
+        data = self.currentData()
+        return data["admin"] if data else ""
 
     @property
     def active_path(self):
-        """Path of the active row."""
-        return self.item(self.currentRow(), 2).text()
+        """Path of the active selection."""
+        data = self.currentData()
+        return data["path"] if data else ""
+
+
+# Backward-compatible alias
+DataTable = DataComboBox
 
 
 class InstalledTab(QtWidgets.QWidget):
@@ -206,16 +205,15 @@ class InstalledTab(QtWidgets.QWidget):
         available_venv_box_text.setWordWrap(True)
         available_venv_box_layout.addWidget(available_venv_box_text, 0)
 
-        # --> Add the virtual environment table
-        self.venv_table = DataTable(created_venv=True)
-        self.venv_table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        # --> Add the virtual environment dropdown
+        self.venv_table = DataComboBox(created_venv=True)
 
-        available_venv_box_layout.addWidget(self.venv_table, 1)
+        available_venv_box_layout.addWidget(self.venv_table)
         self.venv_table.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.venv_table.customContextMenuRequested.connect(
             self.delete_virtual_environment
         )
-        layout.addWidget(self.available_venv_box, 1)
+        layout.addWidget(self.available_venv_box)
 
         # EXTRA Group: Available Python installation
         self.available_python_install_box = QtWidgets.QGroupBox(
@@ -225,9 +223,8 @@ class InstalledTab(QtWidgets.QWidget):
         available_python_install_box_layout.setContentsMargins(10, 20, 10, 20)
         self.available_python_install_box.setLayout(available_python_install_box_layout)
 
-        # Python Version, Forge Version Table
-        self.table = DataTable(installed_python=True, installed_forge=True)
-        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        # Python Version, Forge Version dropdown
+        self.table = DataComboBox(installed_python=True, installed_forge=True)
         available_python_install_box_layout.addWidget(self.table)
         layout.addWidget(self.available_python_install_box)
 
@@ -569,10 +566,9 @@ class InstalledTab(QtWidgets.QWidget):
 
     def delete_virtual_environment(self, point):
         """Delete virtual environments using right click."""
-        # Get the cell that was right-clicked
-        index = self.venv_table.indexAt(point)
         configure_json = ConfigureJson()
-        if not index.isValid():
+        # Nothing to delete if no valid environment is selected
+        if self.venv_table.count() == 0 or self.venv_table.active_path == "None":
             return
 
         # Create the context menu
