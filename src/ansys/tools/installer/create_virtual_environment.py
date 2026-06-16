@@ -34,7 +34,7 @@ from ansys.tools.installer.constants import (
     NAME_FOR_VENV,
     PYTHON_VERSION_SELECTION_FOR_VENV,
 )
-from ansys.tools.installer.installed_table import DataTable
+from ansys.tools.installer.installed_table import DataComboBox
 from ansys.tools.installer.linux_functions import (
     create_venv_linux,
     create_venv_linux_conda,
@@ -78,9 +78,8 @@ class CreateVenvTab(QtWidgets.QWidget):
         python_version_box_text.setWordWrap(True)
         python_version_box_layout.addWidget(python_version_box_text)
 
-        # ---> Include table with available Python installations
-        self.table = DataTable(installed_python=True, installed_forge=True)
-        self.table.setSelectionMode(QtWidgets.QTableWidget.SingleSelection)
+        # ---> Include dropdown with available Python installations
+        self.table = DataComboBox(installed_python=True, installed_forge=True)
         python_version_box_layout.addWidget(self.table)
 
         # Group 2: Provide name for virtual environment
@@ -111,6 +110,7 @@ class CreateVenvTab(QtWidgets.QWidget):
         layout.addWidget(python_version_box)
         layout.addWidget(venv_name_box)
         layout.addWidget(create_env_btn)
+        layout.addStretch()
 
         # And ensure the table is always in focus
         self.installEventFilter(self)
