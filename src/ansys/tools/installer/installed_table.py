@@ -34,7 +34,11 @@ from PySide6.QtWidgets import QComboBox
 
 from ansys.tools.installer.common import get_pkg_versions, get_targets
 from ansys.tools.installer.configure_json import ConfigureJson
-from ansys.tools.installer.constants import PYANSYS_LIBS, SELECT_VENV_MANAGE_TAB
+from ansys.tools.installer.constants import (
+    PYANSYS_LIBS,
+    SELECT_VENV_MANAGE_TAB,
+    USER_PATH,
+)
 from ansys.tools.installer.find_python import (
     find_all_python,
     find_miniforge,
@@ -269,6 +273,18 @@ class InstalledTab(QtWidgets.QWidget):
         self.button_launch_spyder.clicked.connect(self.launch_spyder)
         hbox.addWidget(self.button_launch_spyder)
 
+        # Working directory row
+        hbox_wd = QtWidgets.QHBoxLayout()
+        launching_options_box_layout.addLayout(hbox_wd)
+        working_dir_label = QtWidgets.QLabel("Working directory:")
+        hbox_wd.addWidget(working_dir_label)
+        self.working_dir_edit = QtWidgets.QLineEdit(USER_PATH)
+        self.working_dir_edit.setPlaceholderText("Select a working directory...")
+        hbox_wd.addWidget(self.working_dir_edit)
+        self.button_browse_wd = QtWidgets.QPushButton("Browse...")
+        self.button_browse_wd.clicked.connect(self._browse_working_dir)
+        hbox_wd.addWidget(self.button_browse_wd)
+
         layout.addWidget(launching_options_box)
 
         # Group 3: Package Management (general + PyAnsys combined)
@@ -374,6 +390,18 @@ class InstalledTab(QtWidgets.QWidget):
             self.set_chk_box_focus(self.is_chk_box_active())
         return super().eventFilter(source, event)
 
+    def _browse_working_dir(self):
+        """Open a folder picker dialog and update the working directory field."""
+        current_path = self.working_dir_edit.text().strip() or USER_PATH
+        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            "Select Working Directory",
+            current_path,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly,
+        )
+        if selected_dir:
+            self.working_dir_edit.setText(selected_dir)
+
     def launch_spyder(self):
         """Launch spyder IDE."""
         # handle errors
@@ -392,7 +420,23 @@ class InstalledTab(QtWidgets.QWidget):
 
     def launch_vscode(self):
         """Launch VSCode."""
-        vscode = VSCode(self)
+        if not VSCode.is_vscode_installed():
+            from PySide6 import QtCore, QtWidgets
+
+            msg = QtWidgets.QMessageBox()
+            msg.setTextFormat(QtCore.Qt.TextFormat.RichText)
+            msg.warning(
+                self,
+                "VS Code Launch Error",
+                "Failed to launch vscode. Try reinstalling code by following this "
+                "<a href='https://code.visualstudio.com/download'>link</a>",
+            )
+            return
+        working_dir = self.working_dir_edit.text().strip()
+        if not working_dir or not os.path.isdir(working_dir):
+            working_dir = USER_PATH
+        error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
+        self.launch_cmd(f'code "{working_dir}" && exit 0 || {error_msg}')
 
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook."""
@@ -498,6 +542,9 @@ class InstalledTab(QtWidgets.QWidget):
 
         py_path = sel_table.active_path
         parent_path = os.path.dirname(py_path)  # No Scripts Folder
+        if not py_path or not os.path.isdir(parent_path):
+            LOG.error("No valid Python environment selected.")
+            return None, None, None
         # If py_path has a folder called conda-meta --> then it is a conda environment
         is_vanilla_python = False if "conda-meta" in os.listdir(parent_path) else True
 
@@ -597,6 +644,11 @@ class InstalledTab(QtWidgets.QWidget):
 
         min_win = "/w /min" if minimized_window else ""
 
+        # Determine the working directory to use
+        working_dir = self.working_dir_edit.text().strip()
+        if not working_dir or not os.path.isdir(working_dir):
+            working_dir = USER_PATH
+
         # is_venv            -  True : virtual environment , False: base python installation
         # is_vanilla_python  -  True : Vanilla Python , False : Miniforge/Conda
 
@@ -614,6 +666,8 @@ class InstalledTab(QtWidgets.QWidget):
             is_vanilla_python, miniforge_path, py_path = self.find_env_type(
                 "venv_table"
             )
+            if is_vanilla_python is None:
+                return
 
         if is_vanilla_python and not is_venv:
             scripts_path = os.path.join(py_path, "Scripts")
@@ -628,7 +682,7 @@ class InstalledTab(QtWidgets.QWidget):
                 cmd = f"&& echo Python set to {py_path}"
 
             if is_linux_os():
-                run_linux_command(py_path, extra)
+                run_linux_command(py_path, extra, working_dir=working_dir)
             else:
                 # Update the package managers
                 subprocess.call(
@@ -637,7 +691,7 @@ class InstalledTab(QtWidgets.QWidget):
                 )
 
                 subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={new_path} && cd %userprofile% {cmd}"',
+                    f'start {min_win} cmd /K "set PATH={new_path} && cd /d "{working_dir}" {cmd}"',
                     shell=True,
                 )
         elif is_vanilla_python and is_venv:
@@ -647,10 +701,10 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Python set to {py_path}"
             if is_linux_os():
-                run_linux_command(py_path, extra, True)
+                run_linux_command(py_path, extra, True, working_dir=working_dir)
             else:
                 subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={myenv} && {py_path}\\Scripts\\activate.bat && cd %userprofile% {cmd}"',
+                    f'start {min_win} cmd /K "set PATH={myenv} && {py_path}\\Scripts\\activate.bat && cd /d "{working_dir}" {cmd}"',
                     shell=True,
                 )
         elif not is_vanilla_python and is_venv:
@@ -664,10 +718,10 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Activating conda forge at path {py_path}"
             if is_linux_os():
-                run_linux_command_conda(py_path, extra, True)
+                run_linux_command_conda(py_path, extra, True, working_dir=working_dir)
             else:
                 subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
+                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d "{working_dir}" {cmd}"',
                     shell=True,
                 )
         else:
@@ -681,9 +735,9 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Activating conda forge at path {py_path}"
             if is_linux_os():
-                run_linux_command_conda(py_path, extra, False)
+                run_linux_command_conda(py_path, extra, False, working_dir=working_dir)
             else:
                 subprocess.call(
-                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd %userprofile% {cmd}"',
+                    f'start {min_win} cmd /K "set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d "{working_dir}" {cmd}"',
                     shell=True,
                 )

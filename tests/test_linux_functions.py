@@ -23,6 +23,8 @@
 from ansys.tools.installer.linux_functions import (
     get_conda_url_and_filename,
     get_vanilla_url_and_filename,
+    run_linux_command,
+    run_linux_command_conda,
 )
 
 
@@ -39,3 +41,14 @@ def test_get_conda_url_and_filename():
         == "https://github.com/conda-forge/miniforge/releases/download/23.1.0-4/Miniforge3-23.1.0-4-Linux-x86_64.sh"
     )
     assert filename == "Miniforge3-23.1.0-4-Linux-x86_64.sh"
+
+
+def test_run_linux_command_accepts_working_dir():
+    """Verify run_linux_command and run_linux_command_conda accept working_dir kwarg."""
+    import inspect
+
+    sig = inspect.signature(run_linux_command)
+    assert "working_dir" in sig.parameters
+
+    sig_conda = inspect.signature(run_linux_command_conda)
+    assert "working_dir" in sig_conda.parameters
