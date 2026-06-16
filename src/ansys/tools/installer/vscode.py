@@ -61,7 +61,9 @@ class VSCode(QtWidgets.QWidget):
                 # ---> Add box
                 self.vscode_window_path_config_edit = QtWidgets.QLineEdit()
                 self.vscode_window_path_config_edit.setText(
-                    initial_dir if initial_dir and os.path.isdir(initial_dir) else USER_PATH
+                    initial_dir
+                    if initial_dir and os.path.isdir(initial_dir)
+                    else USER_PATH
                 )
                 vscode_window_path_config_layout.addWidget(
                     self.vscode_window_path_config_edit
@@ -130,7 +132,8 @@ class VSCode(QtWidgets.QWidget):
         """Close all the pop-up window."""
         self._parent.vscode_window.close()
 
-    def is_vscode_installed(self):
+    @staticmethod
+    def is_vscode_installed():
         """Check if VSCode is installed or not.
 
         Returns

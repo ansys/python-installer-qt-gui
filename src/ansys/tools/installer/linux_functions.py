@@ -259,7 +259,9 @@ def run_linux_command(pypath, extra, venv=False, working_dir=None):
         prefix = f". {pypath}/bin/activate; "
     else:
         prefix = "/".join(prefix.split("/")[:-1]) + "/"
-    cd_cmd = f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
+    cd_cmd = (
+        f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
+    )
     execute_linux_command(f"{cd_cmd} ; {prefix}{extra}", wait=False)
 
 
@@ -298,7 +300,9 @@ def run_linux_command_conda(pypath, extra, venv=False, working_dir=None):
         venvParam = f"; . {miniforge_path}; . {miniforge_path.replace('conda.sh', 'mamba.sh')} ;mamba activate {pypath}"
     else:
         extra = extra.replace(" uv pip", f" {pypath}/bin/pip")
-    cd_cmd = f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
+    cd_cmd = (
+        f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
+    )
     execute_linux_command(f"{cd_cmd} {venvParam} ; {conda_path}{extra} ", wait=False)
 
 

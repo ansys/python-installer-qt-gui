@@ -34,7 +34,11 @@ from PySide6.QtWidgets import QComboBox
 
 from ansys.tools.installer.common import get_pkg_versions, get_targets
 from ansys.tools.installer.configure_json import ConfigureJson
-from ansys.tools.installer.constants import PYANSYS_LIBS, SELECT_VENV_MANAGE_TAB, USER_PATH
+from ansys.tools.installer.constants import (
+    PYANSYS_LIBS,
+    SELECT_VENV_MANAGE_TAB,
+    USER_PATH,
+)
 from ansys.tools.installer.find_python import (
     find_all_python,
     find_miniforge,
@@ -416,8 +420,23 @@ class InstalledTab(QtWidgets.QWidget):
 
     def launch_vscode(self):
         """Launch VSCode."""
+        if not VSCode.is_vscode_installed():
+            from PySide6 import QtCore, QtWidgets
+
+            msg = QtWidgets.QMessageBox()
+            msg.setTextFormat(QtCore.Qt.TextFormat.RichText)
+            msg.warning(
+                self,
+                "VS Code Launch Error",
+                "Failed to launch vscode. Try reinstalling code by following this "
+                "<a href='https://code.visualstudio.com/download'>link</a>",
+            )
+            return
         working_dir = self.working_dir_edit.text().strip()
-        vscode = VSCode(self, initial_dir=working_dir if working_dir else None)
+        if not working_dir or not os.path.isdir(working_dir):
+            working_dir = USER_PATH
+        error_msg = "echo Failed to launch vscode. Try reinstalling code by following this link https://code.visualstudio.com/download"
+        self.launch_cmd(f'code "{working_dir}" && exit 0 || {error_msg}')
 
     def launch_jupyter_notebook(self):
         """Launch Jupyter Notebook."""
@@ -523,6 +542,9 @@ class InstalledTab(QtWidgets.QWidget):
 
         py_path = sel_table.active_path
         parent_path = os.path.dirname(py_path)  # No Scripts Folder
+        if not py_path or not os.path.isdir(parent_path):
+            LOG.error("No valid Python environment selected.")
+            return None, None, None
         # If py_path has a folder called conda-meta --> then it is a conda environment
         is_vanilla_python = False if "conda-meta" in os.listdir(parent_path) else True
 
@@ -644,6 +666,8 @@ class InstalledTab(QtWidgets.QWidget):
             is_vanilla_python, miniforge_path, py_path = self.find_env_type(
                 "venv_table"
             )
+            if is_vanilla_python is None:
+                return
 
         if is_vanilla_python and not is_venv:
             scripts_path = os.path.join(py_path, "Scripts")
