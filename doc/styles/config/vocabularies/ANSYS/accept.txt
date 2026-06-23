@@ -8,4 +8,6 @@ PyAnsys
 Python
 python
 Spyder
+Synopsys
+synopsys
 Windows
