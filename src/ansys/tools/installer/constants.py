@@ -1,4 +1,4 @@
-# Copyright (C) 2023 - 2026 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2023 - 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -111,6 +111,8 @@ PYANSYS_DOCS_SITES = {
     "PyAnsys Heart": "https://heart.health.docs.pyansys.com",
     "PyAnsys Math": "https://math.docs.pyansys.com",
     "PyAnsys Sound": "https://sound.docs.pyansys.com",
+    "PyCFX": "https://cfx.docs.pyansys.com",
+    "PyChemkin": "https://chemkin.docs.pyansys.com",
     "PyConceptEV": "https://conceptev.docs.pyansys.com",
     "PyDPF - Core": "https://dpf.docs.pyansys.com",
     "PyDPF - Post": "https://post.docs.pyansys.com",
@@ -125,6 +127,7 @@ PYANSYS_DOCS_SITES = {
     "PyGranta": "https://grantami.docs.pyansys.com",
     "PyHPS": "https://hps.docs.pyansys.com",
     "PyHPS Data Transfer": "https://data-transfer.hps.docs.pyansys.com",
+    "PyLumerical": "https://lumerical.docs.pyansys.com",
     "PyMAPDL": "https://mapdl.docs.pyansys.com",
     "PyMAPDL Reader": "https://reader.docs.pyansys.com",
     "PyMechanical": "https://mechanical.docs.pyansys.com",
@@ -134,6 +137,7 @@ PYANSYS_DOCS_SITES = {
     "PyPIM": "https://pypim.docs.pyansys.com",
     "PyPrimeMesh": "https://prime.docs.pyansys.com",
     "PyRocky": "https://rocky.docs.pyansys.com",
+    "PySAM SysML2": "https://sysml2.docs.pyansys.com",
     "PyScadeOne": "https://scadeone.docs.pyansys.com",
     "PySeascape": "https://seascape.docs.pyansys.com",
     "PySherlock": "https://sherlock.docs.pyansys.com",
@@ -163,6 +167,8 @@ PYANSYS_LIBS = {
     "PyAnsys Heart": "ansys-health-heart",
     "PyAnsys Math": "ansys-math-core",
     "PyAnsys Sound": "ansys-sound-core",
+    "PyCFX": "ansys-cfx-core",
+    "PyChemkin": "ansys-chemkin-core",
     "PyConceptEV": "ansys-conceptev-core",
     "PyDPF - Core": "ansys-dpf-core",
     "PyDPF - Post": "ansys-dpf-post",
@@ -177,6 +183,7 @@ PYANSYS_LIBS = {
     "PyGranta": "pygranta",
     "PyHPS": "ansys-hps-client",
     "PyHPS Data Transfer": "ansys-hps-data-transfer-client",
+    "PyLumerical": "ansys-lumerical-core",
     "PyMAPDL": "ansys-mapdl-core",
     "PyMAPDL Reader": "ansys-mapdl-reader",
     "PyMechanical": "ansys-mechanical-core",
@@ -186,6 +193,7 @@ PYANSYS_LIBS = {
     "PyPIM": "ansys-platform-instancemanagement",
     "PyPrimeMesh": "ansys-meshing-prime",
     "PyRocky": "ansys-rocky-core",
+    "PySAM SysML2": "ansys-sam-sysml2",
     "PyScadeOne": "ansys-scadeone-core",
     "PySeascape": "ansys-seascape",
     "PySherlock": "ansys-sherlock-core",
