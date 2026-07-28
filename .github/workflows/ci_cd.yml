@@ -425,7 +425,7 @@ jobs:
       - name: Sign application
         working-directory: signtool
         run: |
-          $files = Get-ChildItem installer -recurse | where {$_.name -like "*Setup*"})
+          $files = Get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}
           foreach ($file in $files) {
             $filename = $file.Name
             $filepath = $file.FullName
