@@ -427,7 +427,7 @@ jobs:
         run: |
           $filename = (get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}).Name
           $jobname = $filename -replace ".{4}$"
-          .\Ansys.SignClient.exe sign `
+          .\SynSign.exe sign `
             --signUrl https://csign.ansys.com `
             -r gh_signtool_account `
             -s '${{ secrets.SIGNTOOL_PWD }}' `
