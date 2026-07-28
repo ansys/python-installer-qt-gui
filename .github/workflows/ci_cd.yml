@@ -425,26 +425,16 @@ jobs:
       - name: Sign application
         working-directory: signtool
         run: |
-          $files = Get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}
-          foreach ($file in $files) {
-            $filename = $file.Name
-            $filepath = $file.FullName
-            $jobname = $filename -replace "\.exe$"
-            $proc = Start-Process -FilePath ".\SynSign.exe" -ArgumentList @(
-              "sign",
-              "--signUrl", "https://csign.internal.synopsys.com",
-              "-r", "svc-gh_signtool",
-              "-s", '${{ secrets.SIGNTOOL_PWD }}',
-              "-n", $jobname,
-              "-i", $filepath,
-              "-o", $filepath
-            ) -Wait -PassThru
-            $exitCode = if ($null -ne $proc -and $proc.HasExited) { $proc.ExitCode } else { -1 }
-            if ($exitCode -ne 0) {
-              Write-Host "::error::SynSign.exe failed for $filepath with exit code $exitCode"
-              exit 1
-            }
-          }
+          $filename = (get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}).Name
+          $jobname = $filename -replace ".{4}$"
+          .\Ansys.SignClient.exe sign `
+            --signUrl https://csign.ansys.com `
+            -r gh_signtool_account `
+            -s '${{ secrets.SIGNTOOL_PWD }}' `
+            -n $jobname `
+            -i installer/$filename `
+            -o installer/$filename
+
       - uses: actions/upload-artifact@v7
         with:
           name: Python-Installer-windows-signed
