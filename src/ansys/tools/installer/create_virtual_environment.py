@@ -128,8 +128,11 @@ class CreateVenvTab(QtWidgets.QWidget):
             Path(venv_dir).mkdir(parents=True, exist_ok=True)
             try:
                 self.cmd_create_venv(venv_dir)
-            except:
+            except Exception as err:
+                LOG.error(err)
                 self.failed_to_create_dialog()
+                self.update_table()
+                return
 
             self.update_table()
             self.venv_success_dialog()

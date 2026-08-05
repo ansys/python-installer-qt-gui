@@ -595,11 +595,30 @@ class InstalledTab(QtWidgets.QWidget):
                     subprocess.call(f'start /w /min cmd /K "{shell_cmd}"', shell=True)
                 if os.path.exists(parent_path):
                     shutil.rmtree(parent_path)
-            except:
-                pass
+            except Exception as err:
+                LOG.error(err)
+                if self._parent is not None and hasattr(self._parent, "show_error"):
+                    self._parent.show_error(str(err))
 
         # Finally, update the venv table
         self.venv_table.update()
+
+    def _run_linux_or_report_error(self, func, *args, **kwargs):
+        """Run a Linux command launcher, surfacing failures to the user.
+
+        Notes
+        -----
+        This is primarily needed to catch ``NoLinuxTerminalError``, which is
+        raised when no supported terminal emulator (such as ``gnome-terminal``)
+        is available. This is a common situation on WSL (Windows Subsystem for
+        Linux), where no terminal emulator is installed by default.
+        """
+        try:
+            func(*args, **kwargs)
+        except Exception as err:
+            LOG.error(err)
+            if self._parent is not None and hasattr(self._parent, "show_error"):
+                self._parent.show_error(str(err))
 
     def launch_cmd(
         self,
@@ -672,7 +691,9 @@ class InstalledTab(QtWidgets.QWidget):
                 cmd = f"&& echo Python set to {py_path}"
 
             if is_linux_os():
-                run_linux_command(py_path, extra, working_dir=working_dir)
+                self._run_linux_or_report_error(
+                    run_linux_command, py_path, extra, working_dir=working_dir
+                )
             else:
                 # Update the package managers
                 shell_cmd = f"set PATH={new_path} && python -m pip install --upgrade pip uv && exit"
@@ -687,7 +708,9 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Python set to {py_path}"
             if is_linux_os():
-                run_linux_command(py_path, extra, True, working_dir=working_dir)
+                self._run_linux_or_report_error(
+                    run_linux_command, py_path, extra, True, working_dir=working_dir
+                )
             else:
                 shell_cmd = f'set PATH={myenv} && {py_path}\\Scripts\\activate.bat && cd /d ""{working_dir}"" {cmd}'
                 subprocess.call(f'start {min_win} cmd /K "{shell_cmd}"', shell=True)
@@ -702,7 +725,13 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Activating conda forge at path {py_path}"
             if is_linux_os():
-                run_linux_command_conda(py_path, extra, True, working_dir=working_dir)
+                self._run_linux_or_report_error(
+                    run_linux_command_conda,
+                    py_path,
+                    extra,
+                    True,
+                    working_dir=working_dir,
+                )
             else:
                 shell_cmd = f'set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d ""{working_dir}"" {cmd}'
                 subprocess.call(f'start {min_win} cmd /K "{shell_cmd}"', shell=True)
@@ -717,7 +746,13 @@ class InstalledTab(QtWidgets.QWidget):
             else:
                 cmd = f"&& echo Activating conda forge at path {py_path}"
             if is_linux_os():
-                run_linux_command_conda(py_path, extra, False, working_dir=working_dir)
+                self._run_linux_or_report_error(
+                    run_linux_command_conda,
+                    py_path,
+                    extra,
+                    False,
+                    working_dir=working_dir,
+                )
             else:
                 shell_cmd = f'set PATH={myenv} && {miniforge_path}\\Scripts\\activate.bat && conda activate {py_path} && cd /d ""{working_dir}"" {cmd}'
                 subprocess.call(f'start {min_win} cmd /K "{shell_cmd}"', shell=True)
