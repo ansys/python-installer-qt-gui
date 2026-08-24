@@ -30,12 +30,27 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Ubuntu(20.04 and 22.04)**.
 
         #. Update ``apt-get`` repository and install the following packages with **sudo** privileges:
-           **wget, gnome, libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
+           **wget, gnome-terminal, libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
 
            .. code:: shell
 
              sudo apt-get update -y
-             sudo apt-get install wget gnome libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
+             sudo apt-get install wget gnome-terminal libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
+
+        .. note::
+
+           A terminal emulator is required for the ``Ansys Python Manager`` to run
+           commands (install packages, launch consoles, and so on). ``gnome-terminal``
+           is recommended, but ``konsole``, ``xfce4-terminal``, ``mate-terminal``,
+           ``tilix``, and ``xterm`` are also supported. This is particularly relevant
+           when running under **WSL (Windows Subsystem for Linux)**, which does not
+           ship with a terminal emulator by default. In that case, install a
+           lightweight option instead of the full ``gnome-terminal`` package:
+
+           .. code:: shell
+
+             sudo apt-get update -y
+             sudo apt-get install xterm -y
 
         #. Install **zlib** package
 
