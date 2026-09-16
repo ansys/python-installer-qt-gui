@@ -45,6 +45,60 @@ except:
     ansys_linux_path = f"/home/{user_name}/.local/ansys"
 
 
+# Ordered list of supported terminal emulators, from most to least preferred.
+# Each entry maps a terminal executable name to a callable that builds the
+# ``argv`` list used to run ``command`` inside of it.
+#
+# Notes
+# -----
+# ``gnome-terminal`` is a client/server application: by default it forwards
+# the request to a background ``gnome-terminal-server`` process and returns
+# immediately, which is why the explicit ``--wait`` flag is required to block
+# until the spawned command finishes. Most other terminal emulators (konsole,
+# xfce4-terminal, xterm, etc.) keep running in the foreground by default, so
+# blocking behavior comes "for free" when the process is not explicitly
+# backgrounded.
+_LINUX_TERMINALS = {
+    "gnome-terminal": lambda command, wait: (
+        ["gnome-terminal"] + (["--wait"] if wait else []) + ["--", "sh", "-c", command]
+    ),
+    "konsole": lambda command, wait: ["konsole", "-e", "sh", "-c", command],
+    "xfce4-terminal": lambda command, wait: (
+        ["xfce4-terminal", "--disable-server", "-x", "sh", "-c", command]
+    ),
+    "mate-terminal": lambda command, wait: (
+        ["mate-terminal", "--disable-factory", "-x", "sh", "-c", command]
+    ),
+    "tilix": lambda command, wait: ["tilix", "-e", "sh", "-c", command],
+    "xterm": lambda command, wait: ["xterm", "-e", "sh", "-c", command],
+    "x-terminal-emulator": lambda command, wait: (
+        ["x-terminal-emulator", "-e", "sh", "-c", command]
+    ),
+}
+
+
+class NoLinuxTerminalError(RuntimeError):
+    """Raised when no supported terminal emulator is available on the system."""
+
+
+def find_linux_terminal():
+    """Find the first available, supported terminal emulator on this system.
+
+    Returns
+    -------
+    str or None
+        The name of the first supported terminal emulator found on the
+        ``PATH``, or ``None`` if none of them are available. This is
+        commonly the case on WSL (Windows Subsystem for Linux) distributions,
+        which do not ship with a terminal emulator by default.
+
+    """
+    for terminal in _LINUX_TERMINALS:
+        if shutil.which(terminal):
+            return terminal
+    return None
+
+
 def is_linux_os():
     """
     Create OS is Linux or Not.
@@ -160,17 +214,13 @@ def find_miniforge_linux(ansys_manager_installed_only=False):
     paths = {}
     if not ansys_manager_installed_only:
         try:
-            subprocess.check_output("printenv | grep CONDA_PYTHON_EXE > /tmp/conda.txt")
-            with open("/tmp/conda.txt") as f:
-                conda_system_path = f.read()
-                conda_system_path = conda_system_path.replace("CONDA_PYTHON_EXE=", "")
-                conda_system_path = conda_system_path.replace("/bin/python", "").strip()
-                version = subprocess.check_output([f"conda", "--version"])
-                version = version.split()[1].decode("utf-8")
-                paths[conda_system_path] = (version, True)
-            os.remove("/tmp/conda.txt")
-        except:
-            pass
+            conda_system_path = os.environ["CONDA_PYTHON_EXE"]
+            conda_system_path = conda_system_path.replace("/bin/python", "").strip()
+            version = subprocess.check_output(["conda", "--version"])
+            version = version.split()[1].decode("utf-8")
+            paths[conda_system_path] = (version, True)
+        except Exception as e:
+            LOG.debug(e)
     try:
         version = subprocess.check_output(
             [f"{ansys_linux_path}/conda/bin/conda", "--version"]
@@ -405,18 +455,54 @@ def query_gh_latest_release_linux(token=None):
 
 def execute_linux_command(command, wait=True):
     """
-    Run linux command on gnome terminal.
+    Run a Linux command in the first available terminal emulator.
+
+    Previously this always shelled out to ``gnome-terminal``, which is not
+    installed by default on many Linux systems (for example, WSL
+    distributions), causing every action relying on this function to fail
+    silently. This now detects an available terminal emulator amongst
+    several common alternatives before running the command.
+
+    Parameters
+    ----------
+    command : str
+        Command to run inside of the terminal.
+    wait : bool, default: True
+        Whether to block until the spawned terminal (and command) finishes.
+
+    Raises
+    ------
+    NoLinuxTerminalError
+        If no supported terminal emulator could be found on the ``PATH``.
 
     Examples
     --------
     >>> execute_linux_command("ls")
 
     """
-    wait_command = ""
-    if wait:
-        wait_command = "--wait"
-    LOG.debug(f"gnome-terminal {wait_command} -- sh -c '{command}'")
-    os.system(f"gnome-terminal {wait_command} -- sh -c '{command}'")
+    terminal = find_linux_terminal()
+    if terminal is None:
+        msg = (
+            "No supported terminal emulator was found on this system (tried: "
+            f"{', '.join(_LINUX_TERMINALS)}). Ansys Python Manager requires one "
+            "of these to run commands. This is a common issue on WSL (Windows "
+            "Subsystem for Linux), which does not install a terminal emulator "
+            "by default. Install one, for example with: sudo apt-get install xterm"
+        )
+        LOG.error(msg)
+        raise NoLinuxTerminalError(msg)
+
+    argv = _LINUX_TERMINALS[terminal](command, wait)
+    LOG.debug("Executing linux command with %s: %s", terminal, argv)
+    try:
+        if wait:
+            subprocess.run(argv)
+        else:
+            subprocess.Popen(argv, start_new_session=True)
+    except Exception as err:
+        msg = f"Failed to execute command using {terminal}: {err}"
+        LOG.error(msg)
+        raise NoLinuxTerminalError(msg) from err
 
 
 def get_os_version():
