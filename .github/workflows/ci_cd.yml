@@ -411,8 +411,8 @@ jobs:
       - name: Checkout the SignTool
         uses: actions/checkout@v7
         with:
-          repository: ansys-internal/signtool-ansys-apps
-          token: ${{ secrets.SIGNTOOL_ACCESS_TOKEN }}
+          repository: ansys/signtool-ansys-apps
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
 
       - uses: actions/download-artifact@v8
         with:
