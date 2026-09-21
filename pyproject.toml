@@ -55,7 +55,7 @@ doc = [
     "sphinx_toolbox==4.3.1",
 ]
 freeze = [
-    "pyinstaller==6.22.2",
+    "pyinstaller==6.22.3",
     "packaging==26.3",
     "PyGithub==2.10.0",
     "appdirs==1.4.4",
