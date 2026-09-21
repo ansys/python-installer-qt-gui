@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- managed-by: ansys/actions/_doc-gen-sitemap -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://installer.docs.pyansys.com/</loc>
+    <lastmod>2026-09-21T08:21:32+00:00</lastmod>
+  </url>
+  <url>
+    <loc>https://installer.docs.pyansys.com/version/stable/installer.html</loc>
+  </url>
+  <url>
+    <loc>https://installer.docs.pyansys.com/version/stable/index.html</loc>
+  </url>
+  <url>
+    <loc>https://installer.docs.pyansys.com/version/stable/contributing.html</loc>
+  </url>
+  <url>
+    <loc>https://installer.docs.pyansys.com/version/stable/user_guide.html</loc>
+  </url>
+</urlset>
