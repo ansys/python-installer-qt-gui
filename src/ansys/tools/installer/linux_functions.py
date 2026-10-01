@@ -26,8 +26,10 @@ import getpass
 import logging
 import os
 from pathlib import Path
+import shlex
 import shutil
 import subprocess
+import sys
 
 from github import Github
 from packaging import version
@@ -43,6 +45,60 @@ try:
 except:
     user_name = getpass.getuser()
     ansys_linux_path = f"/home/{user_name}/.local/ansys"
+
+
+# Ordered list of supported terminal emulators, from most to least preferred.
+# Each entry maps a terminal executable name to a callable that builds the
+# ``argv`` list used to run ``command`` inside of it.
+#
+# Notes
+# -----
+# ``gnome-terminal`` is a client/server application: by default it forwards
+# the request to a background ``gnome-terminal-server`` process and returns
+# immediately, which is why the explicit ``--wait`` flag is required to block
+# until the spawned command finishes. Most other terminal emulators (konsole,
+# xfce4-terminal, xterm, etc.) keep running in the foreground by default, so
+# blocking behavior comes "for free" when the process is not explicitly
+# backgrounded.
+_LINUX_TERMINALS = {
+    "gnome-terminal": lambda command, wait: (
+        ["gnome-terminal"] + (["--wait"] if wait else []) + ["--", "sh", "-c", command]
+    ),
+    "konsole": lambda command, wait: ["konsole", "-e", "sh", "-c", command],
+    "xfce4-terminal": lambda command, wait: (
+        ["xfce4-terminal", "--disable-server", "-x", "sh", "-c", command]
+    ),
+    "mate-terminal": lambda command, wait: (
+        ["mate-terminal", "--disable-factory", "-x", "sh", "-c", command]
+    ),
+    "tilix": lambda command, wait: ["tilix", "-e", "sh", "-c", command],
+    "xterm": lambda command, wait: ["xterm", "-e", "sh", "-c", command],
+    "x-terminal-emulator": lambda command, wait: (
+        ["x-terminal-emulator", "-e", "sh", "-c", command]
+    ),
+}
+
+
+class NoLinuxTerminalError(RuntimeError):
+    """Raised when no supported terminal emulator is available on the system."""
+
+
+def find_linux_terminal():
+    """Find the first available, supported terminal emulator on this system.
+
+    Returns
+    -------
+    str or None
+        The name of the first supported terminal emulator found on the
+        ``PATH``, or ``None`` if none of them are available. This is
+        commonly the case on WSL (Windows Subsystem for Linux) distributions,
+        which do not ship with a terminal emulator by default.
+
+    """
+    for terminal in _LINUX_TERMINALS:
+        if shutil.which(terminal):
+            return terminal
+    return None
 
 
 def is_linux_os():
@@ -160,17 +216,13 @@ def find_miniforge_linux(ansys_manager_installed_only=False):
     paths = {}
     if not ansys_manager_installed_only:
         try:
-            subprocess.check_output("printenv | grep CONDA_PYTHON_EXE > /tmp/conda.txt")
-            with open("/tmp/conda.txt") as f:
-                conda_system_path = f.read()
-                conda_system_path = conda_system_path.replace("CONDA_PYTHON_EXE=", "")
-                conda_system_path = conda_system_path.replace("/bin/python", "").strip()
-                version = subprocess.check_output([f"conda", "--version"])
-                version = version.split()[1].decode("utf-8")
-                paths[conda_system_path] = (version, True)
-            os.remove("/tmp/conda.txt")
-        except:
-            pass
+            conda_system_path = os.environ["CONDA_PYTHON_EXE"]
+            conda_system_path = conda_system_path.replace("/bin/python", "").strip()
+            version = subprocess.check_output(["conda", "--version"])
+            version = version.split()[1].decode("utf-8")
+            paths[conda_system_path] = (version, True)
+        except Exception as e:
+            LOG.debug(e)
     try:
         version = subprocess.check_output(
             [f"{ansys_linux_path}/conda/bin/conda", "--version"]
@@ -195,8 +247,11 @@ def create_venv_linux(venv_dir, py_path):
     ... )
 
     """
+    py_path = shlex.quote(py_path)
+    venv_python = shlex.quote(f"{venv_dir}/bin/python")
     execute_linux_command(f"{py_path} -m pip install -U pip uv")
-    execute_linux_command(f"{py_path} -m uv venv {venv_dir}")
+    execute_linux_command(f"{py_path} -m uv venv --seed {shlex.quote(venv_dir)}")
+    execute_linux_command(f"{venv_python} -m pip install -U pip uv")
 
 
 def create_venv_linux_conda(venv_dir, py_path):
@@ -242,23 +297,34 @@ def run_linux_command(pypath, extra, venv=False, working_dir=None):
     >>> run_linux_command("/home/sha/.local/ansys/python-3.12.0/bin/python3", "uv pip list")
 
     """
-    # Update package manager before executing commands
-    execute_linux_command(f"{pypath} -m pip install -U pip uv")
+    # For a venv, ``pypath`` is the venv folder; otherwise the interpreter itself
+    python = shlex.quote(f"{pypath}/bin/python" if venv else pypath)
 
-    prefix = f"{pypath}"
+    # Update package manager before executing commands
+    update_cmd = f"{python} -m pip install -U pip uv"
+    if venv:
+        # Venvs created by older versions of this app have neither pip nor uv
+        update_cmd = (
+            f"{python} -m pip --version >/dev/null 2>&1 || "
+            f"{python} -m ensurepip --upgrade; {update_cmd}"
+        )
+    execute_linux_command(update_cmd)
+
     extra = extra.replace("timeout", "sleep")
-    python_name = prefix.split("/")[-1]
-    major_version = (
-        list(python_name)[-1] if list(python_name)[-1].isnumeric() and not venv else ""
-    )
     if not extra:
         extra = "bash"
     if "sleep" not in extra and extra != "bash":
         extra += '; read -p "Press Enter to Continue.... " confirm || exit 1'
     if venv:
-        prefix = f". {pypath}/bin/activate; "
+        prefix = f". {shlex.quote(pypath)}/bin/activate; "
     else:
-        prefix = "/".join(prefix.split("/")[:-1]) + "/"
+        # Resolve uv, pip, and installed scripts from this interpreter first
+        bin_dir = shlex.quote(os.path.dirname(pypath))
+        prefix = f'PATH={bin_dir}:"$PATH"; export PATH; '
+        # ``--system`` would target the first ``python3`` on the PATH,
+        # which is the OS interpreter rather than the selected one
+        extra = extra.replace("--system", f"--python {python}")
+        extra = extra.replace("python -m ", f"{python} -m ")
     cd_cmd = (
         f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
     )
@@ -405,18 +471,71 @@ def query_gh_latest_release_linux(token=None):
 
 def execute_linux_command(command, wait=True):
     """
-    Run linux command on gnome terminal.
+    Run a Linux command in the first available terminal emulator.
+
+    Previously this always shelled out to ``gnome-terminal``, which is not
+    installed by default on many Linux systems (for example, WSL
+    distributions), causing every action relying on this function to fail
+    silently. This now detects an available terminal emulator amongst
+    several common alternatives before running the command.
+
+    Parameters
+    ----------
+    command : str
+        Command to run inside of the terminal.
+    wait : bool, default: True
+        Whether to block until the spawned terminal (and command) finishes.
+
+    Raises
+    ------
+    NoLinuxTerminalError
+        If no supported terminal emulator could be found on the ``PATH``.
 
     Examples
     --------
     >>> execute_linux_command("ls")
 
     """
-    wait_command = ""
-    if wait:
-        wait_command = "--wait"
-    LOG.debug(f"gnome-terminal {wait_command} -- sh -c '{command}'")
-    os.system(f"gnome-terminal {wait_command} -- sh -c '{command}'")
+    terminal = find_linux_terminal()
+    if terminal is None:
+        pkg_manager = "apt-get" if shutil.which("apt-get") else "dnf"
+        msg = (
+            "No supported terminal emulator was found on this system (tried: "
+            f"{', '.join(_LINUX_TERMINALS)}). Ansys Python Manager requires one "
+            "of these to run commands. This is a common issue on WSL (Windows "
+            "Subsystem for Linux), which does not install a terminal emulator "
+            f"by default. Install one, for example with: sudo {pkg_manager} install xterm"
+        )
+        LOG.error(msg)
+        raise NoLinuxTerminalError(msg)
+
+    argv = _LINUX_TERMINALS[terminal](command, wait)
+    LOG.debug("Executing linux command with %s: %s", terminal, argv)
+    try:
+        if wait:
+            subprocess.run(argv, env=_user_environment())
+        else:
+            subprocess.Popen(argv, start_new_session=True, env=_user_environment())
+    except Exception as err:
+        msg = f"Failed to execute command using {terminal}: {err}"
+        LOG.error(msg)
+        raise NoLinuxTerminalError(msg) from err
+
+
+def _user_environment():
+    """Return the environment to launch user terminals with.
+
+    A frozen (PyInstaller) build points ``LD_LIBRARY_PATH`` at its bundled
+    libraries and keeps the user's original value in ``LD_LIBRARY_PATH_ORIG``.
+    Without restoring it, every command run in the terminal would load the
+    app's bundled libraries (for example, OpenSSL) instead of the system ones.
+    """
+    env = dict(os.environ)
+    if "LD_LIBRARY_PATH_ORIG" in env:
+        env["LD_LIBRARY_PATH"] = env.pop("LD_LIBRARY_PATH_ORIG")
+    elif getattr(sys, "frozen", False):
+        env.pop("LD_LIBRARY_PATH", None)
+    return env
 
 
 def get_os_version():
