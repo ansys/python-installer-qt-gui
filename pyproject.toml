@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.12.0,<4"]
+requires = ["flit_core >=3.12.0,<5"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -36,32 +36,32 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = [
-    "packaging==26.2",
-    "PyGithub==2.9.1",
+    "packaging==26.3",
+    "PyGithub==2.10.0",
     "appdirs==1.4.4",
     "requests==2.34.2",
-    "PySide6==6.11.1",
+    "PySide6==6.11.2",
     "pytest==9.1.1",
-    "ansys-tools-common==0.5.1",
+    "ansys-tools-common==0.5.3",
     "pytest-cov==7.1.0",
     "pytest-qt==4.5.0",
-    "setuptools==83.0.0",
+    "setuptools==84.0.0",
 ]
 doc = [
     "Sphinx==8.1.3",
     "ansys-sphinx-theme==1.9.0",
     "sphinx-copybutton==0.5.2",
     "sphinx_design==0.6.1",
-    "sphinx_toolbox==4.3.0",
+    "sphinx_toolbox==4.3.1",
 ]
 freeze = [
-    "pyinstaller==6.21.0",
-    "packaging==26.2",
-    "PyGithub==2.9.1",
+    "pyinstaller==6.22.3",
+    "packaging==26.3",
+    "PyGithub==2.10.0",
     "appdirs==1.4.4",
     "requests==2.34.2",
-    "PySide6==6.11.1",
-    "ansys-tools-common==0.5.1",
+    "PySide6==6.11.2",
+    "ansys-tools-common==0.5.3",
 ]
 
 [tool.flit.module]

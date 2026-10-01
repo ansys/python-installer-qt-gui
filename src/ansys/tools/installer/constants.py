@@ -139,7 +139,6 @@ PYANSYS_DOCS_SITES = {
     "PyRocky": "https://rocky.docs.pyansys.com",
     "PySAM SysML2": "https://sysml2.docs.pyansys.com",
     "PyScadeOne": "https://scadeone.docs.pyansys.com",
-    "PySeascape": "https://seascape.docs.pyansys.com",
     "PySherlock": "https://sherlock.docs.pyansys.com",
     "PySimAI": "https://simai.docs.pyansys.com",
     "PySpeos": "https://speos.docs.pyansys.com",
@@ -195,7 +194,6 @@ PYANSYS_LIBS = {
     "PyRocky": "ansys-rocky-core",
     "PySAM SysML2": "ansys-sam-sysml2",
     "PyScadeOne": "ansys-scadeone-core",
-    "PySeascape": "ansys-seascape",
     "PySherlock": "ansys-sherlock-core",
     "PySimAI": "ansys-simai-core",
     "PySpeos": "ansys-speos-core",
@@ -232,8 +230,8 @@ VANILLA_PYTHON_VERSIONS = {
     "Python 3.10": "3.10.11",
     "Python 3.11": "3.11.9",
     "Python 3.12": "3.12.10",
-    "Python 3.13": "3.13.14",
-    "Python 3.14": "3.14.6",
+    "Python 3.13": "3.13.16",
+    "Python 3.14": "3.14.8",
 }
 
 CONDA_PYTHON_VERSION = "24.1.2-0"
