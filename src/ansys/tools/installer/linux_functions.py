@@ -26,8 +26,10 @@ import getpass
 import logging
 import os
 from pathlib import Path
+import shlex
 import shutil
 import subprocess
+import sys
 
 from github import Github
 from packaging import version
@@ -245,8 +247,11 @@ def create_venv_linux(venv_dir, py_path):
     ... )
 
     """
+    py_path = shlex.quote(py_path)
+    venv_python = shlex.quote(f"{venv_dir}/bin/python")
     execute_linux_command(f"{py_path} -m pip install -U pip uv")
-    execute_linux_command(f"{py_path} -m uv venv {venv_dir}")
+    execute_linux_command(f"{py_path} -m uv venv --seed {shlex.quote(venv_dir)}")
+    execute_linux_command(f"{venv_python} -m pip install -U pip uv")
 
 
 def create_venv_linux_conda(venv_dir, py_path):
@@ -292,23 +297,34 @@ def run_linux_command(pypath, extra, venv=False, working_dir=None):
     >>> run_linux_command("/home/sha/.local/ansys/python-3.12.0/bin/python3", "uv pip list")
 
     """
-    # Update package manager before executing commands
-    execute_linux_command(f"{pypath} -m pip install -U pip uv")
+    # For a venv, ``pypath`` is the venv folder; otherwise the interpreter itself
+    python = shlex.quote(f"{pypath}/bin/python" if venv else pypath)
 
-    prefix = f"{pypath}"
+    # Update package manager before executing commands
+    update_cmd = f"{python} -m pip install -U pip uv"
+    if venv:
+        # Venvs created by older versions of this app have neither pip nor uv
+        update_cmd = (
+            f"{python} -m pip --version >/dev/null 2>&1 || "
+            f"{python} -m ensurepip --upgrade; {update_cmd}"
+        )
+    execute_linux_command(update_cmd)
+
     extra = extra.replace("timeout", "sleep")
-    python_name = prefix.split("/")[-1]
-    major_version = (
-        list(python_name)[-1] if list(python_name)[-1].isnumeric() and not venv else ""
-    )
     if not extra:
         extra = "bash"
     if "sleep" not in extra and extra != "bash":
         extra += '; read -p "Press Enter to Continue.... " confirm || exit 1'
     if venv:
-        prefix = f". {pypath}/bin/activate; "
+        prefix = f". {shlex.quote(pypath)}/bin/activate; "
     else:
-        prefix = "/".join(prefix.split("/")[:-1]) + "/"
+        # Resolve uv, pip, and installed scripts from this interpreter first
+        bin_dir = shlex.quote(os.path.dirname(pypath))
+        prefix = f'PATH={bin_dir}:"$PATH"; export PATH; '
+        # ``--system`` would target the first ``python3`` on the PATH,
+        # which is the OS interpreter rather than the selected one
+        extra = extra.replace("--system", f"--python {python}")
+        extra = extra.replace("python -m ", f"{python} -m ")
     cd_cmd = (
         f"cd {working_dir!r}" if working_dir and os.path.isdir(working_dir) else "cd ~"
     )
@@ -482,12 +498,13 @@ def execute_linux_command(command, wait=True):
     """
     terminal = find_linux_terminal()
     if terminal is None:
+        pkg_manager = "apt-get" if shutil.which("apt-get") else "dnf"
         msg = (
             "No supported terminal emulator was found on this system (tried: "
             f"{', '.join(_LINUX_TERMINALS)}). Ansys Python Manager requires one "
             "of these to run commands. This is a common issue on WSL (Windows "
             "Subsystem for Linux), which does not install a terminal emulator "
-            "by default. Install one, for example with: sudo apt-get install xterm"
+            f"by default. Install one, for example with: sudo {pkg_manager} install xterm"
         )
         LOG.error(msg)
         raise NoLinuxTerminalError(msg)
@@ -496,13 +513,29 @@ def execute_linux_command(command, wait=True):
     LOG.debug("Executing linux command with %s: %s", terminal, argv)
     try:
         if wait:
-            subprocess.run(argv)
+            subprocess.run(argv, env=_user_environment())
         else:
-            subprocess.Popen(argv, start_new_session=True)
+            subprocess.Popen(argv, start_new_session=True, env=_user_environment())
     except Exception as err:
         msg = f"Failed to execute command using {terminal}: {err}"
         LOG.error(msg)
         raise NoLinuxTerminalError(msg) from err
+
+
+def _user_environment():
+    """Return the environment to launch user terminals with.
+
+    A frozen (PyInstaller) build points ``LD_LIBRARY_PATH`` at its bundled
+    libraries and keeps the user's original value in ``LD_LIBRARY_PATH_ORIG``.
+    Without restoring it, every command run in the terminal would load the
+    app's bundled libraries (for example, OpenSSL) instead of the system ones.
+    """
+    env = dict(os.environ)
+    if "LD_LIBRARY_PATH_ORIG" in env:
+        env["LD_LIBRARY_PATH"] = env.pop("LD_LIBRARY_PATH_ORIG")
+    elif getattr(sys, "frozen", False):
+        env.pop("LD_LIBRARY_PATH", None)
+    return env
 
 
 def get_os_version():

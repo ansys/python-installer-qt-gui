@@ -505,6 +505,9 @@ class InstalledTab(QtWidgets.QWidget):
         """
         if self.is_chk_box_active():
             if "Python" in self.table.active_version:
+                if is_linux_os():
+                    # run_linux_command already updates pip and uv first
+                    return
                 cmd = "python -m pip install -U pip uv && exit"
             else:  # Otherwise, conda
                 cmd = "conda update conda --yes && exit"

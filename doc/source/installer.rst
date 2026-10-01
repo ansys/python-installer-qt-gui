@@ -107,13 +107,19 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **CentOS9** and **RHEL9**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils, mesa-libGL, mesa-libEGL, xcb-util-cursor**
 
            .. code:: shell
 
              sudo yum update -y;
              sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils mesa-libGL mesa-libEGL xcb-util-cursor -y;
+
+        .. note::
+
+           Under **WSL (Windows Subsystem for Linux)**, you can install the lighter
+           ``xterm`` instead of ``gnome-terminal``. ``mesa-libGL``, ``mesa-libEGL``,
+           and ``xcb-util-cursor`` are still required to display the application.
 
         #. Install **zlib** package using **wget**
 
@@ -172,13 +178,19 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Fedora39**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils, mesa-libGL, mesa-libEGL, xcb-util-cursor**
 
            .. code:: shell
 
              sudo yum update -y;
-             sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
+             sudo yum group install development-tools -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils mesa-libGL mesa-libEGL xcb-util-cursor -y;
+
+        .. note::
+
+           Under **WSL (Windows Subsystem for Linux)**, you can install the lighter
+           ``xterm`` instead of ``gnome-terminal``. ``mesa-libGL``, ``mesa-libEGL``,
+           and ``xcb-util-cursor`` are still required to display the application.
 
         #. Install **zlib** package using **wget**
 

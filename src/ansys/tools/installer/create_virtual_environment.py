@@ -130,7 +130,24 @@ class CreateVenvTab(QtWidgets.QWidget):
                 self.cmd_create_venv(venv_dir)
             except Exception as err:
                 LOG.error(err)
-                self.failed_to_create_dialog()
+                error = str(err)
+            else:
+                error = None
+                # Linux terminals do not report the exit status of the command
+                if is_linux_os() and not os.path.exists(
+                    os.path.join(venv_dir, "bin", "python")
+                ):
+                    error = (
+                        "The virtual environment was not created. Check the "
+                        "terminal output for details."
+                    )
+                    LOG.error(f"{error} Path: {venv_dir}")
+
+            if error is not None:
+                # Allow retrying with the same name
+                if os.path.isdir(venv_dir) and not os.listdir(venv_dir):
+                    os.rmdir(venv_dir)
+                self.failed_to_create_dialog(details=error)
                 self.update_table()
                 return
 
@@ -146,7 +163,7 @@ class CreateVenvTab(QtWidgets.QWidget):
         msg.setWindowIcon(self.app_icon)
         msg.exec_()
 
-    def failed_to_create_dialog(self, case_1=False, case_2=False):
+    def failed_to_create_dialog(self, case_1=False, case_2=False, details=None):
         """Dialogs for if environment gets failed to create."""
         if case_1:
             # Case 1: check for name of environment
@@ -175,7 +192,9 @@ class CreateVenvTab(QtWidgets.QWidget):
             # In case of critical error
             msg = QtWidgets.QMessageBox()
             msg.setText("Error: Failed to create virtual environment!")
-            msg.setInformativeText("There might be some issue with application.")
+            msg.setInformativeText(
+                details or "There might be some issue with application."
+            )
             msg.setWindowTitle("Error")
             msg.setIcon(msg.Icon.Critical)
             msg.setWindowIcon(self.app_icon)
