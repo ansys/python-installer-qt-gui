@@ -45,7 +45,7 @@ tests = [
     "ansys-tools-common==0.5.3",
     "pytest-cov==7.1.0",
     "pytest-qt==4.5.0",
-    "setuptools==84.0.0",
+    "setuptools==84.2.1",
 ]
 doc = [
     "Sphinx==8.1.3",
