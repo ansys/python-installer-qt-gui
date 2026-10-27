@@ -6,14 +6,14 @@ ci:
 
 repos:
 - repo: https://github.com/pycqa/isort
-  rev: 9.0.2
+  rev: 10.0.0b1
   hooks:
   - id: isort
     args:
       - --line-length=88
 
 - repo: https://github.com/psf/black-pre-commit-mirror
-  rev: 26.5.1
+  rev: 26.10.1
   hooks:
   - id: black
     args:
@@ -54,7 +54,7 @@ repos:
 
 # this validates our github workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.38.2
+  rev: 0.39.0
   hooks:
     - id: check-github-workflows
 
