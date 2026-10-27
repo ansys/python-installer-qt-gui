@@ -30,12 +30,27 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Ubuntu(20.04 and 22.04)**.
 
         #. Update ``apt-get`` repository and install the following packages with **sudo** privileges:
-           **wget, gnome, libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
+           **wget, gnome-terminal, libffi-dev, libssl-dev, libsqlite3-dev, libxcb-xinerama0 and build-essential** packages with **sudo** privileges
 
            .. code:: shell
 
              sudo apt-get update -y
-             sudo apt-get install wget gnome libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
+             sudo apt-get install wget gnome-terminal libffi-dev libssl-dev libsqlite3-dev libxcb-xinerama0 build-essential -y
+
+        .. note::
+
+           A terminal emulator is required for the ``Ansys Python Manager`` to run
+           commands (install packages, launch consoles, and so on). ``gnome-terminal``
+           is recommended, but ``konsole``, ``xfce4-terminal``, ``mate-terminal``,
+           ``tilix``, and ``xterm`` are also supported. This is particularly relevant
+           when running under **WSL (Windows Subsystem for Linux)**, which does not
+           ship with a terminal emulator by default. In that case, install a
+           lightweight option instead of the full ``gnome-terminal`` package:
+
+           .. code:: shell
+
+             sudo apt-get update -y
+             sudo apt-get install xterm -y
 
         #. Install **zlib** package
 
@@ -92,13 +107,19 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **CentOS9** and **RHEL9**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils, mesa-libGL, mesa-libEGL, xcb-util-cursor**
 
            .. code:: shell
 
              sudo yum update -y;
              sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils mesa-libGL mesa-libEGL xcb-util-cursor -y;
+
+        .. note::
+
+           Under **WSL (Windows Subsystem for Linux)**, you can install the lighter
+           ``xterm`` instead of ``gnome-terminal``. ``mesa-libGL``, ``mesa-libEGL``,
+           and ``xcb-util-cursor`` are still required to display the application.
 
         #. Install **zlib** package using **wget**
 
@@ -157,13 +178,19 @@ Installing the ``Ansys Python Manager``
         #. **OS** supported for **Fedora39**.
 
         #. Update ``yum`` repository and install the following packages with **sudo** privileges:
-           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils**
+           **wget, gnome-terminal, Development Tools, libffi-devel, openssl-devel, rpm-build, sqlite-devel, sqlite-libs, libXinerama-devel, coreutils, mesa-libGL, mesa-libEGL, xcb-util-cursor**
 
            .. code:: shell
 
              sudo yum update -y;
-             sudo yum groupinstall 'Development Tools' -y;
-             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils -y;
+             sudo yum group install development-tools -y;
+             sudo yum install wget gnome-terminal libffi-devel openssl-devel rpm-build sqlite-devel sqlite-libs libXinerama-devel coreutils mesa-libGL mesa-libEGL xcb-util-cursor -y;
+
+        .. note::
+
+           Under **WSL (Windows Subsystem for Linux)**, you can install the lighter
+           ``xterm`` instead of ``gnome-terminal``. ``mesa-libGL``, ``mesa-libEGL``,
+           and ``xcb-util-cursor`` are still required to display the application.
 
         #. Install **zlib** package using **wget**
 
