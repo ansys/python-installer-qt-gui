@@ -59,7 +59,7 @@ ANSYS_FULL_LINUX_PATH = f"{USER_PATH}/{ANSYS_LINUX_PATH}"
 
 ANSYS_VENVS = ".ansys_python_venvs"
 
-ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7", "3_10"]
+ANSYS_SUPPORTED_PYTHON_VERSIONS = ["3_7", "3_10", "3_13"]
 
 INSTALL_TEXT = """Choose to use either the standard Python install from <a href='https://www.python.org/'>python.org</a> or <a href='https://github.com/conda-forge/miniforge'>miniforge</a>."""
 
@@ -227,7 +227,6 @@ VENV_SEARCH_PATH = "venv_search_path"
 #
 
 VANILLA_PYTHON_VERSIONS = {
-    "Python 3.10": "3.10.11",
     "Python 3.11": "3.11.9",
     "Python 3.12": "3.12.10",
     "Python 3.13": "3.13.17",
