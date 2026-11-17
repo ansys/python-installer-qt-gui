@@ -11,3 +11,7 @@ Spyder
 Synopsys
 synopsys
 Windows
+MCPs
+conda
+Flet
+subprocesses

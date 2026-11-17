@@ -217,3 +217,9 @@ def test_each_product_renders_in_constrained_window(tab, qtbot, tmp_path):
             qtbot.wait(10)
             assert not tab.grab().isNull()
     assert tab.grab().save(str(tmp_path / "mcp-tab.png"))
+
+
+def test_uninstall_can_exit_without_recreating_removed_settings(tab):
+    assert not tab.settings_path.exists()
+    tab.shutdown(save_settings=False)
+    assert not tab.settings_path.exists()

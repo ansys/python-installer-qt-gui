@@ -23,6 +23,7 @@
 """Uninstall application."""
 
 import os
+from pathlib import Path
 import shutil
 
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -36,6 +37,7 @@ from ansys.tools.installer.linux_functions import (
     get_os_version,
     is_linux_os,
 )
+from ansys.tools.installer.mcp_backend import application_directory
 
 
 class Uninstall(QtWidgets.QWidget):
@@ -181,6 +183,10 @@ class Uninstall(QtWidgets.QWidget):
 
     def _uninstall(self):
         """Uninstallation function. Execute the uninstaller script."""
+        if hasattr(self._parent, "mcp_tab"):
+            self._parent.mcp_tab.shutdown(
+                save_settings=not self.uninstall_window_cache_remove_configs_checkbox.isChecked()
+            )
         if self.uninstall_window_cache_remove_venv_checkbox.isChecked():
             self._remove_all_venvs()
 
@@ -218,7 +224,13 @@ class Uninstall(QtWidgets.QWidget):
         try:
             configure = ConfigureJson()
             script_path = "bin" if is_linux_os() else "Scripts"
-            for venv_dir in configure.history["path"]:
+            search_paths = [
+                *configure.history["path"],
+                str(application_directory() / "environments"),
+            ]
+            for venv_dir in dict.fromkeys(search_paths):
+                if not os.path.isdir(venv_dir):
+                    continue
                 for venv_dir_name in os.listdir(venv_dir):
                     if os.path.isfile(
                         os.path.join(venv_dir, venv_dir_name, script_path, "activate")
@@ -241,8 +253,18 @@ class Uninstall(QtWidgets.QWidget):
         """Remove all the configurations created by Ansys Python Manager."""
         try:
             configure = ConfigureJson()
-            print(f"removed {configure.config_dir}")
-            shutil.rmtree(configure.config_dir, ignore_errors=True)
+            # MCP environments are under this directory too. Removing settings
+            # must not delete environments unless that separate option was chosen.
+            for filename in ("config.json", "history.json", "mcp/settings.json"):
+                (Path(configure.config_dir) / filename).unlink(missing_ok=True)
+            for directory in (
+                Path(configure.config_dir) / "mcp",
+                Path(configure.config_dir),
+            ):
+                try:
+                    directory.rmdir()
+                except OSError:
+                    pass
         except:
             pass
 

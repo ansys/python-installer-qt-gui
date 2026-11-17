@@ -915,12 +915,13 @@ class McpTab(QtWidgets.QWidget):
         self._profile_preview = None
         self.write_profile_button.setEnabled(False)
 
-    def shutdown(self):
+    def shutdown(self, save_settings=True):
         """Stop owned processes and persist the selected product's settings."""
         if self._closed:
             return
         self._closed = True
-        self._try(lambda: self._save(announce=False))
+        if save_settings:
+            self._try(lambda: self._save(announce=False))
         self.queue.shutdown()
         for server in self.servers.values():
             server.shutdown()

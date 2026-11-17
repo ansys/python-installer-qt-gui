@@ -78,6 +78,11 @@ Managed environments and settings are under
 partial environment; retry **Update / repair** to finish it. A cancelled or
 failed installation is never reported as successful.
 
+On Linux, uninstalling the manager offers separate options to remove settings
+and managed environments. Removing settings preserves MCP environments;
+removing managed environments includes the product environments. Existing
+custom environments outside the manager's configured locations are preserved.
+
 For an offline installation, select **Offline** and provide a directory of
 wheels or a wheelhouse ZIP. Include the chosen MCP package and all dependencies,
 including build dependencies if distributing source packages. Wheels must

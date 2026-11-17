@@ -23,6 +23,7 @@
 import json
 import subprocess
 import sys
+from types import SimpleNamespace
 import zipfile
 
 import pytest
@@ -211,3 +212,45 @@ def test_pypi_versions_exclude_yanked_and_prereleases(monkeypatch):
 
     monkeypatch.setattr(backend.requests, "get", get)
     assert backend.available_versions(PRODUCTS[0]) == ["1.0", "0.8"]
+
+
+def test_remove_settings_preserves_mcp_environments(monkeypatch, tmp_path):
+    from ansys.tools.installer import uninstall
+
+    root = tmp_path / "manager"
+    environment = root / "mcp/environments/pyaedt"
+    environment.mkdir(parents=True)
+    marker = environment / "pyvenv.cfg"
+    marker.write_text("home = example")
+    for filename in ("config.json", "history.json", "mcp/settings.json"):
+        (root / filename).write_text("{}")
+    monkeypatch.setattr(
+        uninstall, "ConfigureJson", lambda: SimpleNamespace(config_dir=root)
+    )
+    uninstall.Uninstall._remove_configs(SimpleNamespace())
+    assert marker.exists()
+    assert not (root / "mcp/settings.json").exists()
+    assert not (root / "config.json").exists()
+
+
+def test_remove_managed_environments_includes_mcp_only_when_requested(
+    monkeypatch, tmp_path
+):
+    from ansys.tools.installer import uninstall
+
+    mcp = tmp_path / "mcp"
+    environment = mcp / "environments/pyaedt"
+    (environment / "bin").mkdir(parents=True)
+    (environment / "bin/activate").touch()
+    external = tmp_path / "external environment"
+    external.mkdir()
+    monkeypatch.setattr(
+        uninstall,
+        "ConfigureJson",
+        lambda: SimpleNamespace(history={"path": [str(tmp_path / "missing")]}),
+    )
+    monkeypatch.setattr(uninstall, "application_directory", lambda: mcp)
+    monkeypatch.setattr(uninstall, "is_linux_os", lambda: True)
+    uninstall.Uninstall._remove_all_venvs(SimpleNamespace())
+    assert not environment.exists()
+    assert external.exists()

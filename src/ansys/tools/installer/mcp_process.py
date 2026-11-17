@@ -61,7 +61,10 @@ class CommandQueue(QtCore.QObject):
         self.process.errorOccurred.connect(self._error)
         self.timer = QtCore.QTimer(self)
         self.timer.setSingleShot(True)
-        self.timer.timeout.connect(lambda: self.cancel("Command timed out."))
+        self.timer.timeout.connect(self._timeout)
+        self.kill_timer = QtCore.QTimer(self)
+        self.kill_timer.setSingleShot(True)
+        self.kill_timer.timeout.connect(self._kill_if_needed)
         self.active = False
         self.commands = []
         self.failure = ""
@@ -79,6 +82,7 @@ class CommandQueue(QtCore.QObject):
         self._next()
 
     def _next(self):
+        self.kill_timer.stop()
         if not self.commands:
             self._complete(True, "Installation completed and dependencies checked.")
             return
@@ -95,6 +99,7 @@ class CommandQueue(QtCore.QObject):
 
     def _finished(self, code, status):
         self.timer.stop()
+        self.kill_timer.stop()
         self._read()
         self.output.emit(self._decoder.decode(b"", final=True))
         if not self.active:
@@ -117,6 +122,7 @@ class CommandQueue(QtCore.QObject):
         if not self.active:
             return
         self.timer.stop()
+        self.kill_timer.stop()
         self.active = False
         self.commands = []
         self.completed.emit(success, message)
@@ -130,7 +136,11 @@ class CommandQueue(QtCore.QObject):
         self.failure = message
         self.commands = []
         self.process.terminate()
-        QtCore.QTimer.singleShot(2000, self._kill_if_needed)
+        self.kill_timer.start(2000)
+
+    @QtCore.Slot()
+    def _timeout(self):
+        self.cancel("Command timed out.")
 
     def _kill_if_needed(self):
         if self.failure and self.process.state() != QtCore.QProcess.NotRunning:
@@ -164,6 +174,9 @@ class McpServer(QtCore.QObject):
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(500)
         self.timer.timeout.connect(self._probe)
+        self.kill_timer = QtCore.QTimer(self)
+        self.kill_timer.setSingleShot(True)
+        self.kill_timer.timeout.connect(self._kill_if_stopping)
         self.reply = None
         self.state = "Stopped"
         self.url = ""
@@ -183,6 +196,8 @@ class McpServer(QtCore.QObject):
         """Launch on loopback, refusing an occupied port before readiness checks."""
         if self.active:
             raise ValueError("This MCP server is already running.")
+        self.kill_timer.stop()
+        self._cancel_probe()
         with socket.socket() as check:
             if hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
                 check.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
@@ -225,18 +240,29 @@ class McpServer(QtCore.QObject):
         }
         reply = self.network.post(request, json.dumps(body).encode())
         self.reply = reply
-        reply.finished.connect(lambda: self._probe_finished(reply))
+        reply.finished.connect(self._probe_finished)
 
-    def _probe_finished(self, reply):
-        if self.reply is reply:
-            self.reply = None
+    @QtCore.Slot()
+    def _probe_finished(self):
+        reply = self.sender()
+        if reply is not self.reply:
+            reply.deleteLater()
+            return
+        self.reply = None
         payload = (
             bytes(reply.readAll()).decode("utf-8", errors="replace")
             if reply.isOpen()
             else ""
         )
         status = reply.attribute(QtNetwork.QNetworkRequest.HttpStatusCodeAttribute)
-        session = bytes(reply.rawHeader("mcp-session-id"))
+        session = next(
+            (
+                bytes(value)
+                for name, value in reply.rawHeaderPairs()
+                if bytes(name).lower() == b"mcp-session-id"
+            ),
+            b"",
+        )
         reply.deleteLater()
         if not self.timer.isActive() or status != 200:
             return
@@ -276,9 +302,9 @@ class McpServer(QtCore.QObject):
 
     def _finished(self, code, status):
         self.timer.stop()
+        self.kill_timer.stop()
         self._read()
-        if self.reply is not None:
-            self.reply.abort()
+        self._cancel_probe()
         self._set_state(
             self.process.ownership_error
             or (
@@ -291,12 +317,18 @@ class McpServer(QtCore.QObject):
     def stop(self):
         """Stop this manager's process, escalating to kill after two seconds."""
         self.timer.stop()
-        if self.reply is not None:
-            self.reply.abort()
+        self._cancel_probe()
         if self.active:
             self._set_state("Stopping…")
             self.process.terminate()
-            QtCore.QTimer.singleShot(2000, self._kill_if_stopping)
+            self.kill_timer.start(2000)
+
+    def _cancel_probe(self):
+        reply = self.reply
+        self.reply = None
+        if reply is not None:
+            reply.abort()
+            reply.deleteLater()
 
     def _kill_if_stopping(self):
         if self.state == "Stopping…" and self.active:

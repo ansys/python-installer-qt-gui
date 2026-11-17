@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import gc
 import socket
 import sys
 
@@ -180,3 +181,17 @@ def test_shutdown_terminates_persistent_child_worker(qtbot):
         qtbot.waitUntil(released, timeout=3000)
     finally:
         server.shutdown()
+
+
+def test_stopped_servers_can_be_destroyed_with_pending_kill_timer(qtbot):
+    for _ in range(5):
+        server = McpServer()
+        server.process.start(sys.executable, ["-c", "import time; time.sleep(60)"])
+        qtbot.waitUntil(lambda: server.active)
+        server.shutdown()
+        server.deleteLater()
+        del server
+        gc.collect()
+        qtbot.wait(1)
+    # Run beyond the former singleShot callback's two-second deadline.
+    qtbot.wait(2100)
