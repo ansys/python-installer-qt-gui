@@ -116,7 +116,7 @@ Jupyter Lab, and console.
    :align: center
    :alt: Screenshot of Launch Options
 
-**Tip:** Using the ``Launch console`` option, you can launch the
+You can use the ``Launch console`` option to launch the
 virtual environment in the command prompt and subsequently navigate
 to the development folder and launch the VS Code IDEs using command
 line option “``code .``” And set the interpreter to the virtual
