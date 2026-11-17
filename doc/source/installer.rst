@@ -248,7 +248,7 @@ Installing Python
 
 Now, instructions on how to install Python from the ``Ansys Python Manager`` are provided.
 
-In order to do so, just follow the upcoming steps:
+To do so, follow these steps:
 
 #. Search for the ``Ansys Python Manager`` and run it.
 

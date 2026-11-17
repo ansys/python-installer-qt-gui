@@ -110,13 +110,13 @@ environment with the available IDEs and development environments. For
 example, you can launch the Spyder IDE by selecting the virtual
 environment from the available list and clicking on the
 ``Launch Spyder`` option. Likewise, you can launch the Jupyter Notebook,
-Jupyter Lab and console.
+Jupyter Lab, and console.
 
 .. image:: _static/launch_options.PNG
    :align: center
    :alt: Screenshot of Launch Options
 
-**Tip:** By using ``Launch console`` option, you can launch the
+**Tip:** Using the ``Launch console`` option, you can launch the
 virtual environment in the command prompt and subsequently navigate
 to the development folder and launch the VS Code IDEs using command
 line option “``code .``” And set the interpreter to the virtual

@@ -1,5 +1,5 @@
-PyAnsys MCP management
-======================
+Manage PyAnsys MCPs
+==================
 
 The **PyAnsys MCPs** tab installs the public Ansys Model Context Protocol
 (MCP) servers and configures coding agents to use them. Each product has a
@@ -118,8 +118,8 @@ The manager binds to ``127.0.0.1`` and waits for an MCP initialize response
 before reporting readiness. Its servers stop when the manager exits.
 
 HTTP transport ports are distinct from Ansys solver connection ports.
-PyAEDT, PyMechanical and PyMAPDL expose solver connection fields. PyAEDT also
-offers graphical mode, context tools and dynamic tool discovery. Additional
+PyAEDT, PyMechanical, and PyMAPDL expose solver connection fields. PyAEDT also
+offers graphical mode, context tools, and dynamic tool discovery. Additional
 documented product options can be entered as a JSON string array, for example:
 
 .. code-block:: json
@@ -130,14 +130,14 @@ Environment overrides are a JSON object of string names and values. They are
 passed to manager-owned HTTP processes and included in stdio client profiles.
 Settings, profiles and backups store these values as plain text.
 
-Under **Coding agents**, select VS Code, Copilot CLI, Claude Desktop, Cursor,
-Codex or OpenCode. Review the destination file path. For VS Code, choose
+Under **Coding agents**, select VS Code, the Copilot command-line tool, Claude Desktop,
+Cursor, Codex, or OpenCode. Review the destination path. For VS Code, choose
 ``.vscode/mcp.json`` inside the intended workspace. Claude Desktop's local
 configuration supports stdio here; PyLumerical offers stdio only.
 
 Click **Preview profile**, review the complete merged document, then click
 **Install previewed profile**. The manager preserves unrelated entries,
-backs up existing files and replaces the destination atomically. It refuses
+backs up existing files, and replaces the destination atomically. It refuses
 to overwrite a file changed after preview. Codex TOML comments are preserved.
 JSON files must be strict JSON: files containing comments or duplicate keys
 are rejected without modification. Merge the preview manually when a client
@@ -161,13 +161,13 @@ and terminal launchers remain in ``windows_functions`` and ``linux_functions``.
 PyInstaller/NSIS/Linux packaging remain independent of MCP package installation.
 
 The MCP integration uses a separate native PySide6 tab. The
-`PyAEDT desktop application <https://github.com/ansys/pyaedt-mcp/tree/main/desktop_app>`_
+`PyAEDT desktop app <https://github.com/ansys/pyaedt-mcp/tree/main/desktop_app>`_
 informed its installation, server controls, advanced settings, logs, and
 profile workflows. Its Flet UI, Windows embedded runtime, tray integration,
 and product-specific executable detection are not dependencies of this Qt app.
 
-``mcp_catalog`` defines package and CLI differences. ``mcp_backend`` handles
-installation plans, metadata, settings and wheelhouses. ``mcp_process`` owns
+``mcp_catalog`` defines package and command-line differences. ``mcp_backend`` handles
+installation plans, metadata, settings, and wheelhouses. ``mcp_process`` owns
 asynchronous subprocesses and HTTP readiness. ``mcp_owned_process`` contains
 their descendants in Windows jobs or Unix process sessions, so persistent
 Python workers stop with the server. ``mcp_profiles`` merges client
@@ -191,7 +191,7 @@ actual installation requirements.
 
 The automated suite exercises installation using a small offline wheel,
 profile preservation, product-specific arguments, settings, real subprocesses,
-cancellation and protocol readiness. CI runs on Windows and Ubuntu 22.04/24.04,
+cancellation, and protocol readiness. CI runs on Windows and Ubuntu 22.04/24.04,
 with container tests on CentOS Stream 9 and Fedora 40. Reproduce the latter with
 ``scripts/mcp-validation.Dockerfile``.
 
