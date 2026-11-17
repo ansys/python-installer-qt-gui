@@ -1,5 +1,5 @@
 Manage PyAnsys MCPs
-==================
+===================
 
 The **PyAnsys MCPs** tab installs the public Ansys Model Context Protocol
 (MCP) servers and configures coding agents to use them. Each product has a
