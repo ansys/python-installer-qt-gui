@@ -60,6 +60,7 @@ from ansys.tools.installer.linux_functions import (
     query_gh_latest_release_linux,
     update_app,
 )
+from ansys.tools.installer.mcp_tab import McpTab
 from ansys.tools.installer.misc import ImageWidget, PyAnsysDocsBox, enable_logging
 from ansys.tools.installer.progress_bar import ProgressBar
 from ansys.tools.installer.uninstall import Uninstall
@@ -80,7 +81,7 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         """Instantiate Ansys Python Manager main class."""
         super().__init__()
         self.setWindowTitle("Ansys Python Manager")
-        self.setGeometry(50, 50, 500, 780)  # width should auto-update
+        self.setGeometry(50, 50, 800, 780)
         self._exceptions = []
 
         self._pbar = None
@@ -179,6 +180,8 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
         self.venv_table_tab = CreateVenvTab(self)
         self.tab_widget.addTab(self.venv_table_tab, "Create virtual environments")
         self.tab_widget.addTab(self.installed_table_tab, "Manage Python environments")
+        self.mcp_tab = McpTab(self)
+        self.tab_widget.addTab(self.mcp_tab, "PyAnsys MCPs")
 
         # Create the layout for the container
         container_layout = QtWidgets.QVBoxLayout()
@@ -288,6 +291,11 @@ class AnsysPythonInstaller(QtWidgets.QMainWindow):
 
         if show:
             self.show()
+
+    def closeEvent(self, event):
+        """Reap MCP subprocesses when the manager window is closed."""
+        self.mcp_tab.shutdown()
+        super().closeEvent(event)
 
     @protected
     def _exe_update(self, filename):

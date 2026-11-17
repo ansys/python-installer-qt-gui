@@ -582,6 +582,17 @@ class InstalledTab(QtWidgets.QWidget):
             "venv_table"
         )
 
+        if (
+            action == delete_action
+            and self._parent is not None
+            and hasattr(self._parent, "mcp_tab")
+            and self._parent.mcp_tab.environment_in_use(parent_path)
+        ):
+            self._parent.show_error(
+                "Stop the MCP server and wait for installation to finish before deleting its environment."
+            )
+            return
+
         if is_vanilla_python and action == delete_action:
             try:
                 # Delete the python virtual environment

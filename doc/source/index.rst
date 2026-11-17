@@ -13,3 +13,4 @@
    installer
    contributing
    user_guide
+   mcp

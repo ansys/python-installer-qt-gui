@@ -35,6 +35,7 @@ from ansys.tools.installer.linux_functions import (
     find_miniforge_linux,
     is_linux_os,
 )
+from ansys.tools.installer.mcp_backend import application_directory
 
 # only used on windows
 try:
@@ -249,7 +250,11 @@ def get_all_python_venv():
     paths = {}
     script_path = "bin" if is_linux_os() else "Scripts"
     configure = ConfigureJson()
-    for venv_dir in configure.venv_search_path:
+    search_paths = [
+        *configure.venv_search_path,
+        str(application_directory() / "environments"),
+    ]
+    for venv_dir in dict.fromkeys(search_paths):
         try:
             for venv_dir_name in os.listdir(venv_dir):
                 if os.path.isfile(

@@ -30,18 +30,20 @@ jobs:
 
   tests:
     name: "Tests"
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [windows-latest, ubuntu-22.04, ubuntu-24.04]
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
       fail-fast: false
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DISPLAY: ':99'
+      QT_QPA_PLATFORM: offscreen
     steps:
       - name: Install Linux os dependencies
         if: runner.os == 'Linux'
-        run: sudo apt install libegl1
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libgl1 libopengl0 libxkbcommon0
 
       - name: Setup headless display
         uses: pyvista/setup-headless-display-action@v5
@@ -60,6 +62,20 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
+
+  mcp-linux-distros:
+    name: "MCP Qt integration - ${{ matrix.distro }}"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: ["quay.io/centos/centos:stream9", "fedora:40"]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the supported distro test environment
+        run: docker build --build-arg DISTRO=${{ matrix.distro }} -f scripts/mcp-validation.Dockerfile -t apm-mcp-test .
+      - name: Exercise Qt, offline installation, profiles and server processes
+        run: docker run --rm apm-mcp-test
 
   doc-deploy:
     name: "Deploy development documentation"
@@ -251,6 +267,9 @@ jobs:
       - name: Update and Install development tools - Fedora
         if: contains(matrix.os, 'fedora')
         run: |
+          # Fedora 40 is retained as a packaging target and uses archived repositories.
+          sed -i 's|^metalink=|#metalink=|; s|^#baseurl=http://download.example/pub/fedora/linux/|baseurl=https://archives.fedoraproject.org/pub/archive/fedora/linux/|' \
+            /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
           yum update -y
           yum group install development-tools -y
 
