@@ -35,10 +35,9 @@ from ansys.tools.installer.mcp_backend import (
     atomic_write,
     available_versions,
     console_executable,
-    installation_commands,
     installed_version,
     package_requirement,
-    prepare_wheelhouse,
+    prepare_installation,
     python_executable,
     read_settings,
     server_arguments,
@@ -220,6 +219,16 @@ class McpTab(QtWidgets.QWidget):
                 "Use Python selected in Create environments", self._use_selected_python
             )
         )
+        form.addRow(
+            self._button(
+                "Find supported Python",
+                lambda: self._install(False, validate_only=True),
+            )
+        )
+        self.python_hint = QtWidgets.QLabel()
+        self.python_hint.setWordWrap(True)
+        self.python_hint.setTextFormat(QtCore.Qt.PlainText)
+        form.addRow(self.python_hint)
         self.custom_environment = QtWidgets.QCheckBox(
             "Use an existing virtual or conda environment"
         )
@@ -245,7 +254,10 @@ class McpTab(QtWidgets.QWidget):
         form.addRow("Install from", self.source)
         self.version = QtWidgets.QComboBox()
         self.version.setEditable(True)
-        self.version.addItem("Latest compatible", "")
+        self.version.addItem("Latest", "")
+        self.version.setToolTip(
+            "Latest checks PyPI on every installation and installs that exact release."
+        )
         version_row = QtWidgets.QWidget()
         row = QtWidgets.QHBoxLayout(version_row)
         row.setContentsMargins(0, 0, 0, 0)
@@ -427,7 +439,11 @@ class McpTab(QtWidgets.QWidget):
         values = self.settings.get(product.key, {})
         self.description.setText(
             f"{escape(product.description)}<br>64-bit Python {escape(product.python)}. "
-            f'<a href="{product.repository}">Source and product setup guide</a>'
+            f'<a href="{product.documentation}">Official setup guide</a> · '
+            f'<a href="{product.repository}">Source</a>'
+        )
+        self.python_hint.setText(
+            "The selected release's Python requirements are checked before installation."
         )
         self.base_python.setText(
             str(values.get("base_python", self.base_python.text()))
@@ -436,7 +452,7 @@ class McpTab(QtWidgets.QWidget):
         self.environment_path.setText(str(values.get("environment", "")))
         self.source.setCurrentIndex(1 if values.get("source") == "branch" else 0)
         self.version.clear()
-        self.version.addItem("Latest compatible", "")
+        self.version.addItem("Latest", "")
         version = str(values.get("version", ""))
         if version:
             self.version.addItem(version, version)
@@ -471,7 +487,8 @@ class McpTab(QtWidgets.QWidget):
     def _version(self):
         return (
             ""
-            if self.version.currentText() == "Latest compatible"
+            if self.version.currentText().strip().lower()
+            in ("latest", "latest compatible", "")
             else self.version.currentText().strip()
         )
 
@@ -646,48 +663,59 @@ class McpTab(QtWidgets.QWidget):
             return
         selected = self._version()
         self.version.clear()
-        self.version.addItem("Latest compatible", "")
+        self.version.addItem("Latest", "")
         self.version.addItems(versions)
         if selected:
             self.version.setCurrentText(selected)
         self.status.setText(
-            "Release list updated. Pip will enforce package and Python compatibility."
+            "Release list updated. Latest always checks PyPI again before installation."
         )
 
-    def _install(self, upgrade):
+    def _install(self, upgrade, validate_only=False):
         if self.queue.active or self._preparing:
             raise ValueError("Wait for the current installation to finish.")
         if self.environment_in_use(self.environment):
             raise ValueError("Stop the server before modifying its environment.")
         source = "release" if self.offline.isChecked() else self.source.currentData()
-        requirement = package_requirement(
-            self.product, source, self._version(), self.branch.text().strip()
-        )
+        version = self._version()
+        branch = self.branch.text().strip()
+        package_requirement(self.product, source, version, branch)
         self._save(announce=False)
         self._install_product = self.product
         self._install_root = self.environment
-        self._install_base = self.base_python.text().strip()
         self._install_custom = self.custom_environment.isChecked()
-        self._install_requirement = requirement
-        self._install_upgrade = upgrade
+        self._validate_only = validate_only
+        options = dict(
+            version=version,
+            source=source,
+            branch=branch,
+            custom=self._install_custom,
+            upgrade=upgrade,
+        )
         if self.offline.isChecked():
             source_path = self.wheelhouse_path.text().strip()
             if not source_path:
                 raise ValueError("Choose an offline wheelhouse directory or ZIP.")
             self._wheelhouse = tempfile.TemporaryDirectory(prefix="pyansys-mcp-wheels-")
-            destination = Path(self._wheelhouse.name)
-            self._preparing = True
-            self._prepare_cancelled = False
-            self._refresh()
-            self._background(
-                lambda: prepare_wheelhouse(source_path, destination),
-                self._wheelhouse_ready,
+            options.update(
+                wheelhouse=source_path, extract_to=Path(self._wheelhouse.name)
             )
-        else:
-            self._begin_install(None)
+        product, root, base = (
+            self.product,
+            self._install_root,
+            self.base_python.text().strip(),
+        )
+        self._preparing = True
+        self._prepare_cancelled = False
+        self.status.setText("Checking the selected release and supported Python…")
+        self._refresh()
+        self._background(
+            lambda: prepare_installation(product, root, base, **options),
+            self._installation_prepared,
+        )
 
     @QtCore.Slot(object, object)
-    def _wheelhouse_ready(self, path, error):
+    def _installation_prepared(self, plan, error):
         self._preparing = False
         if self._closed or self._prepare_cancelled:
             self._cleanup_wheelhouse()
@@ -700,25 +728,30 @@ class McpTab(QtWidgets.QWidget):
             self._cleanup_wheelhouse()
             self._refresh()
             return
-        self._try(lambda: self._begin_install(path))
+        self._try(lambda: self._begin_install(plan))
 
-    def _begin_install(self, offline):
+    def _begin_install(self, plan):
         try:
-            commands = installation_commands(
-                self._install_product,
-                self._install_root,
-                self._install_base,
-                self._install_requirement,
-                custom=self._install_custom,
-                offline=offline,
-                upgrade=self._install_upgrade,
+            self._install_release = plan.release
+            if plan.creating_environment and not self._install_custom:
+                self.base_python.setText(plan.interpreter.executable)
+            details = (
+                f"Selected {self.product.name} {plan.release.version}; release requires Python "
+                f"{plan.release.requires_python}; using Python {plan.interpreter.version} (64-bit)."
             )
+            self.python_hint.setText(details)
+            self._append_log(self.product.key, details + "\n")
+            self._save(announce=False)
+            if self._validate_only:
+                self.status.setText(details)
+                self._cleanup_wheelhouse()
+                return
             # Ensure the parent exists; venv itself creates the environment only
             # after the interpreter preflight succeeds.
             self._install_root.parent.mkdir(parents=True, exist_ok=True)
             self.status.setText("Installing MCP…")
             self.log_group.setChecked(True)
-            self.queue.start(commands)
+            self.queue.start(plan.commands)
         except Exception:
             self._cleanup_wheelhouse()
             raise
@@ -736,6 +769,13 @@ class McpTab(QtWidgets.QWidget):
         ):
             success = False
             message = "Package command was not found after installation. See the log."
+        if success and not self._install_release.version.startswith("Git:"):
+            actual = installed_version(self._install_root, self._install_product)
+            if actual != self._install_release.version:
+                success = False
+                message = f"Expected {self._install_release.version}, but found {actual}. Installation was not verified."
+            else:
+                message = f"Installation completed: {self._install_product.name} {actual}; dependencies checked."
         self.status.setText(message)
         if not success:
             self._error(message)
@@ -752,7 +792,7 @@ class McpTab(QtWidgets.QWidget):
     def _cancel_install(self):
         if self._preparing:
             self._prepare_cancelled = True
-            self.status.setText("Cancelling wheelhouse preparation…")
+            self.status.setText("Cancelling installation preflight…")
             # The background extractor owns this directory until its callback.
             self._refresh()
         self.queue.cancel()

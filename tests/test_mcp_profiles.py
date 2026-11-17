@@ -82,7 +82,10 @@ command = 'keep'
         "Codex", original, PRODUCTS[0], "new", [], transport="http", port=9000
     )
     data = tomlkit.parse(rendered)
-    assert data["mcp_servers"]["pyaedt-mcp"] == {"url": "http://127.0.0.1:9000/mcp"}
+    assert data["mcp_servers"]["pyaedt-mcp"] == {
+        "url": "http://127.0.0.1:9000/mcp",
+        "startup_timeout_sec": 60,
+    }
     assert data["mcp_servers"]["other"]["command"] == "keep"
     assert "# retained" in rendered
 

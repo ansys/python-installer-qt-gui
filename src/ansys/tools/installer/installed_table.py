@@ -634,6 +634,26 @@ class InstalledTab(QtWidgets.QWidget):
             if self._parent is not None and hasattr(self._parent, "show_error"):
                 self._parent.show_error(str(err))
 
+    def _mcp_operation_blocks_changes(self):
+        """Protect MCP environments from concurrent package changes in this tab."""
+        if self._parent is None or not hasattr(self._parent, "mcp_tab"):
+            return False
+        table = self.table if self.is_chk_box_active() else self.venv_table
+        selected = table.active_path
+        if not selected or selected == "None":
+            return False
+        root = (
+            os.path.dirname(selected)
+            if os.path.basename(selected) in ("Scripts", "bin")
+            else selected
+        )
+        if self._parent.mcp_tab.environment_in_use(root):
+            self._parent.show_error(
+                "Stop the MCP server and wait for installation to finish before changing packages in its environment."
+            )
+            return True
+        return False
+
     def launch_cmd(
         self,
         extra: str = "",
@@ -651,6 +671,12 @@ class InstalledTab(QtWidgets.QWidget):
         always_use_pip : bool, default: False
             Whether to always use pip for the command or not.
         """
+        if (
+            isinstance(extra, str)
+            and "pip install" in extra
+            and self._mcp_operation_blocks_changes()
+        ):
+            return
         path = os.environ["PATH"].split(";")
         altered_path = path.copy()
         for p in path:

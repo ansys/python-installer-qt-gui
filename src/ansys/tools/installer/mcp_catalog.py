@@ -48,6 +48,12 @@ class McpProduct:
         """Return the official source repository."""
         return f"https://github.com/ansys/{self.key}-mcp"
 
+    @property
+    def documentation(self):
+        """Return the official installation guide used to verify this contract."""
+        product = self.package.removeprefix("ansys-").removesuffix("-mcp")
+        return f"https://{product}-mcp.docs.pyansys.com/version/stable/getting_started/installation.html"
+
 
 PRODUCTS = (
     McpProduct(
@@ -64,7 +70,7 @@ PRODUCTS = (
         "pymechanical",
         "PyMechanical MCP",
         "ansys-mechanical-mcp",
-        ">=3.12,<4",
+        ">=3.12,<3.15",
         "Mechanical: remote sessions, models, analyses, scripts and results.",
         connect_flag="--connect-on-startup",
         product_port=10000,
@@ -90,7 +96,7 @@ PRODUCTS = (
         "pylumerical",
         "PyLumerical MCP",
         "ansys-lumerical-mcp",
-        ">=3.12,<4",
+        ">=3.11,<4",
         "Lumerical: FDTD, MODE, DEVICE and INTERCONNECT sessions. Stdio only.",
         http_flags=None,
     ),

@@ -23,13 +23,14 @@
 import json
 import subprocess
 import sys
-from types import SimpleNamespace
+from types import MethodType, SimpleNamespace
 import zipfile
 
 import pytest
 
 from ansys.tools.installer import mcp_backend as backend
 from ansys.tools.installer.mcp_catalog import PRODUCT_BY_KEY, PRODUCTS
+from ansys.tools.installer.mcp_releases import PythonInfo
 
 
 @pytest.mark.parametrize("product", PRODUCTS, ids=lambda product: product.key)
@@ -84,7 +85,12 @@ def test_requirement_rejects_injection_and_preserves_branch():
         backend.package_requirement(product, version="1 --extra-index-url http://evil")
 
 
-def test_install_plan_targets_environment_and_checks_dependencies(tmp_path):
+def test_install_plan_targets_environment_and_checks_dependencies(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(
+        backend, "inspect_python", lambda path: PythonInfo(str(path), "3.13.1", 64)
+    )
     root = tmp_path / "env with spaces"
     commands = backend.installation_commands(
         PRODUCTS[1], root, sys.executable, "ansys-mechanical-mcp", upgrade=True
@@ -95,7 +101,7 @@ def test_install_plan_targets_environment_and_checks_dependencies(tmp_path):
     assert "--upgrade" in commands[-2]
     assert commands[-1][-2:] == ["pip", "check"]
     probe = subprocess.run(commands[0], capture_output=True)
-    assert (probe.returncode == 0) == (sys.version_info >= (3, 12))
+    assert (probe.returncode == 0) == (sys.version_info[:3] == (3, 13, 1))
 
 
 def test_install_rejects_non_environment_even_when_python_present(tmp_path):
@@ -112,7 +118,10 @@ def test_install_rejects_non_environment_even_when_python_present(tmp_path):
         )
 
 
-def test_offline_plan_never_uses_index_or_git(tmp_path):
+def test_offline_plan_never_uses_index_or_git(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        backend, "inspect_python", lambda path: PythonInfo(str(path), "3.13.1", 64)
+    )
     commands = backend.installation_commands(
         PRODUCTS[1],
         tmp_path / "env",
@@ -254,3 +263,32 @@ def test_remove_managed_environments_includes_mcp_only_when_requested(
     uninstall.Uninstall._remove_all_venvs(SimpleNamespace())
     assert not environment.exists()
     assert external.exists()
+
+
+def test_existing_package_manager_cannot_mutate_busy_mcp_environment(
+    tmp_path, monkeypatch
+):
+    from ansys.tools.installer import installed_table
+
+    root = tmp_path / "busy MCP environment"
+    errors = []
+    parent = SimpleNamespace(
+        mcp_tab=SimpleNamespace(environment_in_use=lambda path: str(path) == str(root)),
+        show_error=errors.append,
+    )
+    widget = SimpleNamespace(
+        _parent=parent,
+        is_chk_box_active=lambda: False,
+        venv_table=SimpleNamespace(active_path=str(root / "Scripts")),
+    )
+    widget._mcp_operation_blocks_changes = MethodType(
+        installed_table.InstalledTab._mcp_operation_blocks_changes, widget
+    )
+    monkeypatch.setattr(
+        installed_table.subprocess,
+        "call",
+        lambda *args, **kwargs: pytest.fail("Must not start a competing installer"),
+    )
+    installed_table.InstalledTab.launch_cmd(widget, "uv pip install numpy")
+    assert len(errors) == 1
+    assert "Stop the MCP server" in errors[0]

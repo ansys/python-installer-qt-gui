@@ -22,6 +22,7 @@
 
 """Installation plans and persistent settings independent of the Qt UI."""
 
+from dataclasses import dataclass
 from email.parser import Parser
 import json
 import os
@@ -32,6 +33,17 @@ import zipfile
 
 from packaging.version import Version
 import requests
+
+from ansys.tools.installer.mcp_releases import (
+    PythonInfo,
+    ReleaseInfo,
+    compatible_python,
+    inspect_python,
+    published_release,
+    source_release,
+    validate_python,
+    wheelhouse_release,
+)
 
 
 def application_directory():
@@ -154,6 +166,8 @@ def installation_commands(
     custom=False,
     offline=None,
     upgrade=False,
+    release=None,
+    interpreter=None,
 ):
     """Plan validated installation into a dedicated environment using its Python."""
     root = Path(directory).expanduser().absolute()
@@ -172,14 +186,19 @@ def installation_commands(
         raise ValueError(
             "Select a compatible Python executable from the Create environments tab or Browse."
         )
-    # This runs in the selected interpreter, including when the manager is frozen.
-    # Use stdlib only: the new environment need not have packaging installed yet.
-    minimum = (3, 13) if product.key == "pyaedt" else (3, 12)
-    maximum = (3, 15) if "<3.15" in product.python else (4, 0)
+    if offline and "git+" in requirement:
+        raise ValueError("Offline installation supports releases, not Git branches.")
+    release = release or ReleaseInfo("selected release", product.python, requirement)
+    interpreter = validate_python(
+        interpreter or inspect_python(probe_python), product, release
+    )
+    expected = Version(interpreter.version).release[:3]
+    # Detect interpreter changes after preflight without requiring packaging in
+    # the target environment. Full PEP 440 validation runs in the manager above.
     probe = (
         "import sys,struct; "
-        f"assert {minimum!r} <= sys.version_info[:2] < {maximum!r}, "
-        f"'This MCP requires Python {product.python}'; "
+        f"assert sys.version_info[:3] == {expected!r}, "
+        "'The Python interpreter changed after validation; retry installation'; "
         "assert struct.calcsize('P') == 8, 'A 64-bit Python is required'"
     )
     commands = [[str(probe_python), "-I", "-c", probe]]
@@ -196,18 +215,100 @@ def installation_commands(
         ]
     )
     command = [str(python), "-I", "-m", "pip", "--disable-pip-version-check", "install"]
-    if upgrade:
+    if upgrade or requirement == product.package:
         command.append("--upgrade")
     if offline:
-        if "git+" in requirement:
-            raise ValueError(
-                "Offline installation supports releases, not Git branches."
-            )
         command.extend(["--no-index", "--find-links", str(offline)])
     command.append(requirement)
     commands.append(command)
     commands.append([str(python), "-I", "-m", "pip", "check"])
     return commands
+
+
+@dataclass(frozen=True)
+class InstallationPlan:
+    """Hold a resolved release and the commands validated for its interpreter."""
+
+    release: ReleaseInfo
+    interpreter: PythonInfo
+    commands: list[list[str]]
+    creating_environment: bool
+
+
+def _installed_pythons():
+    # Import lazily: discovery also uses this module's configuration path.
+    from ansys.tools.installer.find_python import find_all_python, find_miniforge
+
+    discovered = find_all_python()
+    discovered.update(find_miniforge())
+    entries = sorted(
+        discovered.items(),
+        key=lambda item: (str(item[1][0]).startswith("3.13"), str(item[1][0])),
+        reverse=True,
+    )
+    return [str(python_executable(path)) for path, _metadata in entries]
+
+
+def prepare_installation(
+    product,
+    directory,
+    base_python,
+    *,
+    version="",
+    source="release",
+    branch="main",
+    custom=False,
+    wheelhouse=None,
+    extract_to=None,
+    upgrade=False,
+):
+    """Resolve the requested release and supported Python before mutating an environment."""
+    requirement = package_requirement(product, source, version, branch)
+    offline = prepare_wheelhouse(wheelhouse, extract_to) if wheelhouse else None
+    if offline:
+        if source == "branch":
+            raise ValueError(
+                "Offline installation supports releases, not Git branches."
+            )
+        release = wheelhouse_release(product, offline, version)
+    elif source == "branch":
+        release = source_release(product, branch, requirement)
+    else:
+        release = published_release(product, version)
+    root = Path(directory).expanduser().absolute()
+    existing = python_executable(root)
+    creating = not existing.is_file()
+    if not creating:
+        try:
+            interpreter = validate_python(inspect_python(existing), product, release)
+        except ValueError as error:
+            raise ValueError(
+                f"{error}\nThis existing environment was preserved. Create a supported "
+                "environment in Create virtual environments and select it here."
+            ) from error
+    elif custom:
+        raise ValueError(
+            "Choose an existing virtual or conda environment, not a system Python."
+        )
+    else:
+        try:
+            interpreter = compatible_python(product, release, base_python)
+        except ValueError:
+            interpreter = compatible_python(
+                product, release, base_python, _installed_pythons()
+            )
+    commands = installation_commands(
+        product,
+        root,
+        interpreter.executable,
+        release.requirement,
+        custom=custom,
+        offline=offline,
+        upgrade=upgrade or (source == "release" and not version),
+        release=release,
+        interpreter=interpreter,
+    )
+    return InstallationPlan(release, interpreter, commands, creating)
 
 
 def available_versions(product):

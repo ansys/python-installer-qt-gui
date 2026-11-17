@@ -98,17 +98,17 @@ def test_corrupt_settings_are_not_silently_overwritten(qtbot, tmp_path):
         widget.shutdown()
 
 
-def _wheel(directory):
+def _wheel(directory, version="0.0.0", requires_python=">=3.12"):
     """Create a solver-free console package for an actual offline pip install."""
-    name = "ansys_mechanical_mcp-0.0.0"
+    name = f"ansys_mechanical_mcp-{version}"
     files = {
         "apm_mcp_fixture.py": "def main():\n    print('fixture MCP')\n",
-        f"{name}.dist-info/METADATA": "Metadata-Version: 2.1\nName: ansys-mechanical-mcp\nVersion: 0.0.0\n",
+        f"{name}.dist-info/METADATA": f"Metadata-Version: 2.1\nName: ansys-mechanical-mcp\nVersion: {version}\nRequires-Python: {requires_python}\n",
         f"{name}.dist-info/WHEEL": "Wheel-Version: 1.0\nGenerator: apm-test\nRoot-Is-Purelib: true\nTag: py3-none-any\n",
         f"{name}.dist-info/entry_points.txt": "[console_scripts]\nansys-mechanical-mcp = apm_mcp_fixture:main\n",
     }
     files[f"{name}.dist-info/RECORD"] = "".join(f"{path},,\n" for path in files)
-    directory.mkdir(parents=True)
+    directory.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(directory / f"{name}-py3-none-any.whl", "w") as archive:
         for path, content in files.items():
             archive.writestr(path, content)
@@ -223,3 +223,48 @@ def test_uninstall_can_exit_without_recreating_removed_settings(tab):
     assert not tab.settings_path.exists()
     tab.shutdown(save_settings=False)
     assert not tab.settings_path.exists()
+
+
+def test_latest_is_default_for_every_product(tab):
+    for index in range(tab.product_select.count()):
+        tab.product_select.setCurrentIndex(index)
+        assert tab.version.currentText() == "Latest"
+        assert tab._version() == ""
+
+
+@pytest.mark.skipif(sys.version_info < (3, 12), reason="MCP interpreter baseline")
+def test_latest_offline_install_upgrades_existing_package(tab, qtbot, tmp_path):
+    _select(tab, "pymechanical")
+    wheels = tmp_path / "wheels"
+    _wheel(wheels, "0.0.0")
+    tab.offline.setChecked(True)
+    tab.wheelhouse_path.setText(str(wheels))
+    tab.base_python.setText(sys.executable)
+    tab._install(False)
+    qtbot.waitUntil(lambda: not tab._preparing and not tab.queue.active, timeout=90000)
+    assert (
+        installed_version(tab.environment, tab.product) == "0.0.0"
+    ), tab.log.toPlainText()
+    _wheel(wheels, "0.0.1")
+    tab._install(False)
+    qtbot.waitUntil(lambda: not tab._preparing and not tab.queue.active, timeout=90000)
+    assert (
+        installed_version(tab.environment, tab.product) == "0.0.1"
+    ), tab.log.toPlainText()
+    assert "--upgrade" in tab.log.toPlainText()
+
+
+@pytest.mark.skipif(sys.version_info < (3, 12), reason="MCP interpreter baseline")
+def test_find_supported_python_checks_release_without_creating_environment(
+    tab, qtbot, tmp_path
+):
+    _select(tab, "pymechanical")
+    wheels = tmp_path / "wheels"
+    _wheel(wheels)
+    tab.offline.setChecked(True)
+    tab.wheelhouse_path.setText(str(wheels))
+    tab._install(False, validate_only=True)
+    qtbot.waitUntil(lambda: not tab._preparing, timeout=10000)
+    assert "using Python" in tab.python_hint.text(), tab.status.text()
+    assert not tab.environment.exists()
+    assert not tab.queue.active

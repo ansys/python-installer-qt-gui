@@ -176,7 +176,7 @@ def _find_installed_python_linux():
     LOG.debug("Identifying all installed versions of python on Linux")
 
     pythons = {}
-    version_names = ["python", "python3"] + [f"python3.{i}" for i in range(7, 13)]
+    version_names = ["python", "python3"] + [f"python3.{i}" for i in range(7, 15)]
     previous_found_version = ""
 
     for version_name in version_names:

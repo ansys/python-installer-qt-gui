@@ -92,6 +92,7 @@ def render_profile(
             if transport == "http"
             else {"command": command, "args": list(arguments)}
         )
+        servers[key]["startup_timeout_sec"] = 60
         return tomlkit.dumps(data)
     data = (
         json.loads(original, object_pairs_hook=_unique_object)

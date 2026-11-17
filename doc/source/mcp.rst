@@ -24,7 +24,7 @@ Supported servers
      - Stdio, HTTP
    * - `PyMechanical MCP <https://github.com/ansys/pymechanical-mcp>`_
      - ``ansys-mechanical-mcp``
-     - 3.12+
+     - 3.12–3.14
      - Stdio, HTTP
    * - `PyFluent MCP <https://github.com/ansys/pyfluent-mcp>`_
      - ``ansys-fluent-mcp``
@@ -36,17 +36,20 @@ Supported servers
      - Stdio, HTTP
    * - `PyLumerical MCP <https://github.com/ansys/pylumerical-mcp>`_
      - ``ansys-lumerical-mcp``
-     - 3.12+
+     - 3.11+
      - Stdio
    * - `PyCFX MCP <https://github.com/ansys/pycfx-mcp>`_
      - ``ansys-cfx-mcp``
      - 3.12–3.14
      - Stdio, HTTP
 
-These baselines follow the reviewed source contracts. Pip also checks the
-requirements of the selected release and its dependencies. In particular,
-the published PyLumerical 0.1.0 package allows Python 3.11, while current
-development requires Python 3.12. This manager uses the 3.12 baseline.
+These ranges follow the official installation guides and package declarations.
+Before installation, the manager checks the exact release's ``Requires-Python``
+metadata against the selected interpreter and the documented product range.
+Git installations read ``requires-python`` from the selected branch or tag;
+offline installations read the selected wheel's metadata. For example,
+PyLumerical 0.1.0 supports Python 3.11, while current development requires
+Python 3.12. Pip also validates the requirements of all dependencies.
 ``ansys-common-mcp`` is a framework dependency installed by the product
 packages, rather than a separate solver server in the catalog.
 
@@ -67,7 +70,7 @@ Install a server
 #. Use the product's managed environment, or choose an existing virtual or
    conda environment. Existing system Python installations are rejected as
    installation targets. Stop the manager's server before changing its environment.
-#. Select a PyPI release (leave **Latest compatible** to let pip resolve it),
+#. Select a PyPI release (leave **Latest** to check the newest published release),
    or an official Git branch, tag or commit. Git installations require Git.
 #. Click **Install**. **Update / repair** adds pip's upgrade option. The log
    shows progress and errors, and the final step checks dependency consistency.
@@ -77,6 +80,18 @@ Managed environments and settings are under
 **Manage Python environments**. Cancelling an installation can leave a
 partial environment; retry **Update / repair** to finish it. A cancelled or
 failed installation is never reported as successful.
+
+**Latest** checks PyPI every time and installs that exact version with upgrade
+enabled, including when an older version is already installed. It never
+substitutes an older MCP release to accommodate an unsupported Python. If the
+version check cannot reach PyPI, installation stops without changing the
+environment. An explicit version remains available for reproducible setups.
+
+For a new managed environment, the manager keeps a compatible chosen Python or
+selects a supported installed interpreter. **Find supported Python** checks
+compatibility without creating an environment. Existing environments are
+preserved when their interpreter is incompatible; create a supported
+environment using **Create virtual environments** and select it in this tab.
 
 On Linux, uninstalling the manager offers separate options to remove settings
 and managed environments. Removing settings preserves MCP environments;
@@ -90,6 +105,8 @@ match the target operating system, architecture and Python version. The
 manager passes ``--no-index`` to pip and does not fetch version metadata
 automatically. Git sources are unavailable in offline mode. ZIP extraction
 rejects traversal paths and symbolic links.
+In offline mode, **Latest** means the newest stable MCP wheel in the selected
+wheelhouse; the manager does not contact PyPI.
 
 Connect a coding agent
 ----------------------
@@ -125,6 +142,9 @@ to overwrite a file changed after preview. Codex TOML comments are preserved.
 JSON files must be strict JSON: files containing comments or duplicate keys
 are rejected without modification. Merge the preview manually when a client
 uses JSON with comments. Reload or restart the coding agent after saving.
+Codex profiles include a 60-second startup timeout for MCP imports on a cold
+environment. The command and argument fields follow the
+`official Codex MCP configuration <https://developers.openai.com/codex/mcp/>`_.
 
 The generated profiles reference the selected environment. Regenerate them
 after changing the environment or connection settings. An HTTP profile uses
@@ -154,6 +174,20 @@ Python workers stop with the server. ``mcp_profiles`` merges client
 configurations, and ``mcp_tab`` connects these services to Qt. Adding a product
 requires verifying its published package, Python requirements, launch command,
 transports and client interoperability before extending the catalog and tests.
+``mcp_releases`` resolves exact releases and validates interpreter versions
+against their metadata before installation.
+
+The command contracts were cross-checked against the official
+`PyAEDT <https://aedt-mcp.docs.pyansys.com/version/stable/getting_started/installation.html>`_,
+`PyMechanical <https://mechanical-mcp.docs.pyansys.com/version/stable/getting_started/installation.html>`_,
+`PyFluent <https://fluent-mcp.docs.pyansys.com/version/stable/getting_started/ide_configuration.html>`_,
+`PyMAPDL <https://mapdl-mcp.docs.pyansys.com/version/stable/getting_started/ide_configuration.html>`_,
+`PyLumerical <https://lumerical-mcp.docs.pyansys.com/version/stable/getting_started/installation.html>`_,
+and `PyCFX <https://cfx-mcp.docs.pyansys.com/version/stable/getting_started/ide_configuration.html>`_
+guides. Stable documentation can lag a release: for example, Fluent 0.9 installs
+its solver backend as a dependency, although the older stable installation
+guide still lists a separate extra. Published package metadata determines the
+actual installation requirements.
 
 The automated suite exercises installation using a small offline wheel,
 profile preservation, product-specific arguments, settings, real subprocesses,
