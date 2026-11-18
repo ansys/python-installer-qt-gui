@@ -1372,7 +1372,6 @@ class McpTab(QtWidgets.QWidget):
         self.servers[self.product.key].start(
             executable, arguments, self.http_port.value(), environment
         )
-        self.log_group.setChecked(True)
         self._refresh()
 
     def environment_in_use(self, directory):
