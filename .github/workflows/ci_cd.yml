@@ -29,7 +29,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   tests:
-    name: "Tests"
+    # Preserve the Windows check names required by existing branch protection.
+    name: ${{ matrix.os == 'windows-latest' && format('Tests ({0})', matrix.python-version) || format('Tests ({0}, {1})', matrix.os, matrix.python-version) }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
