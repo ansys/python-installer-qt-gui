@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from pathlib import Path
 
 from ansys.tools.installer import mcp_backend, mcp_compatibility
@@ -75,7 +76,10 @@ def test_interpreter_cache_does_not_cache_latest_release(tmp_path, monkeypatch):
     )
     assert len(calls) == 2 and len(probes) == 1
     assert first.release.version != second.release.version
+    previous = path.stat()
     path.write_text("changed executable")
+    # A replacement can retain its timestamp, including on coarse filesystems.
+    os.utime(path, ns=(previous.st_atime_ns, previous.st_mtime_ns))
     mcp_compatibility.check_compatibility(product, [str(path)], probes=second.probes)
     assert len(probes) == 2
 

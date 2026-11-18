@@ -72,7 +72,8 @@ def check_compatibility(
             continue
         try:
             path = Path(executable)
-            stamp = path.stat().st_mtime_ns
+            stat = path.stat()
+            stamp = (stat.st_mtime_ns, stat.st_size, stat.st_ino)
             previous = cache.get(executable)
             info = (
                 previous[1]

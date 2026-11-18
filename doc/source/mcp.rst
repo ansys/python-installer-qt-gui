@@ -72,7 +72,7 @@ Install a server
    **Manage Python environments**. System Python installations are rejected as
    installation targets. Stop the manager's server before changing its environment.
 #. Select a PyPI release (leave **Latest** to check the newest published release),
-   or an official Git branch, tag or commit. Git installations require Git.
+   or an official Git branch, tag, or commit. Git installations require Git.
 #. Click **Install MCP**. For an installed MCP, the action becomes **Update / repair**.
    Progress appears below the page; expand **Activity log** for details.
    The final installation step checks dependency consistency.
@@ -91,8 +91,8 @@ environment. An explicit version remains available for reproducible setups.
 
 The Python dropdowns update for the selected product, source, and release.
 APM checks the actual interpreter version and architecture against the exact
-release requirements. Unsupported choices are disabled with an explanatory
-tooltip. A compatible Python is selected for a new dedicated environment;
+release requirements. Unsupported choices cannot be selected; their tooltips
+explain the requirements. A compatible Python is selected for a new dedicated environment;
 an existing environment is never silently replaced by another selection.
 Late responses from an earlier selection cannot change the current choices.
 Installation always checks the requirements again before making changes.
@@ -113,7 +113,7 @@ For an offline installation, select **Offline wheelhouse** under **Install from*
 and provide a directory of
 wheels or a wheelhouse ZIP. Include the chosen MCP package and all dependencies,
 including build dependencies if distributing source packages. Wheels must
-match the target operating system, architecture and Python version. The
+match the target operating system, architecture, and Python version. The
 manager passes ``--no-index`` to pip and does not fetch version metadata
 automatically. Git sources are unavailable in offline mode. ZIP extraction
 rejects traversal paths and symbolic links.
@@ -178,7 +178,7 @@ Architecture and validation
 
 The existing ``main`` module composes the Python installation, environment
 creation and package-management tabs. ``find_python`` discovers registry,
-Ansys, conda and configured virtual environments. Platform-specific installers
+Ansys, conda, and configured virtual environments. Platform-specific installers
 and terminal launchers remain in ``windows_functions`` and ``linux_functions``.
 ``configure_json`` owns the existing environment search settings; updates and
 PyInstaller/NSIS/Linux packaging remain independent of MCP package installation.

@@ -182,6 +182,7 @@ def test_offline_install_through_ui_and_profile_preview(tab, qtbot, tmp_path):
     tab._preview_profile()
     tab.extra.setPlainText('["--static-tools"]')
     assert not tab.write_profile_button.isEnabled()
+    assert "Review the changes" not in tab.status.text()
 
 
 def test_invalid_install_source_shows_error_without_starting(tab):
@@ -341,6 +342,32 @@ def test_coding_agent_connection_defaults_and_workspace_choice(
     assert tab._transport() == "http"
     tab.client.setCurrentText("Claude Desktop")
     assert tab.transport.count() == 1 and tab._transport() == "stdio"
+
+
+def test_existing_dedicated_environment_displays_its_actual_python(
+    tab, qtbot, monkeypatch
+):
+    from ansys.tools.installer import mcp_compatibility
+    from ansys.tools.installer.mcp_releases import PythonInfo
+
+    executable = mcp_backend.python_executable(tab.environment)
+    executable.parent.mkdir(parents=True)
+    executable.touch()
+    real_probe = mcp_compatibility.inspect_python
+    monkeypatch.setattr(
+        mcp_compatibility,
+        "inspect_python",
+        lambda path: (
+            PythonInfo(path, "3.13.9", 64)
+            if path == str(executable)
+            else real_probe(path)
+        ),
+    )
+    tab.show()
+    qtbot.waitUntil(lambda: tab._compatibility is not None, timeout=10000)
+    assert "3.13.9" in tab.managed_python_info.text()
+    assert tab.python_select.isHidden()
+    assert tab.python_caption.text() == "Python version"
 
 
 def test_actions_stay_visible_with_logs_and_previews(tab, qtbot):

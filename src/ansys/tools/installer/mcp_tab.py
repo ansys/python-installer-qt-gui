@@ -352,12 +352,15 @@ class McpTab(QtWidgets.QWidget):
         managed = QtWidgets.QVBoxLayout(self.managed_panel)
         managed.setContentsMargins(0, 0, 0, 0)
         managed.setSpacing(4)
-        managed.addWidget(self._label("Select Python version"))
+        self.python_caption = self._label("Select Python version")
+        managed.addWidget(self.python_caption)
         self.python_select = self._compact_combo(
             DataComboBox(installed_python=True, installed_forge=True)
         )
         self.python_select.setAccessibleName("Select Python version")
         managed.addWidget(self.python_select)
+        self.managed_python_info = self._label()
+        managed.addWidget(self.managed_python_info)
         environment.addWidget(self.managed_panel)
         self.existing_panel = QtWidgets.QWidget()
         existing = QtWidgets.QVBoxLayout(self.existing_panel)
@@ -989,6 +992,8 @@ class McpTab(QtWidgets.QWidget):
             )
             info = self._compatibility.interpreters.get(executable)
             if info is not None:
+                if existing.is_file() and not self._custom_environment():
+                    return True, f"{release.version} requires 64-bit Python {required}."
                 prefix = (
                     "Dedicated environment uses"
                     if existing.is_file() and not self._custom_environment()
@@ -997,6 +1002,11 @@ class McpTab(QtWidgets.QWidget):
                 return (
                     True,
                     f"{prefix} Python {info.version} (64-bit). {release.version} requires Python {required}.",
+                )
+            if existing.is_file() and not self._custom_environment():
+                return (
+                    False,
+                    f"This dedicated environment is incompatible with {release.version}. Choose an existing environment with Python {required}, or create one in Create virtual environments.",
                 )
             return (
                 False,
@@ -1048,6 +1058,18 @@ class McpTab(QtWidgets.QWidget):
         self.managed_panel.setVisible(not self._custom_environment())
         self.existing_panel.setVisible(self._custom_environment())
         self.python_select.setEnabled(not managed_exists)
+        self.python_select.setVisible(not managed_exists)
+        self.python_caption.setText(
+            "Python version" if managed_exists else "Select Python version"
+        )
+        self.managed_python_info.setVisible(managed_exists)
+        if managed_exists:
+            probe = self._probe_cache.get(str(python_executable(root)))
+            self.managed_python_info.setText(
+                f"Python {probe[1].version} ({probe[1].bits}-bit) · existing dedicated environment"
+                if probe
+                else "Checking the existing environment…"
+            )
         source = self.source.currentData()
         self.package_form.setRowVisible(self.version_row, source != "branch")
         self.package_form.setRowVisible(self.branch, source == "branch")
@@ -1060,7 +1082,11 @@ class McpTab(QtWidgets.QWidget):
                 "offline": "Latest uses the newest stable MCP wheel in this folder or ZIP. No network is used.",
             }[source]
         )
-        self.server_options.setEnabled(not server.active and not busy)
+        self.server_options.setEnabled(not busy)
+        self.http_port.setEnabled(not server.active)
+        self.solver_section.setEnabled(not server.active)
+        self.server_advanced_toggle.setEnabled(not server.active)
+        self.server_advanced.setEnabled(not server.active)
         self.http_section.setVisible(product.http_flags is not None)
         self.stdio_notice.setVisible(product.http_flags is None)
         self.solver_section.setVisible(bool(product.connect_flag))
@@ -1443,6 +1469,11 @@ class McpTab(QtWidgets.QWidget):
         self.preview.clear()
         self.preview_section.hide()
         self.write_profile_button.setEnabled(False)
+        if (
+            hasattr(self, "status")
+            and self.status.text() == "Review the changes, then save the configuration."
+        ):
+            self.status.clear()
 
     def _preview_profile(self):
         if self.queue.active or self._preparing:

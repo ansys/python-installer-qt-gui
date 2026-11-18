@@ -8,7 +8,7 @@ Installing the ``Ansys Python Manager``
 
   .. tab-item:: Windows
 
-    First step is installing the ``Ansys Python Manager``. In order to do so, follow the next steps.
+    To install the ``Ansys Python Manager``, follow these steps.
 
     #. Download the necessary installer from the `latest available release <https://github.com/ansys/python-installer-qt-gui/releases/latest>`_.
        The file should be named ``Ansys-Python-Manager-Setup-v*.exe``.
@@ -119,7 +119,7 @@ Installing the ``Ansys Python Manager``
 
            Under **WSL (Windows Subsystem for Linux)**, you can install the lighter
            ``xterm`` instead of ``gnome-terminal``. ``mesa-libGL``, ``mesa-libEGL``,
-           and ``xcb-util-cursor`` are still required to display the application.
+           and ``xcb-util-cursor`` are still required to display the app.
 
         #. Install **zlib** package using **wget**
 
@@ -169,7 +169,7 @@ Installing the ``Ansys Python Manager``
 
         #. Click ``Uninstall`` button.
 
-        #. Follow the uninstaller script & provide sudo permission to uninstall the application.
+        #. Follow the uninstaller script & provide sudo permission to uninstall the app.
 
       .. tab-item:: Fedora39
 
@@ -190,7 +190,7 @@ Installing the ``Ansys Python Manager``
 
            Under **WSL (Windows Subsystem for Linux)**, you can install the lighter
            ``xterm`` instead of ``gnome-terminal``. ``mesa-libGL``, ``mesa-libEGL``,
-           and ``xcb-util-cursor`` are still required to display the application.
+           and ``xcb-util-cursor`` are still required to display the app.
 
         #. Install **zlib** package using **wget**
 
@@ -240,7 +240,7 @@ Installing the ``Ansys Python Manager``
 
         #. Click ``Uninstall`` button.
 
-        #. Follow the uninstaller script & provide sudo permission to uninstall the application.
+        #. Follow the uninstaller script & provide sudo permission to uninstall the app.
 
 
 Installing Python
@@ -252,7 +252,7 @@ To do so, follow these steps:
 
 #. Search for the ``Ansys Python Manager`` and run it.
 
-#. Go to the ``Install Python`` tab, and select your desired Python install, version and extra packages.
+#. Go to the ``Install Python`` tab, and select your desired Python install, version, and extra packages.
 
 #. And follow the install process.
 
@@ -277,26 +277,26 @@ Regarding the available Python versions, users can select among the following on
 
     1. Conda python installation:
 
-      #. Bash scripts will be downloaded and executed on a machine directly from the official website.(https://github.com/conda-forge/miniforge?tab=readme-ov-file).
+      #. The installer downloads and executes Bash scripts directly from the official website (https://github.com/conda-forge/miniforge).
 
     2. Standard python installation happens in two ways:
 
-      #. If the Debian version is 22.04 and Python 3.11 (recommended by Ansys) is specified, the installer will
-         automatically install the pre-compiled version of Python available within the installer.
+      #. If the Debian version is 22.04 and Python 3.11 (recommended by Ansys) is specified, the installer
+         automatically installs the pre-compiled version of Python available within the installer.
 
-      #. Otherwise, Python will be installed following these steps:
+      #. Otherwise, the installer follows these steps:
 
-        #. Download Python Tarball and Untar:
+        #. Download and extract the Python archive:
 
-          i. The Python tar file will be downloaded from the Python FTP server (https://www.python.org/ftp/python)
-             based on the version selected from the dropdown menu. Example: For Python version 3.12.0, the download link
+          i. The installer downloads the Python archive from the Python FTP server (https://www.python.org/ftp/python)
+             based on the version selected from the dropdown menu. For example, for Python version 3.12.0, the download link
              would be here(https://www.python.org/ftp/python/3.12.0/Python-3.12.0.tar.xz).
 
           ii.  Decompress the downloaded file in the user’s cache directory.
 
         * Configure the Source:
 
-          i. Following will be executed configure the installation:
+          i. Run the following command to configure the installation:
 
             .. code:: shell
 
