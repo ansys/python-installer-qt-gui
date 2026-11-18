@@ -263,18 +263,14 @@ def prepare_installation(
     upgrade=False,
 ):
     """Resolve the requested release and supported Python before mutating an environment."""
-    requirement = package_requirement(product, source, version, branch)
-    offline = prepare_wheelhouse(wheelhouse, extract_to) if wheelhouse else None
-    if offline:
-        if source == "branch":
-            raise ValueError(
-                "Offline installation supports releases, not Git branches."
-            )
-        release = wheelhouse_release(product, offline, version)
-    elif source == "branch":
-        release = source_release(product, branch, requirement)
-    else:
-        release = published_release(product, version)
+    release, offline = resolve_release(
+        product,
+        version=version,
+        source=source,
+        branch=branch,
+        wheelhouse=wheelhouse,
+        extract_to=extract_to,
+    )
     root = Path(directory).expanduser().absolute()
     existing = python_executable(root)
     creating = not existing.is_file()
@@ -309,6 +305,31 @@ def prepare_installation(
         interpreter=interpreter,
     )
     return InstallationPlan(release, interpreter, commands, creating)
+
+
+def resolve_release(
+    product,
+    *,
+    version="",
+    source="release",
+    branch="main",
+    wheelhouse=None,
+    extract_to=None,
+):
+    """Resolve the same exact release for selector checks and installation."""
+    requirement = package_requirement(product, source, version, branch)
+    offline = prepare_wheelhouse(wheelhouse, extract_to) if wheelhouse else None
+    if offline:
+        if source == "branch":
+            raise ValueError(
+                "Offline installation supports releases, not Git branches."
+            )
+        release = wheelhouse_release(product, offline, version)
+    elif source == "branch":
+        release = source_release(product, branch, requirement)
+    else:
+        release = published_release(product, version)
+    return release, offline
 
 
 def available_versions(product):

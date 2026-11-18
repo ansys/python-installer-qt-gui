@@ -21,15 +21,43 @@
 # SOFTWARE.
 
 import json
+from pathlib import Path
 import subprocess
 import sys
 import zipfile
 
+from PySide6 import QtCore
 import pytest
 
+from ansys.tools.installer import installed_table, mcp_backend
 from ansys.tools.installer.mcp_backend import console_executable, installed_version
 from ansys.tools.installer.mcp_catalog import PRODUCT_BY_KEY
+from ansys.tools.installer.mcp_releases import ReleaseInfo
 from ansys.tools.installer.mcp_tab import McpTab
+
+
+@pytest.fixture(autouse=True)
+def discovered_environments(monkeypatch):
+    """Keep UI discovery deterministic and release checks off the network."""
+    monkeypatch.setattr(
+        installed_table,
+        "find_all_python",
+        lambda: {
+            str(Path(sys.executable).parent): (
+                ".".join(map(str, sys.version_info[:3])),
+                False,
+            )
+        },
+    )
+    monkeypatch.setattr(installed_table, "find_miniforge", lambda: {})
+    monkeypatch.setattr(installed_table, "get_all_python_venv", lambda: {})
+    monkeypatch.setattr(
+        mcp_backend,
+        "published_release",
+        lambda product, version="": ReleaseInfo(
+            version or "1.0", product.python, f"{product.package}=={version or '1.0'}"
+        ),
+    )
 
 
 @pytest.fixture
@@ -38,6 +66,10 @@ def tab(qtbot, tmp_path):
     qtbot.addWidget(widget)
     yield widget
     widget.shutdown()
+    qtbot.waitUntil(
+        lambda: QtCore.QThreadPool.globalInstance().activeThreadCount() == 0,
+        timeout=10000,
+    )
 
 
 def _select(tab, key):
@@ -64,7 +96,7 @@ def test_product_settings_are_independent_and_persist(tab):
 def test_lumerical_only_offers_stdio(tab):
     _select(tab, "pylumerical")
     assert tab.transport.count() == 1
-    assert tab.transport.currentText() == "stdio"
+    assert tab.transport.currentData() == "stdio"
     assert not tab.start_button.isEnabled()
     assert tab._arguments("stdio") == []
 
@@ -122,8 +154,8 @@ def test_offline_install_through_ui_and_profile_preview(tab, qtbot, tmp_path):
     _select(tab, "pymechanical")
     wheels = tmp_path / "wheel house"
     _wheel(wheels)
-    tab.base_python.setText(sys.executable)
-    tab.offline.setChecked(True)
+    tab.select_python(sys.executable)
+    tab.source.setCurrentIndex(2)
     tab.wheelhouse_path.setText(str(wheels))
     tab.version.setCurrentText("0.0.0")
     tab._install(False)
@@ -155,9 +187,180 @@ def test_offline_install_through_ui_and_profile_preview(tab, qtbot, tmp_path):
 def test_invalid_install_source_shows_error_without_starting(tab):
     tab.source.setCurrentIndex(1)
     tab.branch.setText("main#bad")
-    tab.install_button.click()
+    tab._try(lambda: tab._install(False))
     assert "Git branch" in tab.status.text()
     assert not tab.queue.active
+
+
+def test_uses_the_same_apm_selector_widgets(tab):
+    assert isinstance(tab.python_select, installed_table.DataComboBox)
+    assert tab.python_select.installed_python and tab.python_select.installed_forge
+    assert isinstance(tab.environment_select, installed_table.DataComboBox)
+    assert tab.environment_select.created_venv
+
+
+def test_source_options_and_advanced_controls_are_progressive(tab):
+    assert not tab.install_advanced_toggle.isChecked()
+    assert not tab.server_advanced_toggle.isChecked()
+    assert tab.preview_section.isHidden()
+    assert tab.branch.isHidden() and tab.wheelhouse_row.isHidden()
+    tab.source.setCurrentIndex(1)
+    assert not tab.branch.isHidden()
+    assert tab.version_row.isHidden() and tab.wheelhouse_row.isHidden()
+    tab.source.setCurrentIndex(2)
+    assert tab.branch.isHidden()
+    assert not tab.wheelhouse_row.isHidden() and not tab.version_row.isHidden()
+    assert tab.versions_button.isHidden()
+
+
+def test_missing_saved_python_path_does_not_grow_on_refresh(tab, tmp_path):
+    missing = str(tmp_path / "removed" / "python.exe")
+    tab.select_python(missing)
+    tab._select_path(tab.python_select, missing)
+    assert tab._base_python() == missing
+    tab._refresh_choices()
+    tab._select_path(tab.python_select, missing)
+    assert tab._base_python() == missing
+
+
+def test_discovered_directory_named_python_is_not_treated_as_an_executable(
+    tab, tmp_path
+):
+    directory = tmp_path / "python"
+    executable = mcp_backend.python_executable(directory)
+    executable.parent.mkdir(parents=True)
+    executable.touch()
+    assert tab._python_choice(directory) == str(executable)
+
+
+def test_exact_release_updates_python_choices_dynamically(
+    tab, qtbot, tmp_path, monkeypatch
+):
+    from ansys.tools.installer import mcp_compatibility
+    from ansys.tools.installer.mcp_releases import PythonInfo
+
+    versions = ("3.13.4", "3.13.8", "3.14.2")
+    paths = [
+        tmp_path / version / ("python.exe" if sys.platform == "win32" else "python")
+        for version in versions
+    ]
+    for path in paths:
+        path.parent.mkdir()
+        path.touch()
+    inventory = {str(path): (version, False) for path, version in zip(paths, versions)}
+    monkeypatch.setattr(installed_table, "find_all_python", lambda: inventory)
+    monkeypatch.setattr(
+        mcp_compatibility,
+        "inspect_python",
+        lambda path: PythonInfo(
+            path, versions[[str(p) for p in paths].index(path)], 64
+        ),
+    )
+    monkeypatch.setattr(
+        mcp_backend,
+        "published_release",
+        lambda product, version="": ReleaseInfo(
+            version or "1.0",
+            ">=3.14,<3.15" if version == "2.0" else ">=3.13.5,<3.14",
+            product.package,
+        ),
+    )
+    tab._manual_pythons.clear()
+    tab._refresh_choices()
+    tab.show()
+    qtbot.waitUntil(lambda: tab._compatibility is not None, timeout=10000)
+    assert tab._base_python() == str(paths[1])
+    assert not tab.python_select.model().item(0).isEnabled()
+    assert tab.python_select.model().item(1).isEnabled()
+    assert not tab.python_select.model().item(2).isEnabled()
+    tab.version.setCurrentText("2.0")
+    qtbot.waitUntil(
+        lambda: tab._compatibility is not None
+        and tab._compatibility.release.version == "2.0",
+        timeout=10000,
+    )
+    assert tab._base_python() == str(paths[2])
+    assert tab.python_select.model().item(2).isEnabled()
+    assert not tab.python_select.model().item(1).isEnabled()
+
+
+def test_late_compatibility_response_cannot_replace_current_selection(tab):
+    from ansys.tools.installer.mcp_compatibility import Compatibility
+
+    revision = tab._compatibility_revision
+    stale = Compatibility(ReleaseInfo("old", ">=3.13", "old"), {}, {}, {})
+    tab.version.setCurrentText("2.0")
+    tab._compatibility_checked((revision, stale, ""), None)
+    assert tab._compatibility is None
+    assert tab.version.currentText() == "2.0"
+
+
+def test_incompatible_existing_environment_is_not_silently_retargeted(
+    tab, qtbot, tmp_path, monkeypatch
+):
+    from ansys.tools.installer import mcp_compatibility
+    from ansys.tools.installer.mcp_releases import PythonInfo
+
+    root = tmp_path / "selected-existing"
+    executable = mcp_backend.python_executable(root)
+    executable.parent.mkdir(parents=True)
+    executable.touch()
+    marker = root / "pyvenv.cfg"
+    marker.write_text("preserved")
+    real_probe = mcp_compatibility.inspect_python
+    monkeypatch.setattr(
+        mcp_compatibility,
+        "inspect_python",
+        lambda path: (
+            PythonInfo(path, "3.12.9", 64)
+            if path == str(executable)
+            else real_probe(path)
+        ),
+    )
+    tab.select_environment(root)
+    tab.show()
+    qtbot.waitUntil(lambda: tab._compatibility is not None, timeout=10000)
+    assert tab.environment == root
+    assert not tab.install_button.isEnabled()
+    assert "Select a supported" in tab.python_hint.text()
+    assert marker.read_text() == "preserved"
+
+
+def test_coding_agent_connection_defaults_and_workspace_choice(
+    tab, monkeypatch, tmp_path
+):
+    tab.client.setCurrentText("VS Code")
+    assert not tab.profile_path.text()
+    monkeypatch.setattr(
+        "PySide6.QtWidgets.QFileDialog.getExistingDirectory",
+        lambda *args: str(tmp_path),
+    )
+    tab._browse_profile()
+    assert Path(tab.profile_path.text()) == tmp_path / ".vscode/mcp.json"
+    tab.transport.setCurrentIndex(1)
+    assert tab._transport() == "http"
+    tab.client.setCurrentText("Claude Desktop")
+    assert tab.transport.count() == 1 and tab._transport() == "stdio"
+
+
+def test_actions_stay_visible_with_logs_and_previews(tab, qtbot):
+    tab.resize(660, 560)
+    tab.show()
+    tab.log_group.setChecked(True)
+    for index, buttons in (
+        (0, (tab.install_button, tab.save_button)),
+        (1, (tab.start_button, tab.server_save_button)),
+        (2, (tab.preview_button, tab.write_profile_button)),
+    ):
+        tab.pages.setCurrentIndex(index)
+        if index == 2:
+            tab.preview_section.show()
+        qtbot.wait(20)
+        assert tab.action_stack.currentIndex() == index
+        for button in buttons:
+            assert button.isVisible()
+            point = button.mapTo(tab, QtCore.QPoint(0, 0))
+            assert tab.rect().contains(QtCore.QRect(point, button.size()))
 
 
 def test_shutdown_reaps_running_server(tab, qtbot):
@@ -177,9 +380,8 @@ def test_existing_environment_without_pip_is_bootstrapped(tab, qtbot, tmp_path):
     )
     wheels = tmp_path / "wheels"
     _wheel(wheels)
-    tab.custom_environment.setChecked(True)
-    tab.environment_path.setText(str(existing))
-    tab.offline.setChecked(True)
+    tab.select_environment(existing)
+    tab.source.setCurrentIndex(2)
     tab.wheelhouse_path.setText(str(wheels))
     tab.version.setCurrentText("0.0.0")
     tab._install(False)
@@ -197,8 +399,7 @@ def test_shared_custom_environment_is_protected_across_products(tab, qtbot, tmp_
     qtbot.waitUntil(lambda: server.active)
     try:
         _select(tab, "pymechanical")
-        tab.custom_environment.setChecked(True)
-        tab.environment_path.setText(str(root))
+        tab.select_environment(root)
         assert tab.environment_in_use(root)
         assert not tab.install_button.isEnabled()
         with pytest.raises(ValueError, match="Stop the server"):
@@ -237,9 +438,9 @@ def test_latest_offline_install_upgrades_existing_package(tab, qtbot, tmp_path):
     _select(tab, "pymechanical")
     wheels = tmp_path / "wheels"
     _wheel(wheels, "0.0.0")
-    tab.offline.setChecked(True)
+    tab.source.setCurrentIndex(2)
     tab.wheelhouse_path.setText(str(wheels))
-    tab.base_python.setText(sys.executable)
+    tab.select_python(sys.executable)
     tab._install(False)
     qtbot.waitUntil(lambda: not tab._preparing and not tab.queue.active, timeout=90000)
     assert (
@@ -255,16 +456,16 @@ def test_latest_offline_install_upgrades_existing_package(tab, qtbot, tmp_path):
 
 
 @pytest.mark.skipif(sys.version_info < (3, 12), reason="MCP interpreter baseline")
-def test_find_supported_python_checks_release_without_creating_environment(
+def test_dynamic_selector_checks_release_without_creating_environment(
     tab, qtbot, tmp_path
 ):
     _select(tab, "pymechanical")
     wheels = tmp_path / "wheels"
     _wheel(wheels)
-    tab.offline.setChecked(True)
+    tab.source.setCurrentIndex(2)
     tab.wheelhouse_path.setText(str(wheels))
-    tab._install(False, validate_only=True)
-    qtbot.waitUntil(lambda: not tab._preparing, timeout=10000)
-    assert "using Python" in tab.python_hint.text(), tab.status.text()
+    tab.show()
+    qtbot.waitUntil(lambda: tab._compatibility is not None, timeout=10000)
+    assert "Selected Python" in tab.python_hint.text(), tab.status.text()
     assert not tab.environment.exists()
     assert not tab.queue.active

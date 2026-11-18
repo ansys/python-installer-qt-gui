@@ -64,16 +64,18 @@ Install a server
 #. Install a compatible 64-bit Python using **Install Python**, or use an
    existing installation. Python 3.13 is a useful common baseline.
 #. Select a product in **PyAnsys MCPs**, then open **Installation**.
-#. Select the Python executable with **Browse**, or use the Python selected
-   in **Create virtual environments**. The packaged manager executable cannot
-   itself act as the environment's Python interpreter.
-#. Use the product's managed environment, or choose an existing virtual or
-   conda environment. Existing system Python installations are rejected as
+#. Under **Python environment**, keep **Dedicated environment (recommended)**
+   and use **Select Python version**, the same dropdown used by
+   **Create virtual environments**. APM creates an isolated environment for the MCP.
+#. To reuse a virtual or conda environment, choose **Existing virtual environment**.
+   **Available virtual environments** uses the same discovery as
+   **Manage Python environments**. System Python installations are rejected as
    installation targets. Stop the manager's server before changing its environment.
 #. Select a PyPI release (leave **Latest** to check the newest published release),
    or an official Git branch, tag or commit. Git installations require Git.
-#. Click **Install**. **Update / repair** adds pip's upgrade option. The log
-   shows progress and errors, and the final step checks dependency consistency.
+#. Click **Install MCP**. For an installed MCP, the action becomes **Update / repair**.
+   Progress appears below the page; expand **Activity log** for details.
+   The final installation step checks dependency consistency.
 
 Managed environments and settings are under
 ``~/.ansys/ansys_python_manager/mcp``. Managed environments also appear in
@@ -87,18 +89,28 @@ substitutes an older MCP release to accommodate an unsupported Python. If the
 version check cannot reach PyPI, installation stops without changing the
 environment. An explicit version remains available for reproducible setups.
 
-For a new managed environment, the manager keeps a compatible chosen Python or
-selects a supported installed interpreter. **Find supported Python** checks
-compatibility without creating an environment. Existing environments are
-preserved when their interpreter is incompatible; create a supported
-environment using **Create virtual environments** and select it in this tab.
+The Python dropdowns update for the selected product, source, and release.
+APM checks the actual interpreter version and architecture against the exact
+release requirements. Unsupported choices are disabled with an explanatory
+tooltip. A compatible Python is selected for a new dedicated environment;
+an existing environment is never silently replaced by another selection.
+Late responses from an earlier selection cannot change the current choices.
+Installation always checks the requirements again before making changes.
+
+Click **Refresh** after installing Python or creating an environment in another
+tab. Returning to this tab also refreshes the shared choices. Use
+**Other locations and details** to add a Python executable or an environment
+outside the configured search folders, or to inspect the full environment path.
+Existing incompatible environments are preserved; create a supported
+environment in **Create virtual environments** and select it here.
 
 On Linux, uninstalling the manager offers separate options to remove settings
 and managed environments. Removing settings preserves MCP environments;
 removing managed environments includes the product environments. Existing
 custom environments outside the manager's configured locations are preserved.
 
-For an offline installation, select **Offline** and provide a directory of
+For an offline installation, select **Offline wheelhouse** under **Install from**
+and provide a directory of
 wheels or a wheelhouse ZIP. Include the chosen MCP package and all dependencies,
 including build dependencies if distributing source packages. Wheels must
 match the target operating system, architecture and Python version. The
@@ -117,6 +129,14 @@ For shared HTTP access, use **Start HTTP server** under **Server settings**.
 The manager binds to ``127.0.0.1`` and waits for an MCP initialize response
 before reporting readiness. Its servers stop when the manager exits.
 
+The **Local HTTP server** section separates the endpoint and server status from
+the optional **Solver connection** section. Solver host and port appear only
+when connecting on startup is enabled. Less common options are under
+**Advanced launch settings**, with separate sections for product options,
+additional arguments, and environment variables. Server actions stay visible
+when scrolling or viewing the activity log. PyLumerical instead shows its
+automatic stdio connection and a shortcut to **Coding agents**.
+
 HTTP transport ports are distinct from Ansys solver connection ports.
 PyAEDT, PyMechanical, and PyMAPDL expose solver connection fields. PyAEDT also
 offers graphical mode, context tools, and dynamic tool discovery. Additional
@@ -132,11 +152,14 @@ Settings, profiles and backups store these values as plain text.
 
 Under **Coding agents**, select VS Code, the Copilot command-line tool, Claude Desktop,
 Cursor, Codex, or OpenCode. Review the destination path. For VS Code, choose
-``.vscode/mcp.json`` inside the intended workspace. Claude Desktop's local
+the intended workspace folder; APM selects its ``.vscode/mcp.json``.
+Choose **Automatic (stdio)** for an agent-managed process or **Shared HTTP server**
+for an already running server. Claude Desktop's local
 configuration supports stdio here; PyLumerical offers stdio only.
 
-Click **Preview profile**, review the complete merged document, then click
-**Install previewed profile**. The manager preserves unrelated entries,
+Click **Preview changes**, review the complete merged document, then click
+**Save configuration**. The review section opens when a preview is available;
+the actions stay visible below the page. The manager preserves unrelated entries,
 backs up existing files, and replaces the destination atomically. It refuses
 to overwrite a file changed after preview. Codex TOML comments are preserved.
 JSON files must be strict JSON: files containing comments or duplicate keys

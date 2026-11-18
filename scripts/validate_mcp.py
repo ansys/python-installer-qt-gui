@@ -140,7 +140,7 @@ def main():
             print(f"Validating {product.name}…", flush=True)
             try:
                 if not args.skip_install:
-                    tab.base_python.setText(args.python)
+                    tab.select_python(args.python)
                     tab._install(False)
                     deadline = time.monotonic() + 1500
                     while tab.queue.active or tab._preparing:

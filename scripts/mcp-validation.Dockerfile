@@ -25,4 +25,4 @@ COPY tests ./tests
 COPY scripts/validate_mcp.py ./scripts/validate_mcp.py
 ENV QT_QPA_PLATFORM=offscreen UV_LINK_MODE=copy
 RUN uv venv --python 3.13 /opt/apm && uv pip install --python /opt/apm/bin/python -e '.[tests]'
-CMD ["/opt/apm/bin/python", "-m", "pytest", "tests/test_mcp_backend.py", "tests/test_mcp_releases.py", "tests/test_mcp_profiles.py", "tests/test_mcp_process.py", "tests/test_mcp_tab.py", "-q", "--tb=short"]
+CMD ["/opt/apm/bin/python", "-m", "pytest", "tests/test_mcp_backend.py", "tests/test_mcp_releases.py", "tests/test_mcp_compatibility.py", "tests/test_mcp_profiles.py", "tests/test_mcp_process.py", "tests/test_mcp_tab.py", "-q", "--tb=short"]

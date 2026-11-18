@@ -72,6 +72,12 @@ class DataComboBox(QtWidgets.QComboBox):
         """Initialize the dropdown by populating it."""
         super().__init__(parent)
 
+        # Keep long installation paths from forcing the entire window wider.
+        # The full path remains available in each item's tooltip.
+        self.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.setMinimumContentsLength(24)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+
         self.installed_python = installed_python
         self.installed_forge = installed_forge
         self.created_venv = created_venv
