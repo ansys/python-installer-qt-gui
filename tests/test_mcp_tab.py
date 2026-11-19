@@ -24,6 +24,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
+import threading
 import zipfile
 
 from PySide6 import QtCore
@@ -52,6 +53,9 @@ def discovered_environments(monkeypatch):
     monkeypatch.setattr(installed_table, "find_miniforge", lambda: {})
     monkeypatch.setattr(installed_table, "get_all_python_venv", lambda: {})
     monkeypatch.setattr(
+        "ansys.tools.installer.mcp_tab.available_versions", lambda product: ["1.0"]
+    )
+    monkeypatch.setattr(
         mcp_backend,
         "published_release",
         lambda product, version="": ReleaseInfo(
@@ -78,6 +82,115 @@ def _select(tab, key):
             tab.product_select.setCurrentIndex(index)
             return
     raise AssertionError(key)
+
+
+def test_environment_discovery_never_blocks_tab_selection(tab, qtbot, monkeypatch):
+    release = threading.Event()
+    started = threading.Event()
+    calls = []
+    gui_thread = threading.get_ident()
+
+    def discover():
+        calls.append(threading.get_ident())
+        started.set()
+        release.wait(5)
+        return {}
+
+    monkeypatch.setattr(installed_table, "find_all_python", discover)
+    assert not calls  # Construction did not repeat host APM discovery.
+    try:
+        tab.show()
+        qtbot.waitUntil(started.is_set)
+        heartbeat = []
+        QtCore.QTimer.singleShot(0, lambda: heartbeat.append(True))
+        qtbot.waitUntil(lambda: bool(heartbeat))
+        assert tab._discovery_pending
+        assert calls == [calls[0]] and calls[0] != gui_thread
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: not tab._discovery_pending)
+    tab.hide()
+    tab.show()
+    assert len(calls) == 1
+
+
+def test_ansys_python_discovery_is_hidden_and_bounded(monkeypatch):
+    from ansys.tools.installer import find_python
+
+    calls = []
+    monkeypatch.setattr(
+        find_python, "get_available_ansys_installations", lambda: {271: "ansys"}
+    )
+    monkeypatch.setattr(find_python, "ANSYS_SUPPORTED_PYTHON_VERSIONS", ["3_13"])
+    monkeypatch.setattr(find_python.os.path, "exists", lambda path: True)
+    monkeypatch.setattr(
+        find_python.subprocess, "CREATE_NO_WINDOW", 0x08000000, raising=False
+    )
+    monkeypatch.setattr(
+        find_python.subprocess,
+        "check_output",
+        lambda *a, **k: calls.append(k) or "Python 3.13.15",
+    )
+    assert find_python._find_installed_ansys_python_win()
+    assert calls == [{"text": True, "creationflags": 0x08000000, "timeout": 10}]
+
+
+def test_release_dropdown_automatic_cache_and_stale_results(tab, qtbot, monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "ansys.tools.installer.mcp_tab.available_versions",
+        lambda product: calls.append(product.key) or ["9.2", "9.1"],
+    )
+    tab.show()
+    qtbot.waitUntil(lambda: tab.version.findText("9.2") >= 0)
+    tab.version.requested.emit()
+    assert calls == ["pyaedt"]
+    tab.version.setCurrentText("9.1")
+    tab._versions_fetched(("pymechanical", ["8.0"], None), None)
+    assert tab.version.currentText() == "9.1" and tab.version.findText("8.0") < 0
+    tab.source.setCurrentIndex(2)
+    before = list(calls)
+    tab.version.requested.emit()
+    assert calls == before
+    tab.source.setCurrentIndex(0)
+    assert tab.version.currentText() == "9.1"
+
+
+def test_installed_launch_controls_validate_and_invalidate_profile(tab, monkeypatch):
+    monkeypatch.setattr(
+        "ansys.tools.installer.mcp_tab.installed_version", lambda *args: "1.0"
+    )
+    signature = tab._launch_signature()
+    schema = [
+        dict(
+            flags=["--static-tools"],
+            kind="flag",
+            nargs=0,
+            choices=None,
+            type="str",
+            help="Use static tools",
+            default=False,
+        ),
+        dict(
+            flags=["--transport"],
+            kind="value",
+            nargs=None,
+            choices=["stdio", "http"],
+            type="str",
+            help="Transport",
+            default="stdio",
+        ),
+    ]
+    tab._launch_loaded((signature, schema, None), None)
+    assert tab.launch_choice.count() == 2  # Managed transport cannot be added twice.
+    tab._add_launch_option(1)
+    assert "--static-tools" in tab._arguments("stdio")
+    tab._profile_preview = ("path", "old", "new")
+    tab._remove_launch_option("--static-tools")
+    assert tab._profile_preview is None
+    _select(tab, "pymechanical")
+    tab._launch_loaded((signature, schema, None), None)
+    assert tab._launch_context is None
 
 
 def test_product_settings_are_independent_and_persist(tab):
@@ -171,17 +284,19 @@ def test_offline_install_through_ui_and_profile_preview(tab, qtbot, tmp_path):
     configuration.write_text('{"mcpServers":{"existing":{"command":"keep"}}}')
     tab.profile_path.setText(str(configuration))
     tab.environment_json.setPlainText('{"EXAMPLE":"value"}')
-    tab._preview_profile()
+    tab._review_or_write_profile()
     assert "pymechanical-mcp" not in configuration.read_text()
     assert tab.write_profile_button.isEnabled()
-    tab._write_profile()
+    assert tab.write_profile_button.text() == "Save reviewed configuration"
+    tab._review_or_write_profile()
     data = json.loads(configuration.read_text())["mcpServers"]
     assert data["existing"]["command"] == "keep"
     assert data["pymechanical-mcp"]["env"] == {"EXAMPLE": "value"}
     assert list(configuration.parent.glob("*.bak"))
     tab._preview_profile()
     tab.extra.setPlainText('["--static-tools"]')
-    assert not tab.write_profile_button.isEnabled()
+    assert tab._profile_preview is None
+    assert tab.write_profile_button.text() == "Review configuration…"
     assert "Review the changes" not in tab.status.text()
 
 
@@ -211,7 +326,7 @@ def test_source_options_and_advanced_controls_are_progressive(tab):
     tab.source.setCurrentIndex(2)
     assert tab.branch.isHidden()
     assert not tab.wheelhouse_row.isHidden() and not tab.version_row.isHidden()
-    assert tab.versions_button.isHidden()
+    assert not hasattr(tab, "versions_button")
 
 
 def test_missing_saved_python_path_does_not_grow_on_refresh(tab, tmp_path):
@@ -331,12 +446,13 @@ def test_coding_agent_connection_defaults_and_workspace_choice(
     tab, monkeypatch, tmp_path
 ):
     tab.client.setCurrentText("VS Code")
-    assert not tab.profile_path.text()
+    assert Path(tab.profile_path.text()).name == "mcp-config.json"
     monkeypatch.setattr(
         "PySide6.QtWidgets.QFileDialog.getExistingDirectory",
         lambda *args: str(tmp_path),
     )
-    tab._browse_profile()
+    tab.vscode_format.setCurrentIndex(1)
+    tab._browse_workspace()
     assert Path(tab.profile_path.text()) == tmp_path / ".vscode/mcp.json"
     tab.transport.setCurrentIndex(1)
     assert tab._transport() == "http"
@@ -377,7 +493,7 @@ def test_actions_stay_visible_with_logs_and_previews(tab, qtbot):
     for index, buttons in (
         (0, (tab.install_button, tab.save_button)),
         (1, (tab.start_button, tab.server_save_button)),
-        (2, (tab.preview_button, tab.write_profile_button)),
+        (2, (tab.write_profile_button,)),
     ):
         tab.pages.setCurrentIndex(index)
         if index == 2:

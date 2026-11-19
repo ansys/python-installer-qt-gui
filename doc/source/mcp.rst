@@ -87,7 +87,9 @@ failed installation is never reported as successful.
 enabled, including when an older version is already installed. It never
 substitutes an older MCP release to accommodate an unsupported Python. If the
 version check cannot reach PyPI, installation stops without changing the
-environment. An explicit version remains available for reproducible setups.
+environment. An explicit version remains available for reproducible setups. Opening the
+version dropdown loads releases automatically. APM caches this list for
+15 minutes; **Latest** still performs a fresh check before installation.
 
 The Python dropdowns update for the selected product, source, and release.
 APM checks the actual interpreter version and architecture against the exact
@@ -97,8 +99,8 @@ an existing environment is never silently replaced by another selection.
 Late responses from an earlier selection cannot change the current choices.
 Installation always checks the requirements again before making changes.
 
-Click **Refresh** after installing Python or creating an environment in another
-tab. Returning to this tab also refreshes the shared choices. Use
+Returning to this tab reuses the choices already discovered by the other APM
+tabs. **Refresh** scans in the background without blocking navigation. Use
 **Other locations and details** to add a Python executable or an environment
 outside the configured search folders, or to inspect the full environment path.
 Existing incompatible environments are preserved; create a supported
@@ -140,7 +142,13 @@ automatic stdio connection and a shortcut to **Coding agents**.
 HTTP transport ports are distinct from Ansys solver connection ports.
 PyAEDT, PyMechanical, and PyMAPDL expose solver connection fields. PyAEDT also
 offers graphical mode, context tools, and dynamic tool discovery. Additional
-documented product options can be entered as a JSON string array, for example:
+product options are read from the installed release when expanding advanced
+settings. Use **Add an option** to select a flag, a choice, or a value. Options
+include their help text and defaults in tooltips. APM reads the argument parser
+in a separate process and exits before starting a server or connecting a solver.
+Unsupported saved options must be removed before launching. If a future release
+changes its parser, consult **Documentation** and use **Custom arguments**.
+Expert options can also be entered as a JSON string array, for example:
 
 .. code-block:: json
 
@@ -151,14 +159,20 @@ passed to manager-owned HTTP processes and included in stdio client profiles.
 Settings, profiles and backups store these values as plain text.
 
 Under **Coding agents**, select VS Code, the Copilot command-line tool, Claude Desktop,
-Cursor, Codex, or OpenCode. Review the destination path. For VS Code, choose
-the intended workspace folder; APM selects its ``.vscode/mcp.json``.
+Cursor, Codex, or OpenCode. Review the destination path. VS Code defaults to
+the current Copilot harness and its personal ``~/.copilot/mcp-config.json``,
+respecting ``COPILOT_HOME``. **Choose workspace** selects a project
+``.mcp.json`` instead. For older installations, choose **Local harness (legacy)**
+to use the VS Code user-profile ``mcp.json`` or a workspace ``.vscode/mcp.json``.
+The current format uses ``mcpServers``; the legacy format uses ``servers``.
+See the `VS Code MCP configuration reference <https://code.visualstudio.com/docs/agents/reference/mcp-configuration>`_.
 Choose **Automatic (stdio)** for an agent-managed process or **Shared HTTP server**
 for an already running server. Claude Desktop's local
 configuration supports stdio here; PyLumerical offers stdio only.
 
-Click **Preview changes**, review the complete merged document, then click
-**Save configuration**. The review section opens when a preview is available;
+Click **Review configuration**, review the complete merged document, then click
+**Save reviewed configuration**. The same button guides both steps; editing
+any connection setting requires a new review. The review section opens when a preview is available;
 the actions stay visible below the page. The manager preserves unrelated entries,
 backs up existing files, and replaces the destination atomically. It refuses
 to overwrite a file changed after preview. Codex TOML comments are preserved.
@@ -197,6 +211,7 @@ Python workers stop with the server. ``mcp_profiles`` merges client
 configurations, and ``mcp_tab`` connects these services to Qt. Adding a product
 requires verifying its published package, Python requirements, launch command,
 transports and client interoperability before extending the catalog and tests.
+``mcp_launch`` reads installed launch options without starting a server.
 ``mcp_releases`` resolves exact releases and validates interpreter versions
 against their metadata before installation.
 

@@ -36,14 +36,16 @@ CLIENTS = ("VS Code", "Copilot CLI", "Claude Desktop", "Cursor", "Codex", "OpenC
 
 
 def default_profile_path(client, home=None, environ=None, windows=None):
-    """Return platform-specific client paths; VS Code uses a chosen workspace."""
+    """Return each agent's personal configuration, respecting its home override."""
     home = Path.home() if home is None else Path(home)
     environ = os.environ if environ is None else environ
     windows = os.name == "nt" if windows is None else windows
     config = Path(environ.get("XDG_CONFIG_HOME") or home / ".config")
     paths = {
-        "VS Code": home / ".vscode" / "mcp.json",
-        "Copilot CLI": home / ".copilot" / "mcp-config.json",
+        "VS Code": Path(environ.get("COPILOT_HOME") or home / ".copilot")
+        / "mcp-config.json",
+        "Copilot CLI": Path(environ.get("COPILOT_HOME") or home / ".copilot")
+        / "mcp-config.json",
         "Claude Desktop": (
             Path(environ.get("APPDATA") or home / "AppData" / "Roaming")
             if windows
@@ -68,7 +70,15 @@ def _unique_object(pairs):
 
 
 def render_profile(
-    client, original, product, executable, arguments, *, transport="stdio", port=8080
+    client,
+    original,
+    product,
+    executable,
+    arguments,
+    *,
+    transport="stdio",
+    port=8080,
+    vscode_legacy=False,
 ):
     """Return a merged JSON/TOML document for review before installation."""
     if client not in CLIENTS:
@@ -103,7 +113,7 @@ def render_profile(
         raise ValueError("The client configuration must contain a JSON object.")
     container = (
         "servers"
-        if client == "VS Code"
+        if client == "VS Code" and vscode_legacy
         else "mcp" if client == "OpenCode" else "mcpServers"
     )
     servers = data.setdefault(container, {})

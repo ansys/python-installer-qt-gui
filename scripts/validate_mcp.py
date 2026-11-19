@@ -22,7 +22,6 @@ from PySide6 import QtWidgets
 from ansys.tools.installer.mcp_backend import (
     console_executable,
     installed_version,
-    server_arguments,
 )
 from ansys.tools.installer.mcp_catalog import PRODUCTS
 from ansys.tools.installer.mcp_tab import McpTab
@@ -154,8 +153,18 @@ def main():
                             tab.status.text() + "\n" + tab.log.toPlainText()[-12000:]
                         )
                 result["version"] = installed_version(tab.environment, product)
+                tab._load_launch_options()
+                deadline = time.monotonic() + 60
+                while tab._launch_context != tab._launch_signature():
+                    app.processEvents()
+                    if time.monotonic() > deadline:
+                        raise RuntimeError(tab.launch_hint.text())
+                    time.sleep(0.01)
+                result["launch_options"] = [
+                    option["flags"][0] for option in tab._launch_schema
+                ]
                 command = console_executable(tab.environment, product)
-                result["stdio"] = stdio_probe(command, server_arguments(product))
+                result["stdio"] = stdio_probe(command, tab._arguments("stdio"))
                 if product.http_flags:
                     with socket.socket() as probe:
                         probe.bind(("127.0.0.1", 0))

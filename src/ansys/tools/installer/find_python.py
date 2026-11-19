@@ -144,7 +144,10 @@ def _find_installed_ansys_python_win():
             if os.path.exists(path):
                 try:
                     version_output = subprocess.check_output(
-                        [f"{path}\\python.exe", "--version"], text=True
+                        [f"{path}\\python.exe", "--version"],
+                        text=True,
+                        creationflags=subprocess.CREATE_NO_WINDOW,
+                        timeout=10,
                     ).strip()
                     version = version_output.split()[1]
                     paths[path] = (version, False)

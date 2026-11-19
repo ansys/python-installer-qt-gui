@@ -27,6 +27,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import time
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from packaging.specifiers import SpecifierSet
@@ -47,6 +48,7 @@ from ansys.tools.installer.mcp_backend import (
 )
 from ansys.tools.installer.mcp_catalog import PRODUCTS
 from ansys.tools.installer.mcp_compatibility import check_compatibility
+from ansys.tools.installer.mcp_launch import launch_options, option_arguments
 from ansys.tools.installer.mcp_process import CommandQueue, McpServer
 from ansys.tools.installer.mcp_profiles import (
     CLIENTS,
@@ -58,6 +60,7 @@ from ansys.tools.installer.mcp_profiles import (
 
 class _Signals(QtCore.QObject):
     completed = QtCore.Signal(object, object)
+    finished = QtCore.Signal(object)
 
 
 class _Task(QtCore.QRunnable):
@@ -71,6 +74,16 @@ class _Task(QtCore.QRunnable):
             self.signals.completed.emit(self.function(), None)
         except Exception as error:
             self.signals.completed.emit(None, str(error))
+        finally:
+            self.signals.finished.emit(self)
+
+
+class _ReleaseCombo(QtWidgets.QComboBox):
+    requested = QtCore.Signal()
+
+    def showPopup(self):
+        self.requested.emit()
+        super().showPopup()
 
 
 class McpTab(QtWidgets.QWidget):
@@ -94,6 +107,14 @@ class McpTab(QtWidgets.QWidget):
         self._prepare_cancelled = False
         self._closed = False
         self._tasks = []
+        self._versions = {}
+        self._version_pending = set()
+        self._discovery_pending = False
+        self._discovered = False
+        self._launch_schema = []
+        self._launch_values = {}
+        self._launch_context = None
+        self._launch_pending = set()
         self._wheelhouse = None
         self._profile_preview = None
         self._compatibility = None
@@ -355,7 +376,9 @@ class McpTab(QtWidgets.QWidget):
         self.python_caption = self._label("Select Python version")
         managed.addWidget(self.python_caption)
         self.python_select = self._compact_combo(
-            DataComboBox(installed_python=True, installed_forge=True)
+            DataComboBox(
+                installed_python=True, installed_forge=True, populate_on_init=False
+            )
         )
         self.python_select.setAccessibleName("Select Python version")
         managed.addWidget(self.python_select)
@@ -367,11 +390,16 @@ class McpTab(QtWidgets.QWidget):
         existing.setContentsMargins(0, 0, 0, 0)
         existing.setSpacing(4)
         existing.addWidget(self._label("Available virtual environments"))
-        self.environment_select = self._compact_combo(DataComboBox(created_venv=True))
+        self.environment_select = self._compact_combo(
+            DataComboBox(created_venv=True, populate_on_init=False)
+        )
         self.environment_select.setAccessibleName("Available virtual environments")
         existing.addWidget(self.environment_select)
         environment.addWidget(self.existing_panel)
         self.python_hint = self._label()
+        support = self._form(environment)
+        self.python_support = self._label()
+        support.addRow("Supported Python", self.python_support)
         environment.addWidget(self.python_hint)
         self.package_section, package = self._section("MCP package", options)
         self.package_form = self._form(package)
@@ -380,7 +408,8 @@ class McpTab(QtWidgets.QWidget):
         self.source.addItem("Official Git repository", "branch")
         self.source.addItem("Offline wheelhouse", "offline")
         self.package_form.addRow("Install from", self.source)
-        self.version = QtWidgets.QComboBox()
+        self.version = _ReleaseCombo()
+        self.version.requested.connect(self._fetch_versions)
         self.version.setEditable(True)
         self.version.addItem("Latest", "")
         self.version.setToolTip("Latest is resolved again on every installation.")
@@ -388,8 +417,6 @@ class McpTab(QtWidgets.QWidget):
         row = QtWidgets.QHBoxLayout(self.version_row)
         row.setContentsMargins(0, 0, 0, 0)
         row.addWidget(self.version, 1)
-        self.versions_button = self._button("Versions…", self._fetch_versions)
-        row.addWidget(self.versions_button)
         self.package_form.addRow("Version", self.version_row)
         self.branch = QtWidgets.QLineEdit("main")
         self.package_form.addRow("Branch / tag", self.branch)
@@ -495,16 +522,30 @@ class McpTab(QtWidgets.QWidget):
         self.dynamic = QtWidgets.QCheckBox("Enable dynamic tool discovery")
         for field in (self.graphical, self.context, self.dynamic):
             aedt.addWidget(field)
-        _arguments, arguments = self._section("Additional launch arguments", advanced)
-        arguments.addWidget(
+        _launch, launch = self._section("Available launch options", advanced)
+        self.launch_hint = self._label(
+            "Expand advanced settings to read options from the installed MCP."
+        )
+        launch.addWidget(self.launch_hint)
+        self.launch_choice = self._compact_combo(QtWidgets.QComboBox())
+        self.launch_choice.setAccessibleName("Add launch option")
+        launch.addWidget(self.launch_choice)
+        self.launch_rows = QtWidgets.QVBoxLayout()
+        launch.addLayout(self.launch_rows)
+        self.launch_choice.activated.connect(self._add_launch_option)
+        self.server_advanced_toggle.toggled.connect(
+            lambda expanded: self._load_launch_options() if expanded else None
+        )
+        self.raw_arguments_toggle, _raw, raw = self._fold("Custom arguments", advanced)
+        raw.addWidget(
             self._label(
-                "JSON array of options from this MCP’s setup guide. Enter each option and value as a separate string."
+                "For expert use. Prefer the available options above. Enter a JSON array with each option and value as a separate string."
             )
         )
         self.extra = QtWidgets.QPlainTextEdit("[]")
         self.extra.setAccessibleName("Additional launch arguments")
         self.extra.setMaximumHeight(75)
-        arguments.addWidget(self.extra)
+        raw.addWidget(self.extra)
         _variables, variables = self._section("Environment variables", advanced)
         variables.addWidget(
             self._label(
@@ -548,6 +589,11 @@ class McpTab(QtWidgets.QWidget):
         self.client_hint = self._label()
         client.addWidget(self.client_hint)
         self.profile_section, profile = self._section("Configuration file", layout)
+        self.vscode_format = self._compact_combo(QtWidgets.QComboBox())
+        self.vscode_format.addItem("Copilot harness (current)", False)
+        self.vscode_format.addItem("Local harness (legacy)", True)
+        self.vscode_format.setAccessibleName("VS Code configuration format")
+        profile.addWidget(self.vscode_format)
         self.profile_path = QtWidgets.QLineEdit()
         self.profile_path.setAccessibleName("Coding agent configuration file")
         profile.addWidget(
@@ -555,6 +601,10 @@ class McpTab(QtWidgets.QWidget):
         )
         self.profile_hint = self._label()
         profile.addWidget(self.profile_hint)
+        self.workspace_button = self._button(
+            "Choose workspace…", self._browse_workspace
+        )
+        profile.addWidget(self.workspace_button)
         self.preview_section, preview = self._section("Review configuration", layout)
         self.preview = QtWidgets.QPlainTextEdit()
         self.preview.setReadOnly(True)
@@ -569,17 +619,16 @@ class McpTab(QtWidgets.QWidget):
         self.client_actions = QtWidgets.QWidget()
         buttons = QtWidgets.QHBoxLayout(self.client_actions)
         buttons.setContentsMargins(0, 0, 0, 0)
-        self.preview_button = self._button("Preview changes", self._preview_profile)
-        buttons.addWidget(self.preview_button)
         buttons.addStretch()
         self.write_profile_button = self._button(
-            "Save configuration", self._write_profile
+            "Review configuration…", self._review_or_write_profile
         )
         self.write_profile_button.setProperty("primary", True)
         buttons.addWidget(self.write_profile_button)
         self.client.currentTextChanged.connect(self._client_changed)
         self.transport.currentIndexChanged.connect(self._connection_changed)
         self.profile_path.textChanged.connect(self._invalidate_preview)
+        self.vscode_format.currentIndexChanged.connect(self._vscode_format_changed)
         self.http_port.valueChanged.connect(self._invalidate_preview)
         self.extra.textChanged.connect(self._launch_options_changed)
         self.environment_json.textChanged.connect(self._launch_options_changed)
@@ -622,7 +671,7 @@ class McpTab(QtWidgets.QWidget):
         product = self.product
         values = self.settings.get(product.key, {})
         self.description.setText(product.description)
-        self.guide.setText(f'<a href="{product.documentation}">Setup guide ↗</a>')
+        self.guide.setText(f'<a href="{product.documentation}">Documentation ↗</a>')
         selected_python = str(values.get("base_python", self._base_python()))
         if (
             not selected_python
@@ -666,8 +715,19 @@ class McpTab(QtWidgets.QWidget):
         self.context.setChecked(values.get("context", False) is True)
         self.dynamic.setChecked(values.get("dynamic", False) is True)
         self.extra.setPlainText(str(values.get("extra", "[]")))
+        self._launch_values = dict(values.get("launch_options", {}))
+        self._launch_schema = []
+        self._launch_context = None
+        self.launch_hint.setText(
+            "Expand advanced settings to read options from the installed MCP."
+        )
+        self._render_launch_options()
         self.environment_json.setPlainText(str(values.get("env", "{}")))
         self.client.setCurrentText(str(values.get("client", self.client.currentText())))
+        legacy = values.get(
+            "vscode_legacy", str(values.get("profile_path", "")).endswith("mcp.json")
+        )
+        self.vscode_format.setCurrentIndex(1 if legacy else 0)
         self._update_transports(str(values.get("transport", "stdio")))
         if "profile_path" in values:
             self.profile_path.setText(str(values["profile_path"]))
@@ -676,6 +736,8 @@ class McpTab(QtWidgets.QWidget):
         self.log.setPlainText(self._logs[product.key])
         self._loading = False
         self._requirements_changed()
+        if self.isVisible():
+            self._fetch_versions()
 
     @staticmethod
     def _port(value, default):
@@ -712,8 +774,10 @@ class McpTab(QtWidgets.QWidget):
             "context": self.context.isChecked(),
             "dynamic": self.dynamic.isChecked(),
             "extra": self.extra.toPlainText(),
+            "launch_options": dict(self._launch_values),
             "env": self.environment_json.toPlainText(),
             "client": self.client.currentText(),
+            "vscode_legacy": self.vscode_format.currentData(),
             "profile_path": self.profile_path.text().strip(),
             "transport": self._transport(),
         }
@@ -794,34 +858,83 @@ class McpTab(QtWidgets.QWidget):
         self.environment_mode.setCurrentIndex(1)
         self._requirements_changed()
 
-    def _refresh_choices(self):
-        if self.queue.active or self._preparing or self._closed:
-            return
-        preferred_python = self._base_python()
-        preferred_environment = self._selected_environment_path()
-        for combo, manual, preferred in (
-            (self.python_select, self._manual_pythons, preferred_python),
-            (self.environment_select, self._manual_environments, preferred_environment),
+    def _apply_choices(self, snapshots):
+        preferred = (self._base_python(), self._selected_environment_path())
+        self._loading = True
+        for combo, entries, manual, selected in zip(
+            (self.python_select, self.environment_select),
+            snapshots,
+            (self._manual_pythons, self._manual_environments),
+            preferred,
         ):
             with QtCore.QSignalBlocker(combo):
-                combo.populate()
+                combo.set_entries(entries)
                 for value in sorted(manual):
                     self._select_path(combo, value)
-                if preferred:
-                    self._select_path(combo, preferred)
-        self._probe_cache.clear()
+                if selected:
+                    self._select_path(combo, selected)
+        self._loading = False
+        self._discovered = True
         self._requirements_changed()
 
+    def _refresh_choices(self):
+        if (
+            self.queue.active
+            or self._preparing
+            or self._closed
+            or self._discovery_pending
+        ):
+            return
+        self._discovery_pending = True
+        self.refresh_choices_button.setEnabled(False)
+        self._background(
+            lambda: (self.python_select.discover(), self.environment_select.discover()),
+            self._choices_discovered,
+        )
+
+    @QtCore.Slot(object, object)
+    def _choices_discovered(self, snapshots, error):
+        self._discovery_pending = False
+        if self._closed:
+            return
+        self.refresh_choices_button.setEnabled(True)
+        if error:
+            self._error(f"Could not refresh environments: {error}")
+        else:
+            self._launch_context = None
+            self._apply_choices(snapshots)
+            if self.server_advanced_toggle.isChecked():
+                self._load_launch_options()
+
     def showEvent(self, event):
-        """Refresh shared selectors when returning from the other APM tabs."""
+        """Reuse APM's discovery snapshots; never run subprocesses on tab selection."""
         super().showEvent(event)
-        self._refresh_choices()
+        manager = self._manager
+        if manager is not None and hasattr(manager, "installed_table_tab"):
+            sources = (
+                manager.venv_table_tab.table,
+                manager.installed_table_tab.venv_table,
+            )
+            snapshots = tuple(
+                [(combo.itemText(i), combo.itemData(i)) for i in range(combo.count())]
+                for combo in sources
+            )
+            if snapshots != getattr(self, "_shared_choices", None):
+                self._shared_choices = snapshots
+                self._apply_choices(snapshots)
+        elif not self._discovered:
+            self._refresh_choices()
+        if self._compatibility is None and not self._compatibility_pending:
+            self._requirements_changed()
+        self._fetch_versions()
 
     def _options_changed(self):
         if self._loading:
             return
         self._invalidate_preview()
         self._refresh()
+        if self.server_advanced_toggle.isChecked():
+            self._load_launch_options()
 
     def _set_choice_enabled(self, combo, index, enabled, reason=""):
         item = combo.model().item(index)
@@ -889,6 +1002,8 @@ class McpTab(QtWidgets.QWidget):
             self._compatibility_timer.start()
         self._invalidate_preview()
         self._refresh()
+        if self.isVisible():
+            self._fetch_versions()
 
     def _check_compatibility(self):
         if self._closed or self.queue.active or self._preparing:
@@ -1022,6 +1137,27 @@ class McpTab(QtWidgets.QWidget):
             f"Requires 64-bit Python {self.product.python}. The selected release is checked before installation.",
         )
 
+    @staticmethod
+    def _readable_python(specification):
+        bounds = list(SpecifierSet(specification))
+        if all(bound.operator in (">=", ">", "<=", "<") for bound in bounds):
+            lower = [bound for bound in bounds if bound.operator.startswith(">")]
+            upper = [bound for bound in bounds if bound.operator.startswith("<")]
+            selected = (
+                [max(lower, key=lambda bound: Version(bound.version))] if lower else []
+            ) + (
+                [min(upper, key=lambda bound: Version(bound.version))] if upper else []
+            )
+            return ", ".join(
+                str(bound)
+                .replace(">=", "≥ ")
+                .replace("<=", "≤ ")
+                .replace("<", "< ")
+                .replace(">", "> ")
+                for bound in selected
+            )
+        return specification
+
     def _refresh(self):
         product = self.product
         server = self.servers[product.key]
@@ -1045,7 +1181,40 @@ class McpTab(QtWidgets.QWidget):
             self.installed_label.setText("Not installed")
             self.location_details.setText(str(error))
         compatible, hint = self._python_selection_state()
+        for spec in sorted(
+            {
+                str(SpecifierSet(self.product.python)),
+                (
+                    str(
+                        SpecifierSet(self._compatibility.release.requires_python)
+                        & SpecifierSet(self.product.python)
+                    )
+                    if self._compatibility
+                    else ""
+                ),
+            },
+            key=len,
+            reverse=True,
+        ):
+            if spec:
+                hint = hint.replace(spec, self._readable_python(spec))
         self.python_hint.setText(hint)
+        required = self.product.python
+        release_name = ""
+        if self._compatibility is not None:
+            release = self._compatibility.release
+            required = str(
+                SpecifierSet(required) & SpecifierSet(release.requires_python)
+            )
+            release_name = f" · MCP {release.version}"
+        self.python_support.setText(
+            f"{self._readable_python(required)} · 64-bit{release_name}"
+        )
+        self.python_hint.setVisible(
+            not compatible
+            or self._compatibility_pending
+            or bool(self._compatibility_error)
+        )
         self.product_select.setEnabled(not busy)
         self.install_options.setEnabled(not busy and not server.active)
         self.install_button.setText("Update / repair" if installed else "Install MCP")
@@ -1074,7 +1243,6 @@ class McpTab(QtWidgets.QWidget):
         self.package_form.setRowVisible(self.version_row, source != "branch")
         self.package_form.setRowVisible(self.branch, source == "branch")
         self.package_form.setRowVisible(self.wheelhouse_row, source == "offline")
-        self.versions_button.setVisible(source == "release")
         self.source_hint.setText(
             {
                 "release": "Latest checks PyPI again when you install.",
@@ -1111,9 +1279,11 @@ class McpTab(QtWidgets.QWidget):
             if product.http_flags
             else "Automatic connection: the coding agent starts this server."
         )
-        self.preview_button.setEnabled(installed and not busy)
-        self.write_profile_button.setEnabled(
-            self._profile_preview is not None and not busy
+        self.write_profile_button.setEnabled(installed and not busy)
+        self.write_profile_button.setToolTip(
+            "Review the configuration before saving it."
+            if self._profile_preview is None
+            else "Save the reviewed configuration and create a backup."
         )
 
     def _browse_python(self):
@@ -1147,36 +1317,62 @@ class McpTab(QtWidgets.QWidget):
         task = _Task(function)
         self._tasks.append(task)
         task.signals.completed.connect(complete)
+        task.signals.finished.connect(self._task_finished)
         QtCore.QThreadPool.globalInstance().start(task)
 
+    @QtCore.Slot(object)
+    def _task_finished(self, task):
+        if task in self._tasks:
+            self._tasks.remove(task)
+
     def _fetch_versions(self):
+        if self._closed or self.source.currentData() != "release":
+            return
         product = self.product
-        self.versions_button.setEnabled(False)
-        self.status.setText(f"Fetching {product.name} releases…")
-        self._version_product = product.key
-        self._background(lambda: available_versions(product), self._versions_fetched)
+        cached = self._versions.get(product.key)
+        if cached:
+            self._set_versions(cached[1])
+            if time.monotonic() - cached[0] < 900:
+                return
+        if product.key in self._version_pending:
+            return
+        self._version_pending.add(product.key)
+        self.version.setToolTip("Loading releases… Latest is always available.")
+
+        def fetch():
+            try:
+                return product.key, available_versions(product), None
+            except Exception as error:
+                return product.key, [], str(error)
+
+        self._background(fetch, self._versions_fetched)
+
+    def _set_versions(self, versions):
+        selected = self._version()
+        with QtCore.QSignalBlocker(self.version):
+            self.version.clear()
+            self.version.addItem("Latest", "")
+            self.version.addItems(versions)
+            if selected:
+                self.version.setCurrentText(selected)
 
     @QtCore.Slot(object, object)
-    def _versions_fetched(self, versions, error):
+    def _versions_fetched(self, result, error):
         if self._closed:
             return
-        self.versions_button.setEnabled(True)
-        if self.product.key != self._version_product:
-            return
+        # Each request carries its product key; product switches cannot mislabel releases.
+        key, versions, error = result
+        self._version_pending.discard(key)
         if error:
-            self._error(
-                f"Could not fetch versions: {error}. You can enter a version manually."
-            )
+            if self.product.key == key:
+                self.version.setToolTip(
+                    "Releases could not be loaded. Use Latest or enter a version; opening this list retries."
+                )
             return
-        selected = self._version()
-        self.version.clear()
-        self.version.addItem("Latest", "")
-        self.version.addItems(versions)
-        if selected:
-            self.version.setCurrentText(selected)
-        self.status.setText(
-            "Release list updated. Latest always checks PyPI again before installation."
-        )
+        self._versions[key] = (time.monotonic(), versions)
+        if self.product.key == key and self.source.currentData() == "release":
+            self._set_versions(versions)
+            self.version.setToolTip("Latest is resolved again on every installation.")
 
     def _install(self, upgrade, validate_only=False):
         if self.queue.active or self._preparing:
@@ -1321,7 +1517,12 @@ class McpTab(QtWidgets.QWidget):
                 "Extra arguments must be a JSON array of strings without null characters."
             )
         product = self.product
-        arguments = []
+        if self._launch_values and self._launch_context != self._launch_signature():
+            self._load_launch_options()
+            raise ValueError(
+                "Launch options are being checked for this installation. Please try again when they finish loading."
+            )
+        arguments = option_arguments(self._launch_schema, self._launch_values)
         if product.connect_flag and self.connect.isChecked():
             arguments.extend(
                 [
@@ -1343,6 +1544,181 @@ class McpTab(QtWidgets.QWidget):
         return server_arguments(
             product, transport, self.http_port.value(), [*arguments, *extra]
         )
+
+    def _launch_signature(self):
+        try:
+            return (
+                self.product.key,
+                str(self.environment),
+                installed_version(self.environment, self.product),
+            )
+        except (ValueError, OSError):
+            return None
+
+    def _load_launch_options(self):
+        signature = self._launch_signature()
+        if not signature or not signature[2]:
+            self.launch_hint.setText(
+                "Install this MCP to see its supported launch options."
+            )
+            return
+        if signature == self._launch_context or signature in self._launch_pending:
+            return
+        self._launch_context = None
+        self._launch_schema = []
+        self.launch_choice.setEnabled(False)
+        self.launch_hint.setText("Reading options from the installed MCP…")
+        self._launch_pending.add(signature)
+        product, root = self.product, self.environment
+
+        def inspect():
+            try:
+                return signature, launch_options(root, product), None
+            except Exception as error:
+                return signature, [], str(error)
+
+        self._background(inspect, self._launch_loaded)
+
+    @QtCore.Slot(object, object)
+    def _launch_loaded(self, result, error):
+        if self._closed:
+            return
+        signature, schema, error = result
+        self._launch_pending.discard(signature)
+        if signature != self._launch_signature():
+            return
+        if error:
+            self.launch_hint.setText(
+                f"{error} Custom arguments remain available below."
+            )
+            return
+        self._launch_context = signature
+        # These options already have dedicated, validated controls in APM.
+        managed = {
+            "--transport",
+            "--http-host",
+            "--http-port",
+            "--host",
+            "--connect",
+            "--connect-on-startup",
+            "--machine",
+            "--ip",
+            "--port",
+            "--graphical",
+            "--non-graphical",
+            "--include-context",
+            "--dynamic-tool-discovery",
+        }
+        self._launch_schema = [
+            option for option in schema if not managed.intersection(option["flags"])
+        ]
+        self.launch_hint.setText(
+            f"Options for installed release {signature[2]}. Transport and connection settings are managed above."
+            if schema
+            else "This MCP has no command-line launch options. Environment variables can be set below."
+        )
+        self._render_launch_options()
+
+    def _render_launch_options(self):
+        while self.launch_rows.count():
+            item = self.launch_rows.takeAt(0)
+            item.widget().deleteLater()
+        with QtCore.QSignalBlocker(self.launch_choice):
+            self.launch_choice.clear()
+            self.launch_choice.addItem("Add an option…", None)
+            for option in self._launch_schema:
+                flag = option["flags"][0]
+                if flag not in self._launch_values:
+                    self.launch_choice.addItem(
+                        flag.removeprefix("--").replace("-", " ").capitalize(), flag
+                    )
+                    self.launch_choice.setItemData(
+                        self.launch_choice.count() - 1,
+                        option["help"],
+                        QtCore.Qt.ToolTipRole,
+                    )
+        self.launch_choice.setEnabled(bool(self._launch_schema))
+        schema = {option["flags"][0]: option for option in self._launch_schema}
+        for flag, value in self._launch_values.items():
+            row = QtWidgets.QWidget()
+            layout = QtWidgets.QHBoxLayout(row)
+            layout.setContentsMargins(0, 0, 0, 0)
+            label = self._label(flag)
+            layout.addWidget(label)
+            option = schema.get(flag)
+            if not option:
+                layout.addWidget(self._label("Awaiting validation for this release"), 1)
+            elif option["kind"] == "flag":
+                layout.addWidget(self._label("Enabled"), 1)
+            else:
+                if option["choices"]:
+                    editor = self._compact_combo(QtWidgets.QComboBox())
+                    editor.addItems([str(choice) for choice in option["choices"]])
+                    editor.setCurrentText(str(value))
+                    editor.currentTextChanged.connect(
+                        lambda text, flag=flag: self._set_launch_value(flag, text)
+                    )
+                else:
+                    editor = QtWidgets.QLineEdit(
+                        json.dumps(value) if isinstance(value, list) else str(value)
+                    )
+                    editor.setPlaceholderText(
+                        'JSON array, e.g. ["value"]'
+                        if option["nargs"] in ("+", "*")
+                        or (type(option["nargs"]) is int and option["nargs"] > 0)
+                        else "Value"
+                    )
+                    editor.textChanged.connect(
+                        lambda text, flag=flag, option=option: self._edit_launch_value(
+                            flag, text, option
+                        )
+                    )
+                editor.setAccessibleName(flag)
+                editor.setToolTip(option["help"] + f"\nDefault: {option['default']}")
+                layout.addWidget(editor, 1)
+            layout.addWidget(
+                self._button(
+                    "Remove", lambda flag=flag: self._remove_launch_option(flag)
+                )
+            )
+            self.launch_rows.addWidget(row)
+
+    def _add_launch_option(self, index):
+        flag = self.launch_choice.itemData(index)
+        if not flag:
+            return
+        option = next(
+            option for option in self._launch_schema if option["flags"][0] == flag
+        )
+        self._launch_values[flag] = (
+            True if option["kind"] == "flag" else str(option["default"] or "")
+        )
+        if option["nargs"] in ("+", "*") or (
+            type(option["nargs"]) is int and option["nargs"] > 0
+        ):
+            self._launch_values[flag] = []
+        self._render_launch_options()
+        self._launch_options_changed()
+
+    def _set_launch_value(self, flag, value):
+        self._launch_values[flag] = value
+        self._launch_options_changed()
+
+    def _edit_launch_value(self, flag, text, option):
+        value = text
+        if option["nargs"] in ("+", "*") or (
+            type(option["nargs"]) is int and option["nargs"] > 0
+        ):
+            try:
+                value = json.loads(text)
+            except ValueError:
+                value = None
+        self._set_launch_value(flag, value)
+
+    def _remove_launch_option(self, flag):
+        self._launch_values.pop(flag, None)
+        self._render_launch_options()
+        self._launch_options_changed()
 
     def _environment_variables(self):
         values = json.loads(self.environment_json.toPlainText())
@@ -1410,15 +1786,23 @@ class McpTab(QtWidgets.QWidget):
 
     def _client_changed(self):
         client = self.client.currentText()
-        self.profile_path.setText(
-            "" if client == "VS Code" else str(default_profile_path(client))
-        )
-        self.profile_path.setPlaceholderText(
-            "Choose your VS Code workspace…"
-            if client == "VS Code"
-            else "Choose a configuration file…"
-        )
+        self.vscode_format.setVisible(client == "VS Code")
+        self.workspace_button.setVisible(client == "VS Code")
+        self._vscode_format_changed()
         self._update_transports()
+
+    def _vscode_format_changed(self, *_):
+        if self.client.currentText() == "VS Code" and self.vscode_format.currentData():
+            config = (
+                Path(os.environ.get("APPDATA") or Path.home() / "AppData/Roaming")
+                if os.name == "nt"
+                else Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config")
+            )
+            path = config / "Code/User/mcp.json"
+        else:
+            path = default_profile_path(self.client.currentText())
+        self.profile_path.setText(str(path))
+        self._connection_changed()
 
     def _connection_changed(self, *_):
         self.client_hint.setText(
@@ -1427,7 +1811,7 @@ class McpTab(QtWidgets.QWidget):
             else "Your coding agent starts this MCP automatically. APM can be closed afterward."
         )
         self.profile_hint.setText(
-            "Choose a workspace folder; APM writes its .vscode/mcp.json. Existing settings are preserved and backed up."
+            "Personal configuration selected. Choose a workspace for a project configuration. Current Copilot uses mcpServers; the legacy Local harness uses servers. Existing settings are preserved and backed up."
             if self.client.currentText() == "VS Code"
             else "Existing settings are preserved. A backup is saved before updating the file."
         )
@@ -1435,7 +1819,8 @@ class McpTab(QtWidgets.QWidget):
 
     def _launch_options_changed(self, *_):
         configured = (
-            any(
+            bool(self._launch_values)
+            or any(
                 field.isChecked()
                 for field in (self.graphical, self.context, self.dynamic)
             )
@@ -1449,14 +1834,17 @@ class McpTab(QtWidgets.QWidget):
         )
         self._invalidate_preview()
 
-    def _browse_profile(self):
-        if self.client.currentText() == "VS Code":
-            directory = QtWidgets.QFileDialog.getExistingDirectory(
-                self, "Select a VS Code workspace folder"
+    def _browse_workspace(self):
+        directory = QtWidgets.QFileDialog.getExistingDirectory(
+            self, "Select a VS Code workspace folder"
+        )
+        if directory:
+            relative = (
+                ".vscode/mcp.json" if self.vscode_format.currentData() else ".mcp.json"
             )
-            if directory:
-                self.profile_path.setText(str(Path(directory) / ".vscode" / "mcp.json"))
-            return
+            self.profile_path.setText(str(Path(directory) / relative))
+
+    def _browse_profile(self):
         filename, _ = QtWidgets.QFileDialog.getSaveFileName(
             self, "Choose the coding agent configuration file", self.profile_path.text()
         )
@@ -1467,7 +1855,7 @@ class McpTab(QtWidgets.QWidget):
         self._profile_preview = None
         self.preview.clear()
         self.preview_section.hide()
-        self.write_profile_button.setEnabled(False)
+        self.write_profile_button.setText("Review configuration…")
         if (
             hasattr(self, "status")
             and self.status.text() == "Review the changes, then save the configuration."
@@ -1496,6 +1884,7 @@ class McpTab(QtWidgets.QWidget):
             arguments,
             transport=transport,
             port=self.http_port.value(),
+            vscode_legacy=bool(self.vscode_format.currentData()),
         )
         # Profiles retain environment overrides for client-owned stdio processes.
         environment = self._environment_variables()
@@ -1511,7 +1900,7 @@ class McpTab(QtWidgets.QWidget):
                 client = self.client.currentText()
                 container = (
                     "servers"
-                    if client == "VS Code"
+                    if client == "VS Code" and self.vscode_format.currentData()
                     else "mcp" if client == "OpenCode" else "mcpServers"
                 )
                 field = "environment" if client == "OpenCode" else "env"
@@ -1521,7 +1910,14 @@ class McpTab(QtWidgets.QWidget):
         self.preview_section.show()
         self._profile_preview = (path, original, rendered)
         self.write_profile_button.setEnabled(True)
+        self.write_profile_button.setText("Save reviewed configuration")
         self.status.setText("Review the changes, then save the configuration.")
+
+    def _review_or_write_profile(self):
+        if self._profile_preview is None:
+            self._preview_profile()
+        else:
+            self._write_profile()
 
     def _write_profile(self):
         if self._profile_preview is None:
@@ -1533,7 +1929,7 @@ class McpTab(QtWidgets.QWidget):
             + (f" Backup: {backup}" if backup else "")
         )
         self._profile_preview = None
-        self.write_profile_button.setEnabled(False)
+        self.write_profile_button.setText("Review configuration…")
 
     def shutdown(self, save_settings=True):
         """Stop owned processes and persist the selected product's settings."""

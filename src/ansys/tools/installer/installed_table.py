@@ -68,6 +68,7 @@ class DataComboBox(QtWidgets.QComboBox):
         installed_python=False,
         installed_forge=False,
         created_venv=False,
+        populate_on_init=True,
     ):
         """Initialize the dropdown by populating it."""
         super().__init__(parent)
@@ -82,9 +83,13 @@ class DataComboBox(QtWidgets.QComboBox):
         self.installed_forge = installed_forge
         self.created_venv = created_venv
 
+        self.destroyed.connect(self.stop)
         self._destroyed = False
         self._locked = True
-        self.populate()
+        if populate_on_init:
+            self.populate()
+        else:
+            self._locked = False
         self.signal_update.connect(self.populate)
 
     def update(self, timeout=1.0):
@@ -103,59 +108,44 @@ class DataComboBox(QtWidgets.QComboBox):
 
     def populate(self):
         """Populate the dropdown."""
-        self._locked = True
-        self.clear()
+        self.set_entries(self.discover())
 
+    def discover(self):
+        """Collect entries without accessing Qt, allowing background discovery."""
+        entries = []
+        groups = []
+        if self.installed_python or self.installed_forge:
+            groups = [("Python", find_all_python()), ("Conda", find_miniforge())]
+        elif self.created_venv:
+            groups = [("", get_all_python_venv())]
+        for prefix, inventory in groups:
+            for path, (version, admin) in inventory.items():
+                name = f"{prefix} {version}" if prefix else version
+                badge = "  [admin]" if admin else ""
+                entries.append(
+                    (
+                        f"{name}{badge}  —  {path}",
+                        {
+                            "version": name,
+                            "admin": str(admin),
+                            "path": path,
+                        },
+                    )
+                )
+        if self.created_venv and not entries:
+            entries.append(
+                ("None", {"version": "None", "admin": "None", "path": "None"})
+            )
+        return entries
+
+    def set_entries(self, entries):
+        """Apply a discovery snapshot on the GUI thread."""
         if self._destroyed:
             return
-
-        # Check for python & conda forge versions
-        if self.installed_python or self.installed_forge:
-            LOG.debug("Populating the dropdown with python and conda forge versions.")
-            python_lst = find_all_python()
-            conda_lst = find_miniforge()
-
-            for path, (version, admin) in python_lst.items():
-                admin_badge = "  [admin]" if admin else ""
-                label = f"Python {version}{admin_badge}  —  {path}"
-                self.addItem(label)
-                idx = self.count() - 1
-                self.setItemData(
-                    idx,
-                    {"version": f"Python {version}", "admin": str(admin), "path": path},
-                )
-                self.setItemData(idx, path, QtCore.Qt.ItemDataRole.ToolTipRole)
-
-            for path, (version, admin) in conda_lst.items():
-                admin_badge = "  [admin]" if admin else ""
-                label = f"Conda {version}{admin_badge}  —  {path}"
-                self.addItem(label)
-                idx = self.count() - 1
-                self.setItemData(
-                    idx,
-                    {"version": f"Conda {version}", "admin": str(admin), "path": path},
-                )
-                self.setItemData(idx, path, QtCore.Qt.ItemDataRole.ToolTipRole)
-
-        elif self.created_venv:
-            LOG.debug("Populating the dropdown with virtual environments.")
-            venv_lst = get_all_python_venv()
-            if not venv_lst:
-                self.addItem("None")
-                self.setItemData(
-                    0, {"version": "None", "admin": "None", "path": "None"}
-                )
-            else:
-                for path, (version, admin) in venv_lst.items():
-                    label = f"{version}  —  {path}"
-                    self.addItem(label)
-                    idx = self.count() - 1
-                    self.setItemData(
-                        idx, {"version": version, "admin": str(admin), "path": path}
-                    )
-                    self.setItemData(idx, path, QtCore.Qt.ItemDataRole.ToolTipRole)
-
-        self.destroyed.connect(self.stop)
+        self.clear()
+        for label, data in entries:
+            self.addItem(label, data)
+            self.setItemData(self.count() - 1, data["path"], QtCore.Qt.ToolTipRole)
         self._locked = False
 
     def stop(self):

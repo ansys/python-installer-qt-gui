@@ -36,11 +36,7 @@ from ansys.tools.installer.mcp_profiles import (
 
 @pytest.mark.parametrize("client", CLIENTS)
 def test_merge_preserves_other_mcp_and_settings(client, tmp_path):
-    container = (
-        "servers"
-        if client == "VS Code"
-        else "mcp" if client == "OpenCode" else "mcpServers"
-    )
+    container = "mcp" if client == "OpenCode" else "mcpServers"
     original = (
         "# user comment\nmodel = 'example'\n[mcp_servers.other]\ncommand = 'keep'\n"
         if client == "Codex"
@@ -88,6 +84,28 @@ command = 'keep'
     }
     assert data["mcp_servers"]["other"]["command"] == "keep"
     assert "# retained" in rendered
+
+
+def test_vscode_current_and_legacy_formats_and_personal_default(tmp_path):
+    current = json.loads(render_profile("VS Code", "", PRODUCTS[0], "server", []))
+    assert current["mcpServers"]["pyaedt-mcp"]["type"] == "stdio"
+    legacy = json.loads(
+        render_profile(
+            "VS Code", '{"inputs":[]}', PRODUCTS[0], "server", [], vscode_legacy=True
+        )
+    )
+    assert legacy["servers"]["pyaedt-mcp"]["type"] == "stdio"
+    assert legacy["inputs"] == []
+    assert (
+        default_profile_path("VS Code", home=tmp_path, environ={})
+        == tmp_path / ".copilot/mcp-config.json"
+    )
+    assert (
+        default_profile_path(
+            "VS Code", home=tmp_path, environ={"COPILOT_HOME": str(tmp_path / "custom")}
+        )
+        == tmp_path / "custom/mcp-config.json"
+    )
 
 
 @pytest.mark.parametrize(
