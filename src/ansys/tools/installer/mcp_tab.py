@@ -71,11 +71,17 @@ class _Task(QtCore.QRunnable):
 
     def run(self):
         try:
-            self.signals.completed.emit(self.function(), None)
-        except Exception as error:
-            self.signals.completed.emit(None, str(error))
-        finally:
+            result, error = self.function(), None
+        except Exception as failure:
+            result, error = None, str(failure)
+        try:
+            self.signals.completed.emit(result, error)
             self.signals.finished.emit(self)
+        except RuntimeError as error:
+            # QApplication can destroy signal objects while a metadata request
+            # finishes during shutdown. There is no remaining UI to notify.
+            if "deleted" not in str(error):
+                raise
 
 
 class _ReleaseCombo(QtWidgets.QComboBox):

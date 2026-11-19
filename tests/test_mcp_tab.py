@@ -34,7 +34,7 @@ from ansys.tools.installer import installed_table, mcp_backend
 from ansys.tools.installer.mcp_backend import console_executable, installed_version
 from ansys.tools.installer.mcp_catalog import PRODUCT_BY_KEY
 from ansys.tools.installer.mcp_releases import ReleaseInfo
-from ansys.tools.installer.mcp_tab import McpTab
+from ansys.tools.installer.mcp_tab import McpTab, _Task
 
 
 @pytest.fixture(autouse=True)
@@ -82,6 +82,24 @@ def _select(tab, key):
             tab.product_select.setCurrentIndex(index)
             return
     raise AssertionError(key)
+
+
+@pytest.mark.parametrize("fails", [False, True])
+def test_metadata_task_finishes_safely_after_qt_teardown(qapp, fails):
+    import shiboken6
+
+    calls = []
+
+    def finish():
+        calls.append(True)
+        if fails:
+            raise ValueError("Request finished after application shutdown")
+        return ["1.0"]
+
+    task = _Task(finish)
+    shiboken6.delete(task.signals)
+    task.run()
+    assert calls == [True]
 
 
 def test_environment_discovery_never_blocks_tab_selection(tab, qtbot, monkeypatch):
