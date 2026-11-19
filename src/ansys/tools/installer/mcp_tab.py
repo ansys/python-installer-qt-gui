@@ -593,7 +593,15 @@ class McpTab(QtWidgets.QWidget):
         self.vscode_format.addItem("Copilot harness (current)", False)
         self.vscode_format.addItem("Local harness (legacy)", True)
         self.vscode_format.setAccessibleName("VS Code configuration format")
-        profile.addWidget(self.vscode_format)
+        self.vscode_controls = QtWidgets.QWidget()
+        vscode_row = QtWidgets.QHBoxLayout(self.vscode_controls)
+        vscode_row.setContentsMargins(0, 0, 0, 0)
+        vscode_row.addWidget(self.vscode_format, 1)
+        self.workspace_button = self._button(
+            "Choose workspace…", self._browse_workspace
+        )
+        vscode_row.addWidget(self.workspace_button)
+        profile.addWidget(self.vscode_controls)
         self.profile_path = QtWidgets.QLineEdit()
         self.profile_path.setAccessibleName("Coding agent configuration file")
         profile.addWidget(
@@ -601,10 +609,6 @@ class McpTab(QtWidgets.QWidget):
         )
         self.profile_hint = self._label()
         profile.addWidget(self.profile_hint)
-        self.workspace_button = self._button(
-            "Choose workspace…", self._browse_workspace
-        )
-        profile.addWidget(self.workspace_button)
         self.preview_section, preview = self._section("Review configuration", layout)
         self.preview = QtWidgets.QPlainTextEdit()
         self.preview.setReadOnly(True)
@@ -729,7 +733,7 @@ class McpTab(QtWidgets.QWidget):
         )
         self.vscode_format.setCurrentIndex(1 if legacy else 0)
         self._update_transports(str(values.get("transport", "stdio")))
-        if "profile_path" in values:
+        if str(values.get("profile_path", "")).strip():
             self.profile_path.setText(str(values["profile_path"]))
         self.server_advanced_toggle.setChecked(False)
         self.install_advanced_toggle.setChecked(False)
@@ -738,6 +742,8 @@ class McpTab(QtWidgets.QWidget):
         self._requirements_changed()
         if self.isVisible():
             self._fetch_versions()
+            if self._launch_values:
+                self._load_launch_options()
 
     @staticmethod
     def _port(value, default):
@@ -927,6 +933,8 @@ class McpTab(QtWidgets.QWidget):
         if self._compatibility is None and not self._compatibility_pending:
             self._requirements_changed()
         self._fetch_versions()
+        if self._launch_values:
+            self._load_launch_options()
 
     def _options_changed(self):
         if self._loading:
@@ -1786,6 +1794,7 @@ class McpTab(QtWidgets.QWidget):
 
     def _client_changed(self):
         client = self.client.currentText()
+        self.vscode_controls.setVisible(client == "VS Code")
         self.vscode_format.setVisible(client == "VS Code")
         self.workspace_button.setVisible(client == "VS Code")
         self._vscode_format_changed()
@@ -1811,7 +1820,11 @@ class McpTab(QtWidgets.QWidget):
             else "Your coding agent starts this MCP automatically. APM can be closed afterward."
         )
         self.profile_hint.setText(
-            "Personal configuration selected. Choose a workspace for a project configuration. Current Copilot uses mcpServers; the legacy Local harness uses servers. Existing settings are preserved and backed up."
+            (
+                "Legacy VS Code user profile. Choose workspace for a project setup. Existing settings are preserved and backed up."
+                if self.vscode_format.currentData()
+                else "Personal Copilot configuration, shared with Copilot CLI. Choose workspace for a project setup. Existing settings are preserved and backed up."
+            )
             if self.client.currentText() == "VS Code"
             else "Existing settings are preserved. A backup is saved before updating the file."
         )

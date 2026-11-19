@@ -135,6 +135,20 @@ def test_ansys_python_discovery_is_hidden_and_bounded(monkeypatch):
     assert calls == [{"text": True, "creationflags": 0x08000000, "timeout": 10}]
 
 
+def test_previously_blank_vscode_destination_gets_a_personal_default(qtbot, tmp_path):
+    (tmp_path / "settings.json").write_text(
+        json.dumps({"pyaedt": {"client": "VS Code", "profile_path": ""}}),
+        encoding="utf-8",
+    )
+    widget = McpTab(directory=tmp_path)
+    qtbot.addWidget(widget)
+    try:
+        assert Path(widget.profile_path.text()).name == "mcp-config.json"
+        assert widget.vscode_format.currentData() is False
+    finally:
+        widget.shutdown(save_settings=False)
+
+
 def test_release_dropdown_automatic_cache_and_stale_results(tab, qtbot, monkeypatch):
     calls = []
     monkeypatch.setattr(
