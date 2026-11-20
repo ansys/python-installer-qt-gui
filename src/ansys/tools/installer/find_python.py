@@ -35,6 +35,7 @@ from ansys.tools.installer.linux_functions import (
     find_miniforge_linux,
     is_linux_os,
 )
+from ansys.tools.installer.mcp_backend import application_directory
 
 # only used on windows
 try:
@@ -143,7 +144,10 @@ def _find_installed_ansys_python_win():
             if os.path.exists(path):
                 try:
                     version_output = subprocess.check_output(
-                        [f"{path}\\python.exe", "--version"], text=True
+                        [f"{path}\\python.exe", "--version"],
+                        text=True,
+                        creationflags=subprocess.CREATE_NO_WINDOW,
+                        timeout=10,
                     ).strip()
                     version = version_output.split()[1]
                     paths[path] = (version, False)
@@ -175,7 +179,7 @@ def _find_installed_python_linux():
     LOG.debug("Identifying all installed versions of python on Linux")
 
     pythons = {}
-    version_names = ["python", "python3"] + [f"python3.{i}" for i in range(7, 13)]
+    version_names = ["python", "python3"] + [f"python3.{i}" for i in range(7, 15)]
     previous_found_version = ""
 
     for version_name in version_names:
@@ -249,7 +253,11 @@ def get_all_python_venv():
     paths = {}
     script_path = "bin" if is_linux_os() else "Scripts"
     configure = ConfigureJson()
-    for venv_dir in configure.venv_search_path:
+    search_paths = [
+        *configure.venv_search_path,
+        str(application_directory() / "environments"),
+    ]
+    for venv_dir in dict.fromkeys(search_paths):
         try:
             for venv_dir_name in os.listdir(venv_dir):
                 if os.path.isfile(

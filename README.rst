@@ -28,6 +28,10 @@ Ansys Python Manager (QT)
 This is a simple cross-platform `QT <https://www.qt.io/>`_ application
 you can use to install Python and (optional) PyAnsys packages.
 
+The **PyAnsys MCPs** tab also installs and manages the public PyAnsys MCP
+servers, their isolated environments, HTTP processes, and coding-agent profiles.
+See the `MCP management guide <https://installer.docs.pyansys.com/version/dev/mcp.html>`_.
+
 .. image:: images/app-image.png
    :align: center
    :alt: Screenshot of Python Installer application

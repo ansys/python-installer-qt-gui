@@ -15,8 +15,9 @@ dependencies = [
     "PyGithub",
     "appdirs",
     "requests",
-    "PySide6",
+    "PySide6>=6.7",
     "ansys-tools-common",
+    "tomlkit>=0.13,<1",
     "setuptools; python_version >= '3.12'",
 ]
 classifiers = [
@@ -36,6 +37,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 tests = [
+    "tomlkit==0.13.3",
     "packaging==26.3",
     "PyGithub==2.10.0",
     "appdirs==1.4.4",
@@ -55,6 +57,7 @@ doc = [
     "sphinx_toolbox==4.3.1",
 ]
 freeze = [
+    "tomlkit==0.13.3",
     "pyinstaller==6.22.3",
     "packaging==26.3",
     "PyGithub==2.10.0",

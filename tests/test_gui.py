@@ -23,11 +23,13 @@
 from PySide6 import QtWidgets
 import pytest
 
+from ansys.tools.installer import mcp_tab
 from ansys.tools.installer.main import AnsysPythonInstaller
 
 
 @pytest.fixture
-def gui(qtbot):
+def gui(qtbot, monkeypatch, tmp_path):
+    monkeypatch.setattr(mcp_tab, "application_directory", lambda: tmp_path / "mcp")
     installer = AnsysPythonInstaller(show=False)
     qtbot.addWidget(installer)
     yield installer
