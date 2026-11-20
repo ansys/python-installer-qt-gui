@@ -66,7 +66,9 @@ Install a server
 #. Select a product in **PyAnsys MCPs**, then open **Installation**.
 #. Under **Python environment**, keep **Dedicated environment (recommended)**
    and use **Select Python version**, the same dropdown used by
-   **Create virtual environments**. APM creates an isolated environment for the MCP.
+   **Create virtual environments**. The selector remains available after installation.
+   Selecting another Python creates or reuses a separate dedicated environment;
+   the previous environment is preserved.
 #. To reuse a virtual or conda environment, choose **Existing virtual environment**.
    **Available virtual environments** uses the same discovery as
    **Manage Python environments**. System Python installations are rejected as
@@ -87,14 +89,14 @@ failed installation is never reported as successful.
 enabled, including when an older version is already installed. It never
 substitutes an older MCP release to accommodate an unsupported Python. If the
 version check cannot reach PyPI, installation stops without changing the
-environment. An explicit version remains available for reproducible setups. Opening the
-version dropdown loads releases automatically. APM caches this list for
+environment. Choose an explicit version from the dropdown for reproducible setups; the
+version field cannot be edited. Opening it loads releases automatically. APM caches this list for
 15 minutes; **Latest** still performs a fresh check before installation.
 
 The Python dropdowns update for the selected product, source, and release.
 APM checks the actual interpreter version and architecture against the exact
-release requirements. Unsupported choices cannot be selected; their tooltips
-explain the requirements. A compatible Python is selected for a new dedicated environment;
+release requirements. Unsupported discovered Python versions are hidden from the normal dropdown.
+Virtual environments remain visible with compatibility information. A compatible Python is selected for a new dedicated environment;
 an existing environment is never silently replaced by another selection.
 Late responses from an earlier selection cannot change the current choices.
 Installation always checks the requirements again before making changes.
@@ -103,6 +105,12 @@ Returning to this tab reuses the choices already discovered by the other APM
 tabs. **Refresh** scans in the background without blocking navigation. Use
 **Other locations and details** to add a Python executable or an environment
 outside the configured search folders, or to inspect the full environment path.
+Manually added Python interpreters remain visible even outside the documented
+product range. For those explicit selections, the release's own ``Requires-Python``
+metadata and the 64-bit requirement still apply. APM never silently replaces
+an explicit interpreter with another Python. A release that requires Python
+3.12 cannot be installed on Python 3.9 through this option.
+
 Existing incompatible environments are preserved; create a supported
 environment in **Create virtual environments** and select it here.
 
@@ -116,10 +124,11 @@ and provide a directory of
 wheels or a wheelhouse ZIP. Include the chosen MCP package and all dependencies,
 including build dependencies if distributing source packages. Wheels must
 match the target operating system, architecture, and Python version. The
-manager passes ``--no-index`` to pip and does not fetch version metadata
-automatically. Git sources are unavailable in offline mode. ZIP extraction
+manager passes ``--no-index`` to pip and does not query PyPI.
+Git sources are unavailable in offline mode. ZIP extraction
 rejects traversal paths and symbolic links.
-In offline mode, **Latest** means the newest stable MCP wheel in the selected
+The version dropdown automatically lists versions found in the selected folder
+or ZIP. In offline mode, **Latest** means the newest stable MCP wheel in the selected
 wheelhouse; the manager does not contact PyPI.
 
 Connect a coding agent
@@ -174,7 +183,13 @@ Click **Review configuration**, review the complete merged document, then click
 **Save reviewed configuration**. The same button guides both steps; editing
 any connection setting requires a new review. The review section opens when a preview is available;
 the actions stay visible below the page. The manager preserves unrelated entries,
-backs up existing files, and replaces the destination atomically. It refuses
+backs up existing files, and replaces the destination atomically. Existing
+product entries are updated under their current names, including recognized
+aliases such as ``pymechanical`` and ``pymechanical-mcp``. Matching aliases
+are consolidated, and repeated saves do not add duplicate servers. Tool
+restrictions, timeouts, unrelated environment variables, and other preferences
+are retained. If several custom entries launch the same product, APM refuses
+to guess which one to replace. It refuses
 to overwrite a file changed after preview. Codex TOML comments are preserved.
 JSON files must be strict JSON: files containing comments or duplicate keys
 are rejected without modification. Merge the preview manually when a client
@@ -182,6 +197,11 @@ uses JSON with comments. Reload or restart the coding agent after saving.
 Codex profiles include a 60-second startup timeout for MCP imports on a cold
 environment. The command and argument fields follow the
 `official Codex MCP configuration <https://developers.openai.com/codex/mcp/>`_.
+
+New OpenCode profiles follow the current V2 ``mcp.servers`` layout. Existing
+V1 files with server entries directly under ``mcp`` keep their layout; mixed
+V1/V2 files require manual migration. These formats follow the
+`OpenCode MCP reference <https://opencode.ai/docs/mcp-servers/>`_.
 
 The generated profiles reference the selected environment. Regenerate them
 after changing the environment or connection settings. An HTTP profile uses

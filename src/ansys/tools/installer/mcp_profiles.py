@@ -69,6 +69,95 @@ def _unique_object(pairs):
     return data
 
 
+def _profile_keys(servers, product):
+    def normalized(name):
+        return "".join(char for char in name.casefold() if char.isalnum())
+
+    aliases = {
+        normalized(name)
+        for name in (
+            product.key,
+            f"{product.key}-mcp",
+            product.package,
+            product.package.removeprefix("ansys-"),
+        )
+    }
+    keys = [key for key in servers if normalized(key) in aliases]
+    if keys:
+        canonical = f"{product.key}-mcp"
+        return sorted(keys, key=lambda key: key != canonical)
+    module = product.package.replace("-", ".")
+    for key, value in servers.items():
+        if not isinstance(value, dict):
+            continue
+        command = value.get("command", "")
+        argv = (
+            [*command]
+            if isinstance(command, list)
+            else [command, *value.get("args", [])]
+        )
+        launcher = any(
+            isinstance(token, str)
+            and token.replace("\\", "/").rsplit("/", 1)[-1].removesuffix(".exe")
+            == product.package
+            for token in argv
+        )
+        module_launch = any(
+            argv[i : i + 2] == ["-m", module] for i in range(len(argv) - 1)
+        )
+        if launcher or module_launch:
+            keys.append(key)
+    if len(keys) > 1:
+        raise ValueError(
+            f"Multiple custom configurations launch {product.name}. Select or consolidate the intended entry in the file before reviewing; no changes were made."
+        )
+    return keys
+
+
+def _merge_missing(target, source):
+    for key, value in source.items():
+        if key not in target:
+            target[key] = value
+        elif isinstance(target[key], dict) and isinstance(value, dict):
+            _merge_missing(target[key], value)
+
+
+def _server_container(data, client, vscode_legacy=False):
+    name = (
+        "mcp_servers"
+        if client == "Codex"
+        else (
+            "servers"
+            if client == "VS Code" and vscode_legacy
+            else "mcp" if client == "OpenCode" else "mcpServers"
+        )
+    )
+    servers = data.setdefault(name, tomlkit.table() if client == "Codex" else {})
+    if not isinstance(servers, dict):
+        raise ValueError(f"{name} must contain an object/table.")
+    if client == "OpenCode":
+        # Existing V1 files retain their layout; new files use the V2 schema.
+        legacy = any(
+            key != "servers"
+            and isinstance(value, dict)
+            and (
+                value.get("type") in ("local", "remote")
+                or "command" in value
+                or "url" in value
+            )
+            for key, value in servers.items()
+        )
+        if "servers" in servers and legacy:
+            raise ValueError(
+                "OpenCode configuration mixes V1 and V2 layouts. Migrate it before reviewing; no changes were made."
+            )
+        if not legacy:
+            servers = servers.setdefault("servers", {})
+            if not isinstance(servers, dict):
+                raise ValueError("mcp.servers must contain an object.")
+    return servers
+
+
 def render_profile(
     client,
     original,
@@ -79,8 +168,9 @@ def render_profile(
     transport="stdio",
     port=8080,
     vscode_legacy=False,
+    environment=None,
 ):
-    """Return a merged JSON/TOML document for review before installation."""
+    """Merge a single product while preserving other servers and user preferences."""
     if client not in CLIENTS:
         raise ValueError("Unknown MCP client.")
     if transport not in ("stdio", "http"):
@@ -89,53 +179,76 @@ def render_profile(
         raise ValueError(f"{product.name} only supports stdio.")
     if transport == "http" and client == "Claude Desktop":
         raise ValueError("Use stdio for Claude Desktop's local configuration file.")
-    url = f"http://127.0.0.1:{port}/mcp"
-    key = f"{product.key}-mcp"
-    command = str(executable)
-    if client == "Codex":
-        data = tomlkit.parse(original)
-        servers = data.setdefault("mcp_servers", tomlkit.table())
-        if not isinstance(servers, dict):
-            raise ValueError("mcp_servers must be a TOML table.")
-        servers[key] = (
-            {"url": url}
-            if transport == "http"
-            else {"command": command, "args": list(arguments)}
-        )
-        servers[key]["startup_timeout_sec"] = 60
-        return tomlkit.dumps(data)
     data = (
-        json.loads(original, object_pairs_hook=_unique_object)
-        if original.strip()
-        else {}
+        tomlkit.parse(original)
+        if client == "Codex"
+        else (
+            json.loads(original, object_pairs_hook=_unique_object)
+            if original.strip()
+            else {}
+        )
     )
     if not isinstance(data, dict):
-        raise ValueError("The client configuration must contain a JSON object.")
-    container = (
-        "servers"
-        if client == "VS Code" and vscode_legacy
-        else "mcp" if client == "OpenCode" else "mcpServers"
-    )
-    servers = data.setdefault(container, {})
-    if not isinstance(servers, dict):
-        raise ValueError(f"The {container} section must contain a JSON object.")
-    if client == "OpenCode":
-        profile = (
-            {"type": "remote", "url": url}
-            if transport == "http"
-            else {"type": "local", "command": [command, *arguments]}
+        raise ValueError("The client configuration must contain an object.")
+    servers = _server_container(data, client, vscode_legacy)
+    matches = _profile_keys(servers, product)
+    key = matches[0] if matches else f"{product.key}-mcp"
+    profile = servers.setdefault(key, tomlkit.table() if client == "Codex" else {})
+    if not isinstance(profile, dict):
+        raise ValueError(f"The existing {key} entry must contain an object/table.")
+    for duplicate in matches[1:]:
+        if not isinstance(servers[duplicate], dict):
+            raise ValueError(
+                f"The existing {duplicate} entry must contain an object/table."
+            )
+        _merge_missing(profile, servers[duplicate])
+        del servers[duplicate]
+    if transport == "stdio":
+        for field in (
+            "url",
+            "headers",
+            "http_headers",
+            "env_http_headers",
+            "bearer_token_env_var",
+            "oauth",
+            "type",
+        ):
+            profile.pop(field, None)
+        profile["command"] = (
+            [str(executable), *arguments] if client == "OpenCode" else str(executable)
         )
-    elif transport == "http":
-        profile = {"type": "http", "url": url}
-    else:
-        profile = {"command": command, "args": list(arguments)}
-        if client == "VS Code":
-            profile["type"] = "stdio"
-        elif client == "Copilot CLI":
+        if client == "OpenCode":
+            profile.pop("args", None)
             profile["type"] = "local"
+        else:
+            profile["args"] = list(arguments)
+            if client in ("VS Code", "Copilot CLI"):
+                profile["type"] = "local" if client == "Copilot CLI" else "stdio"
+        if environment:
+            field = "environment" if client == "OpenCode" else "env"
+            overrides = profile.setdefault(field, {})
+            if not isinstance(overrides, dict):
+                raise ValueError(f"{key}.{field} must contain an object/table.")
+            overrides.update(environment)
+    else:
+        for field in (
+            "command",
+            "args",
+            "env",
+            "environment",
+            "env_vars",
+            "cwd",
+            "type",
+        ):
+            profile.pop(field, None)
+        profile["url"] = f"http://127.0.0.1:{port}/mcp"
+        if client in ("VS Code", "Copilot CLI", "OpenCode"):
+            profile["type"] = "remote" if client == "OpenCode" else "http"
+    if client == "Codex":
+        profile.setdefault("startup_timeout_sec", 60)
+        return tomlkit.dumps(data)
     if client == "Copilot CLI":
-        profile["tools"] = ["*"]
-    servers[key] = profile
+        profile.setdefault("tools", ["*"])
     return json.dumps(data, indent=2, ensure_ascii=False) + "\n"
 
 

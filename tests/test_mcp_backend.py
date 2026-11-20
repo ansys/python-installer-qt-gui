@@ -33,6 +33,88 @@ from ansys.tools.installer.mcp_catalog import PRODUCT_BY_KEY, PRODUCTS
 from ansys.tools.installer.mcp_releases import PythonInfo
 
 
+def test_dedicated_environments_follow_selected_python_without_replacing_others(
+    tmp_path,
+):
+    first = tmp_path / "python313" / "python.exe"
+    second = tmp_path / "python314" / "python.exe"
+    product = PRODUCTS[0]
+    root = backend.managed_environment(tmp_path, product, first)
+    interpreter = backend.python_executable(root)
+    interpreter.parent.mkdir(parents=True)
+    interpreter.touch()
+    (root / "pyvenv.cfg").write_text(f"executable = {first}\n", encoding="utf-8")
+    marker = root / "preserve.txt"
+    marker.write_text("first environment")
+    alternate = backend.managed_environment(tmp_path, product, second)
+    assert alternate != root and alternate.parent == root.parent
+    assert backend.managed_environment(tmp_path, product, first) == root
+    assert backend.managed_environment(tmp_path, product, second) == alternate
+    assert marker.read_text() == "first environment"
+    # Creating a venv from another venv must not retarget it after installation.
+    creator = (
+        tmp_path
+        / "creator"
+        / ("Scripts" if sys.platform == "win32" else "bin")
+        / "python.exe"
+    )
+    creator.parent.mkdir(parents=True)
+    (creator.parent.parent / "pyvenv.cfg").write_text(
+        f"executable = {first}\n", encoding="utf-8"
+    )
+    (root / "pyvenv.cfg").write_text(f"executable = {creator}\n", encoding="utf-8")
+    assert backend.managed_environment(tmp_path, product, creator) == root
+    assert backend.managed_environment(tmp_path, product, first) == root
+
+
+def test_manual_python_uses_release_requirements_without_silent_fallback(
+    tmp_path, monkeypatch
+):
+    from ansys.tools.installer import mcp_releases
+    from ansys.tools.installer.mcp_releases import ReleaseInfo
+
+    python = tmp_path / "python39.exe"
+    python.touch()
+    info = PythonInfo(str(python), "3.9.13", 64)
+    monkeypatch.setattr(mcp_releases, "inspect_python", lambda path: info)
+    monkeypatch.setattr(
+        backend,
+        "resolve_release",
+        lambda *a, **k: (ReleaseInfo("old", ">=3.8", "example==1"), None),
+    )
+    monkeypatch.setattr(
+        backend,
+        "_installed_pythons",
+        lambda: pytest.fail("Explicit Python must not be silently replaced"),
+    )
+    with pytest.raises(ValueError, match="requires"):
+        backend.prepare_installation(
+            PRODUCTS[0], tmp_path / "target", python, allow_fallback=False
+        )
+    plan = backend.prepare_installation(
+        PRODUCTS[0],
+        tmp_path / "target",
+        python,
+        allow_fallback=False,
+        enforce_catalog_python=False,
+    )
+    assert plan.interpreter == info and plan.creating_environment
+    assert not any("--ignore-requires-python" in command for command in plan.commands)
+    monkeypatch.setattr(
+        backend,
+        "resolve_release",
+        lambda *a, **k: (ReleaseInfo("new", ">=3.13", "example==2"), None),
+    )
+    with pytest.raises(ValueError, match="requires"):
+        backend.prepare_installation(
+            PRODUCTS[0],
+            tmp_path / "target",
+            python,
+            allow_fallback=False,
+            enforce_catalog_python=False,
+        )
+
+
 @pytest.mark.parametrize("product", PRODUCTS, ids=lambda product: product.key)
 def test_launch_contract(product):
     if product.key == "pylumerical":

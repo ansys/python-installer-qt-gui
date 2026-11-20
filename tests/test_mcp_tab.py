@@ -52,8 +52,14 @@ def discovered_environments(monkeypatch):
     )
     monkeypatch.setattr(installed_table, "find_miniforge", lambda: {})
     monkeypatch.setattr(installed_table, "get_all_python_venv", lambda: {})
+    real_versions = mcp_backend.available_versions
     monkeypatch.setattr(
-        "ansys.tools.installer.mcp_tab.available_versions", lambda product: ["1.0"]
+        "ansys.tools.installer.mcp_tab.available_versions",
+        lambda product, **options: (
+            real_versions(product, **options)
+            if options.get("wheelhouse")
+            else ["2.0", "1.0"]
+        ),
     )
     monkeypatch.setattr(
         mcp_backend,
@@ -74,6 +80,12 @@ def tab(qtbot, tmp_path):
         lambda: QtCore.QThreadPool.globalInstance().activeThreadCount() == 0,
         timeout=10000,
     )
+
+
+def _pick_version(tab, version):
+    if tab.version.findText(version) < 0:
+        tab.version.addItem(version)
+    tab.version.setCurrentText(version)
 
 
 def _select(tab, key):
@@ -177,7 +189,7 @@ def test_release_dropdown_automatic_cache_and_stale_results(tab, qtbot, monkeypa
     qtbot.waitUntil(lambda: tab.version.findText("9.2") >= 0)
     tab.version.requested.emit()
     assert calls == ["pyaedt"]
-    tab.version.setCurrentText("9.1")
+    _pick_version(tab, "9.1")
     tab._versions_fetched(("pymechanical", ["8.0"], None), None)
     assert tab.version.currentText() == "9.1" and tab.version.findText("8.0") < 0
     tab.source.setCurrentIndex(2)
@@ -185,7 +197,7 @@ def test_release_dropdown_automatic_cache_and_stale_results(tab, qtbot, monkeypa
     tab.version.requested.emit()
     assert calls == before
     tab.source.setCurrentIndex(0)
-    assert tab.version.currentText() == "9.1"
+    assert tab.version.currentText() == "Latest"
 
 
 def test_installed_launch_controls_validate_and_invalidate_profile(tab, monkeypatch):
@@ -302,7 +314,7 @@ def test_offline_install_through_ui_and_profile_preview(tab, qtbot, tmp_path):
     tab.select_python(sys.executable)
     tab.source.setCurrentIndex(2)
     tab.wheelhouse_path.setText(str(wheels))
-    tab.version.setCurrentText("0.0.0")
+    _pick_version(tab, "0.0.0")
     tab._install(False)
     qtbot.waitUntil(lambda: not tab._preparing and not tab.queue.active, timeout=90000)
     assert console_executable(
@@ -421,7 +433,10 @@ def test_exact_release_updates_python_choices_dynamically(
     assert not tab.python_select.model().item(0).isEnabled()
     assert tab.python_select.model().item(1).isEnabled()
     assert not tab.python_select.model().item(2).isEnabled()
-    tab.version.setCurrentText("2.0")
+    assert tab.python_select.view().isRowHidden(0)
+    assert not tab.python_select.view().isRowHidden(1)
+    assert tab.python_select.view().isRowHidden(2)
+    _pick_version(tab, "2.0")
     qtbot.waitUntil(
         lambda: tab._compatibility is not None
         and tab._compatibility.release.version == "2.0",
@@ -430,6 +445,8 @@ def test_exact_release_updates_python_choices_dynamically(
     assert tab._base_python() == str(paths[2])
     assert tab.python_select.model().item(2).isEnabled()
     assert not tab.python_select.model().item(1).isEnabled()
+    assert not tab.python_select.view().isRowHidden(2)
+    assert tab.python_select.view().isRowHidden(1)
 
 
 def test_late_compatibility_response_cannot_replace_current_selection(tab):
@@ -437,7 +454,7 @@ def test_late_compatibility_response_cannot_replace_current_selection(tab):
 
     revision = tab._compatibility_revision
     stale = Compatibility(ReleaseInfo("old", ">=3.13", "old"), {}, {}, {})
-    tab.version.setCurrentText("2.0")
+    _pick_version(tab, "2.0")
     tab._compatibility_checked((revision, stale, ""), None)
     assert tab._compatibility is None
     assert tab.version.currentText() == "2.0"
@@ -514,8 +531,8 @@ def test_existing_dedicated_environment_displays_its_actual_python(
     tab.show()
     qtbot.waitUntil(lambda: tab._compatibility is not None, timeout=10000)
     assert "3.13.9" in tab.managed_python_info.text()
-    assert tab.python_select.isHidden()
-    assert tab.python_caption.text() == "Python version"
+    assert not tab.python_select.isHidden()
+    assert tab.python_caption.text() == "Select Python version"
 
 
 def test_actions_stay_visible_with_logs_and_previews(tab, qtbot):
@@ -558,7 +575,7 @@ def test_existing_environment_without_pip_is_bootstrapped(tab, qtbot, tmp_path):
     tab.select_environment(existing)
     tab.source.setCurrentIndex(2)
     tab.wheelhouse_path.setText(str(wheels))
-    tab.version.setCurrentText("0.0.0")
+    _pick_version(tab, "0.0.0")
     tab._install(False)
     qtbot.waitUntil(lambda: not tab._preparing and not tab.queue.active, timeout=90000)
     assert "completed" in tab.status.text(), tab.log.toPlainText()
@@ -606,6 +623,32 @@ def test_latest_is_default_for_every_product(tab):
         tab.product_select.setCurrentIndex(index)
         assert tab.version.currentText() == "Latest"
         assert tab._version() == ""
+
+
+def test_release_version_is_strict_dropdown_and_offline_versions_load_automatically(
+    tab, qtbot, tmp_path, monkeypatch
+):
+    _select(tab, "pymechanical")
+    assert not tab.version.isEditable() and tab.version.lineEdit() is None
+    wheels = tmp_path / "wheels"
+    _wheel(wheels, "0.0.0")
+    _wheel(wheels, "0.0.1")
+    monkeypatch.setattr(
+        mcp_backend.requests,
+        "get",
+        lambda *a, **k: pytest.fail("Offline version lists must not use the network"),
+    )
+    tab.source.setCurrentIndex(2)
+    tab.wheelhouse_path.setText(str(wheels))
+    tab.version.requested.emit()
+    qtbot.waitUntil(lambda: tab.version.findText("0.0.1") >= 0)
+    assert [tab.version.itemText(i) for i in range(tab.version.count())] == [
+        "Latest",
+        "0.0.1",
+        "0.0.0",
+    ]
+    tab.version.setCurrentText("unpublished")
+    assert tab.version.currentText() == "Latest"
 
 
 @pytest.mark.skipif(sys.version_info < (3, 12), reason="MCP interpreter baseline")

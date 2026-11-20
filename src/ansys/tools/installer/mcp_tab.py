@@ -39,7 +39,9 @@ from ansys.tools.installer.mcp_backend import (
     atomic_write,
     available_versions,
     console_executable,
+    environment_base_python,
     installed_version,
+    managed_environment,
     package_requirement,
     prepare_installation,
     python_executable,
@@ -170,7 +172,7 @@ class McpTab(QtWidgets.QWidget):
                     "No virtual environment found. Create one in Create virtual environments."
                 )
             return self._environment_root(value)
-        return self.directory / "environments" / self.product.key
+        return managed_environment(self.directory, self.product, self._base_python())
 
     def _custom_environment(self):
         return self.environment_mode.currentData() == "existing"
@@ -416,7 +418,7 @@ class McpTab(QtWidgets.QWidget):
         self.package_form.addRow("Install from", self.source)
         self.version = _ReleaseCombo()
         self.version.requested.connect(self._fetch_versions)
-        self.version.setEditable(True)
+        self.version.setEditable(False)
         self.version.addItem("Latest", "")
         self.version.setToolTip("Latest is resolved again on every installation.")
         self.version_row = QtWidgets.QWidget()
@@ -446,6 +448,11 @@ class McpTab(QtWidgets.QWidget):
             self._button("Add virtual environment…", self._browse_environment)
         )
         advanced.addLayout(manual)
+        advanced.addWidget(
+            self._label(
+                "Manual Python selections can fall outside the documented range. The MCP package's own Python requirements still apply."
+            )
+        )
         layout.addWidget(self.install_options)
         layout.addStretch()
         self.install_actions = QtWidgets.QWidget()
@@ -462,6 +469,7 @@ class McpTab(QtWidgets.QWidget):
         self.environment_mode.currentIndexChanged.connect(self._options_changed)
         for combo in (self.python_select, self.environment_select):
             combo.currentIndexChanged.connect(self._options_changed)
+        self.python_select.currentIndexChanged.connect(self._requirements_changed)
         self.source.currentIndexChanged.connect(self._requirements_changed)
         self.version.currentTextChanged.connect(self._requirements_changed)
         self.branch.textChanged.connect(self._requirements_changed)
@@ -682,7 +690,12 @@ class McpTab(QtWidgets.QWidget):
         values = self.settings.get(product.key, {})
         self.description.setText(product.description)
         self.guide.setText(f'<a href="{product.documentation}">Documentation ↗</a>')
+        legacy_python = environment_base_python(
+            self.directory / "environments" / product.key
+        )
         selected_python = str(values.get("base_python", self._base_python()))
+        if legacy_python and not values.get("managed_selection", False):
+            selected_python = legacy_python
         if (
             not selected_python
             and self._manager is not None
@@ -694,7 +707,9 @@ class McpTab(QtWidgets.QWidget):
         if not selected_python and not getattr(sys, "frozen", False):
             selected_python = sys.executable
         if selected_python:
-            self.select_python(selected_python)
+            self.select_python(
+                selected_python, manual=values.get("manual_python", False) is True
+            )
         selected_environment = str(values.get("environment", ""))
         if selected_environment:
             self._manual_environments.add(selected_environment)
@@ -771,6 +786,8 @@ class McpTab(QtWidgets.QWidget):
         index = self.product_select.currentIndex() if index is None else index
         self.settings[PRODUCTS[index].key] = {
             "base_python": self._base_python(),
+            "managed_selection": True,
+            "manual_python": self._base_python() in self._manual_pythons,
             "custom": self._custom_environment(),
             "environment": self._selected_environment_path(),
             "source": "branch" if self.source.currentData() == "branch" else "release",
@@ -857,9 +874,10 @@ class McpTab(QtWidgets.QWidget):
         combo.setItemData(combo.count() - 1, target, QtCore.Qt.ToolTipRole)
         combo.setCurrentIndex(combo.count() - 1)
 
-    def select_python(self, executable):
+    def select_python(self, executable, manual=True):
         """Select an interpreter using the same discovered choices as Create environments."""
-        self._manual_pythons.add(str(executable))
+        if manual:
+            self._manual_pythons.add(self._python_choice(executable))
         self._select_path(self.python_select, executable)
         self._requirements_changed()
 
@@ -962,6 +980,13 @@ class McpTab(QtWidgets.QWidget):
         combo.setItemText(index, label if enabled else f"Unavailable · {label}")
         data = combo.itemData(index) or {}
         combo.setItemData(index, reason or data.get("path", ""), QtCore.Qt.ToolTipRole)
+        if combo is self.python_select:
+            manual = self._choice_executable(combo, index) in self._manual_pythons
+            item.setEnabled(enabled or manual)
+            item.setSelectable(enabled or manual)
+            combo.view().setRowHidden(index, not enabled and not manual)
+            if manual and not enabled:
+                combo.setItemText(index, f"Manual · {label}")
 
     def _choose_supported_python(self):
         combo = self.python_select
@@ -1029,7 +1054,11 @@ class McpTab(QtWidgets.QWidget):
             for combo in (self.python_select, self.environment_select)
             for index in range(combo.count())
         ]
-        managed = self.directory / "environments" / product.key
+        managed = (
+            self.environment
+            if not self._custom_environment()
+            else self.directory / "environments" / product.key
+        )
         if python_executable(managed).is_file():
             paths.append(str(python_executable(managed)))
         offline = self.source.currentData() == "offline"
@@ -1120,6 +1149,22 @@ class McpTab(QtWidgets.QWidget):
                 & SpecifierSet(self.product.python)
             )
             info = self._compatibility.interpreters.get(executable)
+            manual = (
+                not self._custom_environment()
+                and self._base_python() in self._manual_pythons
+            )
+            if manual:
+                required = release.requires_python
+                probe = self._compatibility.probes.get(executable)
+                if (
+                    probe
+                    and probe[1].bits == 64
+                    and Version(probe[1].version) in SpecifierSet(required)
+                ):
+                    return (
+                        True,
+                        f"Manual Python {probe[1].version}. This release requires Python {self._readable_python(required)}; package dependencies are checked during installation.",
+                    )
             if info is not None:
                 if existing.is_file() and not self._custom_environment():
                     return True, f"{release.version} requires 64-bit Python {required}."
@@ -1220,6 +1265,11 @@ class McpTab(QtWidgets.QWidget):
             required = str(
                 SpecifierSet(required) & SpecifierSet(release.requires_python)
             )
+            if (
+                not self._custom_environment()
+                and self._base_python() in self._manual_pythons
+            ):
+                required = release.requires_python
             release_name = f" · MCP {release.version}"
         self.python_support.setText(
             f"{self._readable_python(required)} · 64-bit{release_name}"
@@ -1228,6 +1278,10 @@ class McpTab(QtWidgets.QWidget):
             not compatible
             or self._compatibility_pending
             or bool(self._compatibility_error)
+            or (
+                not self._custom_environment()
+                and self._base_python() in self._manual_pythons
+            )
         )
         self.product_select.setEnabled(not busy)
         self.install_options.setEnabled(not busy and not server.active)
@@ -1240,11 +1294,9 @@ class McpTab(QtWidgets.QWidget):
         self.progress.setVisible(busy)
         self.managed_panel.setVisible(not self._custom_environment())
         self.existing_panel.setVisible(self._custom_environment())
-        self.python_select.setEnabled(not managed_exists)
-        self.python_select.setVisible(not managed_exists)
-        self.python_caption.setText(
-            "Python version" if managed_exists else "Select Python version"
-        )
+        self.python_select.setEnabled(True)
+        self.python_select.setVisible(True)
+        self.python_caption.setText("Select Python version")
         self.managed_python_info.setVisible(managed_exists)
         if managed_exists:
             probe = self._probe_cache.get(str(python_executable(root)))
@@ -1340,24 +1392,41 @@ class McpTab(QtWidgets.QWidget):
             self._tasks.remove(task)
 
     def _fetch_versions(self):
-        if self._closed or self.source.currentData() != "release":
+        if self._closed or self.source.currentData() == "branch":
             return
         product = self.product
-        cached = self._versions.get(product.key)
+        key = self._version_key()
+        if key is None:
+            self._set_versions([])
+            return
+        wheelhouse = (
+            self.wheelhouse_path.text().strip()
+            if self.source.currentData() == "offline"
+            else None
+        )
+        cached = self._versions.get(key)
         if cached:
             self._set_versions(cached[1])
             if time.monotonic() - cached[0] < 900:
                 return
-        if product.key in self._version_pending:
+        if key in self._version_pending:
             return
-        self._version_pending.add(product.key)
+        self._version_pending.add(key)
         self.version.setToolTip("Loading releases… Latest is always available.")
 
         def fetch():
             try:
-                return product.key, available_versions(product), None
+                return (
+                    key,
+                    (
+                        available_versions(product, wheelhouse=wheelhouse)
+                        if wheelhouse
+                        else available_versions(product)
+                    ),
+                    None,
+                )
             except Exception as error:
-                return product.key, [], str(error)
+                return key, [], str(error)
 
         self._background(fetch, self._versions_fetched)
 
@@ -1370,6 +1439,14 @@ class McpTab(QtWidgets.QWidget):
             if selected:
                 self.version.setCurrentText(selected)
 
+    def _version_key(self):
+        if self.source.currentData() != "offline":
+            return self.product.key
+        path = Path(self.wheelhouse_path.text().strip())
+        if not self.wheelhouse_path.text().strip() or not path.exists():
+            return None
+        return (self.product.key, str(path.absolute()), path.stat().st_mtime_ns)
+
     @QtCore.Slot(object, object)
     def _versions_fetched(self, result, error):
         if self._closed:
@@ -1378,14 +1455,17 @@ class McpTab(QtWidgets.QWidget):
         key, versions, error = result
         self._version_pending.discard(key)
         if error:
-            if self.product.key == key:
+            if self._version_key() == key:
                 self.version.setToolTip(
-                    "Releases could not be loaded. Use Latest or enter a version; opening this list retries."
+                    "Releases could not be loaded. Use Latest; opening this list retries."
                 )
             return
         self._versions[key] = (time.monotonic(), versions)
-        if self.product.key == key and self.source.currentData() == "release":
+        if self._version_key() == key and self.source.currentData() != "branch":
+            previous = self._version()
             self._set_versions(versions)
+            if previous != self._version():
+                self._requirements_changed()
             self.version.setToolTip("Latest is resolved again on every installation.")
 
     def _install(self, upgrade, validate_only=False):
@@ -1409,6 +1489,9 @@ class McpTab(QtWidgets.QWidget):
             branch=branch,
             custom=self._install_custom,
             upgrade=upgrade,
+            allow_fallback=False,
+            enforce_catalog_python=self._custom_environment()
+            or self._base_python() not in self._manual_pythons,
         )
         if offline:
             source_path = self.wheelhouse_path.text().strip()
@@ -1904,27 +1987,8 @@ class McpTab(QtWidgets.QWidget):
             transport=transport,
             port=self.http_port.value(),
             vscode_legacy=bool(self.vscode_format.currentData()),
+            environment=self._environment_variables(),
         )
-        # Profiles retain environment overrides for client-owned stdio processes.
-        environment = self._environment_variables()
-        if environment and transport == "stdio":
-            if self.client.currentText() == "Codex":
-                import tomlkit
-
-                data = tomlkit.parse(rendered)
-                data["mcp_servers"][f"{self.product.key}-mcp"]["env"] = environment
-                rendered = tomlkit.dumps(data)
-            else:
-                data = json.loads(rendered)
-                client = self.client.currentText()
-                container = (
-                    "servers"
-                    if client == "VS Code" and self.vscode_format.currentData()
-                    else "mcp" if client == "OpenCode" else "mcpServers"
-                )
-                field = "environment" if client == "OpenCode" else "env"
-                data[container][f"{self.product.key}-mcp"][field] = environment
-                rendered = json.dumps(data, indent=2) + "\n"
         self.preview.setPlainText(rendered)
         self.preview_section.show()
         self._profile_preview = (path, original, rendered)

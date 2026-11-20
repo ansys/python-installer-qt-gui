@@ -35,6 +35,158 @@ from ansys.tools.installer.mcp_profiles import (
 
 
 @pytest.mark.parametrize("client", CLIENTS)
+@pytest.mark.parametrize("transport", ["stdio", "http"])
+def test_repeated_updates_preserve_named_entry_preferences_and_do_not_duplicate(
+    client, transport
+):
+    if client == "Claude Desktop" and transport == "http":
+        pytest.skip("Claude Desktop uses stdio")
+    product = PRODUCTS[1]
+    original = (
+        "# Keep this comment\nmodel = 'example'\n[mcp_servers.pymechanical]\ncommand = 'old'\nenabled = false\ntool_timeout_sec = 99\n[mcp_servers.pymechanical.env]\nKEEP = 'original'\n[mcp_servers.other]\ncommand = 'unrelated'\n"
+        if client == "Codex"
+        else json.dumps(
+            {
+                "setting": 42,
+                "mcp" if client == "OpenCode" else "mcpServers": {
+                    "pymechanical": {
+                        "command": ["old"] if client == "OpenCode" else "old",
+                        "type": "local",
+                        "disabled": True,
+                        "tools": ["allowed_tool"],
+                        "environment" if client == "OpenCode" else "env": {
+                            "KEEP": "original"
+                        },
+                    },
+                    "other": {"command": "unrelated"},
+                },
+            }
+        )
+    )
+    first = render_profile(
+        client,
+        original,
+        product,
+        "new",
+        ["--transport", "stdio"],
+        transport=transport,
+        environment={"ADD": "value"},
+    )
+    second = render_profile(
+        client,
+        first,
+        product,
+        "new",
+        ["--transport", "stdio"],
+        transport=transport,
+        environment={"ADD": "value"},
+    )
+    assert second == first
+    data = tomlkit.parse(second) if client == "Codex" else json.loads(second)
+    servers = data[
+        (
+            "mcp_servers"
+            if client == "Codex"
+            else "mcp" if client == "OpenCode" else "mcpServers"
+        )
+    ]
+    assert set(servers) == {"pymechanical", "other"}
+    entry = servers["pymechanical"]
+    assert servers["other"]["command"] == "unrelated"
+    if client == "Codex":
+        assert (
+            "# Keep this comment" in second
+            and entry["enabled"] is False
+            and entry["tool_timeout_sec"] == 99
+        )
+    else:
+        assert (
+            data["setting"] == 42
+            and entry["disabled"] is True
+            and entry["tools"] == ["allowed_tool"]
+        )
+    if transport == "stdio":
+        assert entry["environment" if client == "OpenCode" else "env"] == {
+            "KEEP": "original",
+            "ADD": "value",
+        }
+    else:
+        assert (
+            "env" not in entry and "environment" not in entry and "command" not in entry
+        )
+
+
+def test_official_aliases_consolidate_and_custom_launcher_names_are_reused():
+    product = PRODUCTS[1]
+    text = json.dumps(
+        {
+            "mcpServers": {
+                "pymechanical-mcp": {"command": "old", "disabled": True},
+                "ansys-mechanical-mcp": {"env": {"KEEP": "yes"}},
+                "other": {"command": "keep"},
+            }
+        }
+    )
+    result = json.loads(render_profile("Cursor", text, product, "new", []))[
+        "mcpServers"
+    ]
+    assert set(result) == {"pymechanical-mcp", "other"}
+    assert result["pymechanical-mcp"]["disabled"] is True
+    assert result["pymechanical-mcp"]["env"] == {"KEEP": "yes"}
+    text = json.dumps(
+        {
+            "mcpServers": {
+                "my_solver_tools": {"command": "uvx", "args": ["ansys-mechanical-mcp"]}
+            }
+        }
+    )
+    result = json.loads(render_profile("Cursor", text, product, "new", []))[
+        "mcpServers"
+    ]
+    assert set(result) == {"my_solver_tools"}
+    text = json.dumps(
+        {
+            "mcpServers": {
+                "one": {"command": "ansys-mechanical-mcp"},
+                "two": {"command": "ansys-mechanical-mcp"},
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="Multiple custom"):
+        render_profile("Cursor", text, product, "new", [])
+
+
+def test_opencode_new_profiles_use_v2_and_legacy_profiles_keep_v1():
+    for transport, expected in (
+        ("stdio", {"type": "local", "command": ["server", "--example"]}),
+        ("http", {"type": "remote", "url": "http://127.0.0.1:8080/mcp"}),
+    ):
+        data = json.loads(
+            render_profile(
+                "OpenCode",
+                "",
+                PRODUCTS[0],
+                "server",
+                ["--example"],
+                transport=transport,
+            )
+        )
+        assert data == {"mcp": {"servers": {"pyaedt-mcp": expected}}}
+    text = '{"mcp":{"pyaedt-mcp":{"type":"local","command":["old"]}}}'
+    result = json.loads(render_profile("OpenCode", text, PRODUCTS[0], "new", []))
+    assert "servers" not in result["mcp"]
+    assert result["mcp"]["pyaedt-mcp"]["command"] == ["new"]
+    with pytest.raises(ValueError, match="mixes V1 and V2"):
+        render_profile(
+            "OpenCode",
+            '{"mcp":{"servers":{},"old":{"type":"local","command":["old"]}}}',
+            PRODUCTS[0],
+            "new",
+            [],
+        )
+
+
+@pytest.mark.parametrize("client", CLIENTS)
 def test_merge_preserves_other_mcp_and_settings(client, tmp_path):
     container = "mcp" if client == "OpenCode" else "mcpServers"
     original = (

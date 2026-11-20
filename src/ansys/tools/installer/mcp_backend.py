@@ -22,7 +22,7 @@
 
 """Installation plans and persistent settings independent of the Qt UI."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from email.parser import Parser
 import json
 import os
@@ -107,6 +107,61 @@ def console_executable(directory, product, windows=None):
         / ("Scripts" if windows else "bin")
         / (product.package + (".exe" if windows else ""))
     )
+
+
+def managed_environment(directory, product, base_python):
+    """Reuse a matching legacy venv or isolate a different base interpreter."""
+    root = Path(directory) / "environments" / product.key
+    selected = str(Path(base_python).expanduser().absolute()) if base_python else ""
+
+    def origin(executable):
+        seen = set()
+        while (
+            executable
+            and executable not in seen
+            and Path(executable).parent.name.lower() in ("scripts", "bin")
+        ):
+            seen.add(executable)
+            executable = (
+                environment_base_python(Path(executable).parent.parent) or executable
+            )
+        # Resolve only for identity comparison; launch commands retain the
+        # original venv path so its environment is never bypassed.
+        return str(Path(executable).resolve()) if executable else ""
+
+    selected = origin(selected)
+    original = environment_base_python(root)
+    original = origin(original)
+    if (
+        not python_executable(root).is_file()
+        or not selected
+        or not original
+        or os.path.normcase(original) == os.path.normcase(selected)
+    ):
+        return root
+    import hashlib
+
+    identity = hashlib.sha256(os.path.normcase(selected).encode("utf-8")).hexdigest()[
+        :12
+    ]
+    return root.with_name(f"{product.key}-{identity}")
+
+
+def environment_base_python(directory):
+    """Read a venv's creator without running an interpreter or changing files."""
+    config = Path(directory) / "pyvenv.cfg"
+    try:
+        text = config.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return ""
+    values = dict(line.split("=", 1) for line in text.splitlines() if "=" in line)
+    values = {key.strip().lower(): value.strip() for key, value in values.items()}
+    executable = values.get("executable")
+    if not executable and values.get("home"):
+        executable = str(
+            Path(values["home"]) / ("python.exe" if os.name == "nt" else "python")
+        )
+    return str(Path(executable).expanduser().absolute()) if executable else ""
 
 
 def installed_version(directory, product):
@@ -261,6 +316,8 @@ def prepare_installation(
     wheelhouse=None,
     extract_to=None,
     upgrade=False,
+    allow_fallback=True,
+    enforce_catalog_python=True,
 ):
     """Resolve the requested release and supported Python before mutating an environment."""
     release, offline = resolve_release(
@@ -271,12 +328,17 @@ def prepare_installation(
         wheelhouse=wheelhouse,
         extract_to=extract_to,
     )
+    validation_product = (
+        product if enforce_catalog_python else replace(product, python="")
+    )
     root = Path(directory).expanduser().absolute()
     existing = python_executable(root)
     creating = not existing.is_file()
     if not creating:
         try:
-            interpreter = validate_python(inspect_python(existing), product, release)
+            interpreter = validate_python(
+                inspect_python(existing), validation_product, release
+            )
         except ValueError as error:
             raise ValueError(
                 f"{error}\nThis existing environment was preserved. Create a supported "
@@ -288,13 +350,15 @@ def prepare_installation(
         )
     else:
         try:
-            interpreter = compatible_python(product, release, base_python)
+            interpreter = compatible_python(validation_product, release, base_python)
         except ValueError:
+            if not allow_fallback:
+                raise
             interpreter = compatible_python(
-                product, release, base_python, _installed_pythons()
+                validation_product, release, base_python, _installed_pythons()
             )
     commands = installation_commands(
-        product,
+        validation_product,
         root,
         interpreter.executable,
         release.requirement,
@@ -332,8 +396,31 @@ def resolve_release(
     return release, offline
 
 
-def available_versions(product):
+def available_versions(product, wheelhouse=None):
     """Fetch non-yanked stable versions with a bounded, verified HTTPS request."""
+    if wheelhouse is not None:
+        from packaging.utils import canonicalize_name, parse_wheel_filename
+
+        path = Path(wheelhouse)
+        if path.is_dir():
+            names = [p.name for p in path.glob("*.whl")]
+        else:
+            with zipfile.ZipFile(path) as archive:
+                names = archive.namelist()
+        versions = set()
+        for name in names:
+            if not name.endswith(".whl"):
+                continue
+            try:
+                package, version, _build, _tags = parse_wheel_filename(Path(name).name)
+            except ValueError:
+                continue
+            if (
+                package == canonicalize_name(product.package)
+                and not version.is_prerelease
+            ):
+                versions.add(version)
+        return [str(version) for version in sorted(versions, reverse=True)]
     response = requests.get(f"https://pypi.org/pypi/{product.package}/json", timeout=20)
     response.raise_for_status()
     return sorted(
