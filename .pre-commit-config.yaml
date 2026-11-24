@@ -1,9 +1,3 @@
-# Integration with GitHub Actions
-# See https://pre-commit.ci/
-ci:
-    autofix_prs: true
-    autoupdate_schedule: weekly
-
 repos:
 - repo: https://github.com/pycqa/isort
   rev: eb62da318ea543b82340f3d0a52bc0509c7e626e  # frozen: 10.0.0b3
