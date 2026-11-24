@@ -2,12 +2,16 @@ ANSYS
 Ansys
 Ansys Python Manager
 ansys
+coreutils
 metapackage
 miniforge
 PyAnsys
 Python
+Pythonic
 python
 Spyder
 Synopsys
 synopsys
+Untar
 Windows
+zlib
