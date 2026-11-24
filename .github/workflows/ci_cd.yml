@@ -24,13 +24,32 @@ jobs:
     name: "Documentation style"
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/doc-style@v11
+      - uses: ansys/actions/doc-style@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  code-style:
+    name: Code Style Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push the fixes applied by the hooks
+      pull-requests: write # Required to comment on issues that cannot be fixed automatically
+    env:
+      GH_ACTOR_EMAIL: ${{ github.actor }}@users.noreply.github.com
+    steps:
+      - name: PyAnsys code style checks
+        uses: ansys/actions/code-style@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          commit-changes: true
+          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME || github.actor }}
+          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL || env.GH_ACTOR_EMAIL }}
+          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN || github.token }}
 
   tests:
     name: "Tests"
     runs-on: windows-latest
+    needs: [code-style]
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
@@ -44,9 +63,9 @@ jobs:
         run: sudo apt install libegl1
 
       - name: Setup headless display
-        uses: pyvista/setup-headless-display-action@v5
+        uses: pyvista/setup-headless-display-action@10e6efb97af3cd1523828f0e22c39f0e4567f3e4 # v5.2.0
 
-      - uses: ansys/actions/tests-pytest@v11
+      - uses: ansys/actions/tests-pytest@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -56,7 +75,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Build project documentation
-        uses: ansys/actions/doc-build@v11
+        uses: ansys/actions/doc-build@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           dependencies: "libegl1"
@@ -67,7 +86,7 @@ jobs:
     needs: [doc-build]
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: ansys/actions/doc-deploy-dev@v11
+      - uses: ansys/actions/doc-deploy-dev@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
@@ -78,10 +97,10 @@ jobs:
     name: "Build Application"
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install the latest version of uv and set the python version
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           cache-dependency-glob: '**/pyproject.toml'
@@ -116,7 +135,7 @@ jobs:
       - name: List output
         run: ls -R dist
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Python-Installer-windows
           path: dist/*Setup*.exe
@@ -130,10 +149,10 @@ jobs:
     name: "Build Application Linux - Ubuntu ${{ matrix.os }}"
     runs-on: ubuntu-${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install the latest version of uv and set the python version
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           cache-dependency-glob: '**/pyproject.toml'
@@ -226,7 +245,7 @@ jobs:
           echo "OS_VERSION_PROCESSED=$os_version_processed" >> $GITHUB_ENV
           zip -r Ansys-Python-Manager_linux_${os_version_processed}_${{ env.APPLICATION_VERSION }}.zip  ansys_python_manager.deb installer.sh postInstallScript.sh
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Python-Installer-ubuntu_${{ matrix.os }}
           path: |
@@ -246,7 +265,7 @@ jobs:
         DEBIAN_FRONTEND: 'noninteractive'
         TZ: 'Etc/UTC'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Update and Install development tools - Fedora
         if: contains(matrix.os, 'fedora')
@@ -333,7 +352,7 @@ jobs:
           ls -l ${{ env.GITHUB_WORKSPACE }}/src/ansys/tools/installer/assets/python-asset/${{ env.FOLDER_NAME }}
 
       - name: Install the latest version of uv and set the python version
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           cache-dependency-glob: '**/pyproject.toml'
@@ -395,7 +414,7 @@ jobs:
           zip -r ${{ env.GITHUB_WORKSPACE }}/Ansys-Python-Manager_linux_${{ env.OS_VERSION_PROCESSED }}_${version}.zip ansys_python_manager_Fedora.rpm installer_Fedora.sh updater_Fedora.sh
           ls -l ${{ env.GITHUB_WORKSPACE }}
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Python-Installer-${{ env.OS_VERSION_PROCESSED }}
           path: |
@@ -409,12 +428,12 @@ jobs:
       labels: [self-hosted, Windows, signtool]
     steps:
       - name: Checkout the SignTool
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ansys/signtool-ansys-apps
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Python-Installer-windows
           path: signtool/installer
@@ -428,14 +447,14 @@ jobs:
           $filename = (get-ChildItem installer -recurse | where {$_.name -like "*Setup*"}).Name
           $jobname = $filename -replace ".{4}$"
           .\SynSign.exe sign `
-            --signUrl https://csign.ansys.com `
-            -r gh_signtool_account `
+            --signUrl https://csign.internal.synopsys.com `
+            -r svc-gh_signtool `
             -s '${{ secrets.SIGNTOOL_PWD }}' `
             -n $jobname `
             -i installer/$filename `
             -o installer/$filename
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: Python-Installer-windows-signed
           path: signtool/installer/*Setup*.exe
@@ -454,7 +473,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Automerge PRs
-        uses: ansys/actions/hk-automerge-prs@v11
+        uses: ansys/actions/hk-automerge-prs@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
         with:
           approver: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
           approver-token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
@@ -468,32 +487,32 @@ jobs:
       - build-application-linux-non-debian
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Python-Installer-windows-signed
           path: installer-signed
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Python-Installer-windows
           path: installer
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Python-Installer-ubuntu_24.04
           path: installer
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Python-Installer-ubuntu_22.04
           path: installer
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Python-Installer-centos_stream9
           path: installer
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: Python-Installer-fedora_40
           path: installer
@@ -508,7 +527,7 @@ jobs:
           cd -
 
       - name: Release to GitHub
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           files: |
             installer/*.zip
@@ -523,7 +542,7 @@ jobs:
     needs: [release, doc-build]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@v11
+        uses: ansys/actions/doc-deploy-stable@5a91d7c2c4da2e86f2b3b62ba62daad189a6b77c # v11.2.0
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
