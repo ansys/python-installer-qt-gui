@@ -6,46 +6,46 @@ ci:
 
 repos:
 - repo: https://github.com/pycqa/isort
-  rev: 10.0.0b3
+  rev: eb62da318ea543b82340f3d0a52bc0509c7e626e  # frozen: 10.0.0b3
   hooks:
   - id: isort
     args:
       - --line-length=88
 
 - repo: https://github.com/psf/black-pre-commit-mirror
-  rev: 26.10.1
+  rev: a5439e9af2ff9371297bb1a76a01b8ad17989b88  # frozen: 26.10.1
   hooks:
   - id: black
     args:
       - --line-length=88
 
 - repo: https://github.com/keewis/blackdoc
-  rev: v0.4.6
+  rev: e0a93fd51e54ef9bf8547a527e9fa14cae17deb0  # frozen: v0.4.6
   hooks:
   - id: blackdoc
     files: '\.py$'
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.5.0
+  rev: 960c1d286190804104f7255b97da034446fdaac3  # frozen: 7.5.0
   hooks:
   - id: flake8
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.4.3
+  rev: 57b21406f092110c18776e39b0bda50d37c945c8  # frozen: v2.4.3
   hooks:
   - id: codespell
     args: ["--toml", "pyproject.toml"]
     additional_dependencies: ["tomli"]
 
 - repo: https://github.com/pycqa/pydocstyle
-  rev: 6.3.0
+  rev: 07f6707e2c5612960347f7c00125620457f490a7  # frozen: 6.3.0
   hooks:
   - id: pydocstyle
     additional_dependencies: [tomli]
     exclude: "tests/"
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v6.0.0
+  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
   hooks:
   - id: check-merge-conflict
   - id: debug-statements
@@ -54,12 +54,12 @@ repos:
 
 # this validates our github workflow files
 - repo: https://github.com/python-jsonschema/check-jsonschema
-  rev: 0.39.0
+  rev: 39478bf2c099a58683d3f1aedf675105318b078d  # frozen: 0.39.0
   hooks:
     - id: check-github-workflows
 
 - repo: https://github.com/ansys/pre-commit-hooks
-  rev: v0.8.1
+  rev: 5040e1fffc2867225e12b55a15e11d207663f1a6  # frozen: v0.8.4
   hooks:
   - id: add-license-headers
     args:
