@@ -448,7 +448,7 @@ jobs:
           $jobname = $filename -replace ".{4}$"
           .\SynSign.exe sign `
             --signUrl https://csign.internal.synopsys.com `
-            -r gh_signtool_account `
+            -r svc-gh_signtool `
             -s '${{ secrets.SIGNTOOL_PWD }}' `
             -n $jobname `
             -i installer/$filename `
